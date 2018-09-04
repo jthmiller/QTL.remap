@@ -12,11 +12,11 @@ test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 ## inactivate karl's summary.cross(). It takes way too long
 
 ## read in the QTL cross
-cross.18.0 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
+cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
 
 ## Change phenotype to 0/1
-cross.18 <- fix.pheno(cross.18.0) ## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
+cross.18 <- fix.pheno(cross.18) ## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
 
 ## Remove problematic individuals
 subset.ind <- cross.18$pheno$ID[!cross.18$pheno$ID %in% inds]
@@ -36,7 +36,7 @@ cross.18 <- distort(cross.18,0.005)
 ## Keep markers close to QTLs
 qtl.index <-  which(test.QTLs$chrm.n == X)
 
-## These markers should not be filtered
+## These markers should not be filtered (close to a QTL)
 tokeep <- unlist(sapply(qtl.index,function(Z){
     markerList <- list()
     markerList[[Z]] <- keepQTL(Z,i=cross.18)
@@ -44,7 +44,6 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
     }
   )
 )
-
 print('forming all linkage groups')
 cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=10, reorgMarkers=TRUE)
 
