@@ -90,12 +90,15 @@ cross.18 <- distort.18(cross.18,0.05)
 cross.18 <- drop.missing.18(cross.18,missing=missing)
 
 print('order filtered markers. Takes awhile...')
-cross.18 <- orderMarkers(cross.18,chr=X,window=7,use.ripple=T,error.prob=0.002, map.function='kosambi',sex.sp=F)
+print(paste('# of markers =',nmar(cross.18)))
+cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
+  error.prob=0.002, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-3)
 
 print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=F)
 
 print('Dropping 5% of markers that inflate the map. Takes a long time...')
+print(paste('# of markers =',nmar(cross.18)))
 ## Drop one marker, p is proportion  of worst markers to drop
 cross.18 <- dropone.par(cross.18,p=0.05,chr=X,maxit=2,
   sex.sp = F,verbose=F,parallel=T)
@@ -104,6 +107,7 @@ print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 print('Re-setimating map from filtered data')
+print(paste('# of markers =',nmar(cross.18)))
 POS.map.18 <- est.map(cross.18,error.prob=0.002,map.function="kosambi",n.cluster=6, chr=X)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
