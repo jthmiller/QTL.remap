@@ -2,7 +2,7 @@
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
 ## Load a couple fixed rQTL functions
-source(file.path(basedir,'rQTL/scripts/custom_rQTL_functions.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/custom_rQTL_functions.R'))
 
 marker.density <- function(cross,gt.1){
   index <- gsub('\\:.*','',rownames(gt.1))==X
