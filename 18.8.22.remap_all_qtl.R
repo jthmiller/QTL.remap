@@ -44,6 +44,7 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
     }
   )
 )
+
 print('forming all linkage groups')
 cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=10, reorgMarkers=TRUE)
 
@@ -54,19 +55,19 @@ keep <- sapply(1:nchr(cross.18.all),function(i){
     )
 keep <- names(cross.18.all$geno)[keep]
 
-cross.18.Z <- subset(cross.18.all, chr=keep)
-cross.18.Z <- formLinkageGroups(cross.18.Z, max.rf=0.5, min.lod=4, reorgMarkers=TRUE)
+cross.18 <- subset(cross.18.all, chr=keep)
+cross.18 <- formLinkageGroups(cross.18, max.rf=0.5, min.lod=4, reorgMarkers=TRUE)
 
 ## fix phase
-chrom.b4 <- nchr(cross.18.Z)
+chrom.b4 <- nchr(cross.18)
 if (chrom.b4 > 1){
   print('fixing phase')
   chrom.after <- 0
   while (chrom.b4 > chrom.after){
-    chrom.b4 <- nchr(cross.18.Z)
-    cross.18.Z <- switchAlleles(cross.18.Z,markernames(cross.18.Z,chr=1))
-    cross.18.Z <- formLinkageGroups(cross.18.Z, max.rf=0.5, min.lod=grpLod, reorgMarkers=TRUE)
-    chrom.after <- nchr(cross.18.Z)
+    chrom.b4 <- nchr(cross.18)
+    cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=1))
+    cross.18 <- formLinkageGroups(cross.18, max.rf=0.5, min.lod=grpLod, reorgMarkers=TRUE)
+    chrom.after <- nchr(cross.18)
     }
   print('done fixing phase')
 } else {
@@ -74,8 +75,8 @@ if (chrom.b4 > 1){
 }
 
 ## form linkage groups on phase-fixed data
-LGtable <- formLinkageGroups(cross.18.Z, max.rf=0.35, min.lod=finLod)
-cross.18 <- subset(cross.18.Z, chr=which.max(table(LGtable$LG)))
+LGtable <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=finLod)
+cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
 
 ## rename to the correct LG
 names(cross.18$geno) <- X

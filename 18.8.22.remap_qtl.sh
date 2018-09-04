@@ -7,11 +7,13 @@
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=2000
 #SBATCH -p med
-#SBATCH -n 2
+####SBATCH -n 2
 ####SBATCH --mail-type=ALL
 ####SBATCH --mail-user=jthmiller@ucdavis.edu
 #SBATCH --array=1,2,8,13,18,24%3
-#QTLs are on chrm '1 2 8 13 18 24'
+
+
+####QTLs are on chrm '1 2 8 13 18 24'
 
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 #declare -a pops=("NBH" "ELR")
@@ -25,3 +27,7 @@ Rscript $scriptdir/18.8.22.remap_all_qtl.R --vanilla $pop $SLURM_ARRAY_TASK_ID
 #Rscript $scriptdir/test.R $pop
 #done
 #18.8.22.remap_all_qtl.R
+
+## set better mem (limit mem in Rscript)
+## consider splitting parallel part out
+## lighten up mem requirements
