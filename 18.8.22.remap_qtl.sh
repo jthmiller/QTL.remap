@@ -13,12 +13,13 @@
 #SBATCH --array=1,2,8,13,18,24%3
 #QTLs are on chrm '1 2 8 13 18 24'
 
-scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts'
+scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL.remap'
 #declare -a pops=("NBH" "ELR")
 
 #for pop in "${pops[@]}"
 #do
 pop='NBH'
+#pop='ELR'
 Rscript $scriptdir/18.8.22.remap_qtl.R --vanilla $pop $SLURM_ARRAY_TASK_ID
 #echo 'working on QTL chromosome number' $SLURM_ARRAY_TASK_ID 'in' $pop
 #Rscript $scriptdir/test.R $pop

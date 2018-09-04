@@ -1,6 +1,6 @@
 #!/bin/R
 ### Map QTLs seperate
-source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/pop_control_file.R')
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL.remap/pop_control_file.R')
 
 # Table of Chroms with sig QTLs
 test.QTLs <- read.table(file.path(basedir,'rQTL/metadata/QTLs.txt'),

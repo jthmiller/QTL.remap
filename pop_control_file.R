@@ -9,8 +9,8 @@ popdir <- file.path(basedir,'rQTL',pop)
 setwd(popdir)
 
 ## Funtions for processing rQTL data
-source(file.path(basedir,'rQTL/scripts/removeDoubleXO.R'))
-source(file.path(basedir,'rQTL/scripts/QTL_map_sourcefile.R'))
+source(file.path(basedir,'rQTL/scripts/QTL.remap/removeDoubleXO.R'))
+source(file.path(basedir,'rQTL/scripts/QTL.remap/QTL_map_sourcefile.R'))
 
 ## Parameters for rQTL for all datasets
 grpLod <- 4 ## Standard LG form LOD
