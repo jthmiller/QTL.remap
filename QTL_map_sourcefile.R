@@ -11,7 +11,6 @@ marker.density <- function(cross,gt.1){
   return(list(cor=cor(x,y)^2,pos=y))
 }
 fix.pheno <- function(cross){
-
   cross$pheno$ID <- paste("ind", 1:nind(cross), sep="")
   cross$pheno[which(cross$pheno[,1]<2),1] <- 0
   cross$pheno[which(cross$pheno[,1]>1),1] <- 1
@@ -22,20 +21,20 @@ drop.missing <- function(cross,M){
   gt <- geno.table(cross)
   todrop <- rownames(gt[which(gt$missing>M),])
   paste(length(todrop),'markers dropped')
-  marker_dens[['drop.missing']][['before']] <<- marker.density(cross,gt)
+  before <- marker.density(cross,gt)
   cross <- drop.markers(cross,unlist(todrop))
-  gt[!rownames(gt) %in% unlist(todrop),]
-  marker_dens[['drop.missing']]['aft'] <<- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  after <- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  marker_dens[['drop.missing']] <<- list(before,after)
   return(cross)
 }
 distort <- function(cross,p){
   gt <- geno.table(cross)
   todrop <- rownames(gt[gt$P.value < p,])
   paste(length(todrop),'markers dropped')
-  marker_dens[['distort']][['before']] <<- marker.density(cross,gt)
+  before <- marker.density(cross,gt)
   cross <- drop.markers(cross,unlist(todrop))
-  gt[!rownames(gt) %in% unlist(todrop),]
-  marker_dens[['distort']]['aft'] <<- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  after <- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  marker_dens[['distort']] <<- list(before,after)
 
   return(cross)
 }
@@ -44,10 +43,10 @@ distort.18 <- function(cross,p){
   todrop <- rownames(gt[gt$P.value < p,])
   todrop <- todrop[!todrop %in% tokeep]
   paste(length(todrop),'markers dropped')
-  marker_dens[['distort.18']][['before']] <<- marker.density(cross,gt)
+  before <- marker.density(cross,gt)
   cross <- drop.markers(cross,unlist(todrop))
-  gt[!rownames(gt) %in% unlist(todrop),]
-  marker_dens[['distort.18']]['aft'] <<- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  after <- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  marker_dens[['distort.18']] <<- list(before,after)
 
   return(cross)
 }
@@ -57,10 +56,10 @@ drop.missing.18 <- function(cross,missing){
   todrop <- rownames(gt[which(gt$missing>M),])
   todrop <- todrop[!todrop %in% tokeep]
   paste(length(todrop),'markers dropped')
-  marker_dens[['drop.missing.18']][['before']] <<- marker.density(cross,gt)
+  before <- marker.density(cross,gt)
   cross <- drop.markers(cross,unlist(todrop))
-  gt[!rownames(gt) %in% unlist(todrop),]
-  marker_dens[['drop.missing.18']]['aft'] <<- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  after <- marker.density(cross,gt[!rownames(gt) %in% unlist(todrop),])
+  marker_dens[['drop.missing.18']] <<- list(before,after)
   return(cross)
 }
 drop.mark <- function(crossZ,y){

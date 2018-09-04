@@ -31,3 +31,4 @@ Rscript $scriptdir/18.8.22.remap_all_qtl.R --vanilla $pop $SLURM_ARRAY_TASK_ID
 ## set better mem (limit mem in Rscript)
 ## consider splitting parallel part out
 ## lighten up mem requirements
+## fix marker.density
