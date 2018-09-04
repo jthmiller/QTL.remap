@@ -1,0 +1,30 @@
+#!/bin/R
+pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
+X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
+## Directories
+basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
+plotdir <- file.path(basedir,'rQTL/plots')
+indpops <- file.path(basedir,'plinkfiles/ind.pops')
+popdir <- file.path(basedir,'rQTL',pop)
+setwd(popdir)
+
+## Funtions for processing rQTL data
+source(file.path(basedir,'rQTL/scripts/removeDoubleXO.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_map_sourcefile.R'))
+
+## Parameters for rQTL for all datasets
+grpLod <- 4 ## Standard LG form LOD
+finLod <- 6 ## Higher final NBH LOD
+
+## For plotting
+marker_dens <- list()
+
+## Parameters for rQTL for population specific datasets
+if (pop=='NBH'){
+  inds <- c('ind15','ind89','ind88','ind14') # determined to be dropped low cov
+  missing <- 0.75
+}
+if (pop=='ELR'){
+  inds <- c('ind2') # determined to be dropped low cov
+  missing <- 0.65
+}
