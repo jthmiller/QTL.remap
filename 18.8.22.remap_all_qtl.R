@@ -2,6 +2,9 @@
 ### Map QTLs seperate
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/pop_control_file.R')
 
+## For plotting
+marker_dens <- list()
+
 # Table of Chroms with sig QTLs
 test.QTLs <- read.table(file.path(basedir,'rQTL/metadata/QTLs.txt'),
               sep='\t',header=T)
@@ -96,6 +99,8 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 
 print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=F)
+
+save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 print('Dropping 5% of markers that inflate the map. Takes a long time...')
 print(paste('# of markers =',nmar(cross.18)))

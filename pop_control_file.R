@@ -16,9 +16,6 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
 grpLod <- 4 ## Standard LG form LOD
 finLod <- 6 ## Higher final NBH LOD
 
-## For plotting
-marker_dens <- list()
-
 ## Parameters for rQTL for population specific datasets
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14') # determined to be dropped low cov
