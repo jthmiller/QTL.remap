@@ -220,10 +220,10 @@ parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function
             }
 
             if (parallel) {
-                cores=detectCores()
-                cl <- makeCluster(cores[1])
-                registerDoParallel(cl)
-
+                #cores=detectCores()
+                #cl <- makeCluster(cores[1])
+                #registerDoParallel(cl)
+                registerDoParallel(12)
                 lod.dif <- foreach(j=seq(along=mnames),
                   .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
 
