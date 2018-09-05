@@ -30,16 +30,24 @@ allbut <- c(1:24)[-X]
 subset.qtl <- chrnames(cross.18)[!chrnames(cross.18) %in% allbut]
 cross.18 <- subset(cross.18, chr=subset.qtl)
 
+## Starting marker number
+marker.warning()
+
 ## Conservative
+## Odd things on 18. Try increasing the missing gt critera
+print('Dropping marker with less than 50 genotypes')
 cross.18 <- drop.missing(cross.18,50)
 
+marker.warning()
+
 ## Conservative
+print('Dropping markers with segregation distortion < 0.000005')
 cross.18 <- distort(cross.18,0.005)
 
-## Keep markers close to QTLs
-qtl.index <-  which(test.QTLs$chrm.n == X)
+marker.warning()
 
-## These markers should not be filtered (close to a QTL)
+## Keep markers close to QTLs. Should not be filtered
+qtl.index <-  which(test.QTLs$chrm.n == X)
 tokeep <- unlist(sapply(qtl.index,function(Z){
     markerList <- list()
     markerList[[Z]] <- keepQTL(Z,i=cross.18)
@@ -60,6 +68,7 @@ keep <- names(cross.18.all$geno)[keep]
 
 cross.18 <- subset(cross.18.all, chr=keep)
 cross.18 <- formLinkageGroups(cross.18, max.rf=0.5, min.lod=4, reorgMarkers=TRUE)
+rm(cross.18.al)
 
 ## fix phase
 chrom.b4 <- nchr(cross.18)
@@ -99,38 +108,44 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 
 print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=F)
-
+print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
-print('Dropping 5% of markers that inflate the map. Takes a long time...')
 print(paste('# of markers =',nmar(cross.18)))
+print('Dropping 5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
 cross.18 <- dropone.par(cross.18,p=0.05,chr=X,maxit=2,
   sex.sp = F,verbose=F,parallel=T)
+print(paste('now at markers =',nmar(cross.18)))
 
 print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
-print('Re-setimating map from filtered data')
-print(paste('# of markers =',nmar(cross.18)))
-POS.map.18 <- est.map(cross.18,error.prob=0.002,map.function="kosambi",n.cluster=6, chr=X)
+print('determine error rate')
+ers <- er.rate(cross.18)
+
+print('Re-setimating map from filtered data on',nmar(cross.18),'markers')
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
-print('Re-write the markers to rQTL formate')
-write.cross(file=paste('chr',X,'.QTLmap',sep=''),format="csv",filestem=plotdir,chr=X)
+print('Done mapping..')
+print(summary(pull.map(cross.18))[X,])
+
+print('Re-writing the markers to rQTL format')
+write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 ## Scan for QTL
 
-print('scanning for a single QTL')
+print('Scanning for a single QTL')
 GP <- calc.genoprob(cross.18, step=2.5)
 
 GP <- sim.geno(GP,n.draws=1000, step=2, err=0.02)
 
 scanQTL <- scanone(GP, pheno.col=1, model="binary", method="hk")
 
-print('saving...')
+print('Done scanning. Saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
-print(paste('done with chrom',X,'in pop',P))
+print(paste('done with chrom',X,'in pop',pop))

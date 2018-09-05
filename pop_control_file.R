@@ -16,12 +16,12 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
 grpLod <- 4 ## Standard LG form LOD
 finLod <- 6 ## Higher final NBH LOD
 
-## Parameters for rQTL for population specific datasets
+## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14') # determined to be dropped low cov
-  missing <- 0.75
+  missing <- 0.70
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.65
+  missing <- 0.60
 }

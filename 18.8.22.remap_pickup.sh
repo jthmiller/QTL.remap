@@ -21,4 +21,5 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 pop='NBH'
 #pop='ELR'
 
-Rscript $scriptdir/18.8.22.remap_pickup.R --vanilla $pop $SLURM_ARRAY_TASK_ID
+#Rscript $scriptdir/18.8.22.remap_pickup.R --vanilla $pop $SLURM_ARRAY_TASK_ID
+Rscript $scriptdir/18.8.22.remap_pickup_scanone.R --vanilla $pop $SLURM_ARRAY_TASK_ID

@@ -15,11 +15,11 @@ save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 print('Re-setimating map from filtered data')
 print(paste('# of markers =',nmar(cross.18)))
-POS.map.18 <- est.map(cross.18,error.prob=0.002,map.function="kosambi",n.cluster=6, chr=X)
+POS.map.18 <- est.map(cross.18,error.prob=0.002,map.function="kosambi",n.cluster=12, chr=X)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Re-write the markers to rQTL formate')
-write.cross(file=paste('chr',X,'.QTLmap',sep=''),format="csv",filestem=plotdir,chr=X)
+write.cross(cross.18,filestem=paste(popdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))

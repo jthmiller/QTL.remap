@@ -89,3 +89,24 @@ dropone.par <- function(cross,p=0.05,chr=X,map.function = 'kosambi',
   cross <- drop.markers(cross.18,unlist(todrop))
   return(cross)
 }
+marker.warning <- function(cross=cross.18){
+  print(paste('Starting markers mapped =',
+    sum(markernames(cross) %in% markernames(cross.18,chr=X))))
+
+  print(paste('Starting markers un-mapped =',
+    sum(!markernames(cross) %in% markernames(cross.18,chr=X))))
+
+}
+er.rate <- function(cross){
+  loglik <- err <- c(0.001, 0.0025, 0.005, 0.0075, 0.01, 0.0125, 0.015,
+    0.0175, 0.02)
+      registerDoParallel(12)
+      hoods <- foreach(i=seq(along=err),
+        .inorder=T,.packages = "qtl") %dopar% {
+        tempmap <- est.map(cross, error.prob=err[i],maxit=1000)
+        return(attr(tempmap[[1]], "loglik"))
+        #loglik[i] <- attr(tempmap[[1]], "loglik")
+      }
+      cat(err[which.max(abs(unlist(hoods)))], "error prob", "\n")
+      return(err[which.max(abs(unlist(hoods)))])
+}
