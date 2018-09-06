@@ -111,12 +111,14 @@ cross.18 <- removeDoubleXO(cross.18, verbose=F)
 print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
-print(paste('# of markers =',nmar(cross.18)))
+marker.warning()
+
 print('Dropping 5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
 cross.18 <- dropone.par(cross.18,p=0.05,chr=X,maxit=2,
   sex.sp = F,verbose=F,parallel=T)
-print(paste('now at markers =',nmar(cross.18)))
+
+marker.warning()
 
 print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
@@ -125,7 +127,7 @@ print('determine error rate')
 ers <- er.rate(cross.18)
 print(paste(ers,' error rate'))
 
-print('Re-setimating map from filtered data on',nmar(cross.18),'markers')
+print('Re-setimating map from filtered data on')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
@@ -137,16 +139,3 @@ write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="cs
 
 print('saving...')
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
-
-## Scan for QTL
-
-print('Scanning for a single QTL')
-GP <- calc.genoprob(cross.18, step=2.5)
-
-GP <- sim.geno(GP,n.draws=1000, step=2, err=0.02)
-
-scanQTL <- scanone(GP, pheno.col=1, model="binary", method="hk")
-
-print('Done scanning. Saving...')
-save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
-print(paste('done with chrom',X,'in pop',pop))
