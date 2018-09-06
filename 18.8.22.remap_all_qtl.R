@@ -34,7 +34,6 @@ cross.18 <- subset(cross.18, chr=subset.qtl)
 marker.warning()
 
 ## Conservative
-## Odd things on 18. Try increasing the missing gt critera
 print('Dropping marker with less than 50 genotypes')
 cross.18 <- drop.missing(cross.18,50)
 
@@ -68,7 +67,7 @@ keep <- names(cross.18.all$geno)[keep]
 
 cross.18 <- subset(cross.18.all, chr=keep)
 cross.18 <- formLinkageGroups(cross.18, max.rf=0.5, min.lod=4, reorgMarkers=TRUE)
-rm(cross.18.al)
+rm(cross.18.all) ##keep memory light
 
 ## fix phase
 chrom.b4 <- nchr(cross.18)
@@ -90,38 +89,37 @@ if (chrom.b4 > 1){
 LGtable <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=finLod)
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
 
+marker.warning()
+
 ## rename to the correct LG
 names(cross.18$geno) <- X
-
-print('saving...')
-save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 print('second distortion filter')
 cross.18 <- distort.18(cross.18,0.05)
 
+marker.warning()
+
+print('second distortion filter')
 cross.18 <- drop.missing.18(cross.18,missing=missing)
 
+marker.warning()
+
 print('order filtered markers. Takes awhile...')
-print(paste('# of markers =',nmar(cross.18)))
+
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=0.002, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-3)
 
 print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=F)
-print('saving...')
-save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 marker.warning()
 
-print('Dropping 5% of markers that inflate the map. Takes a long time...')
+print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
-cross.18 <- dropone.par(cross.18,p=0.05,chr=X,maxit=2,
+cross.18 <- dropone.par(cross.18,p=0.025,chr=X,maxit=2,
   sex.sp = F,verbose=F,parallel=T)
 
 marker.warning()
-
-print('saving...')
-save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 print('determine error rate')
 ers <- er.rate(cross.18)
