@@ -12,7 +12,7 @@ test.QTLs <- read.table(file.path(basedir,'rQTL/metadata/QTLs.txt'),
 ## Get chrom number vector
 test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 
-## inactivate karl's summary.cross(). It takes way too long
+print(pop)
 
 ## read in the QTL cross
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
