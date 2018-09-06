@@ -107,6 +107,6 @@ er.rate <- function(cross){
         return(attr(tempmap[[1]], "loglik"))
         #loglik[i] <- attr(tempmap[[1]], "loglik")
       }
-      cat(err[which.max(abs(unlist(hoods)))], "error prob", "\n")
+
       return(err[which.max(abs(unlist(hoods)))])
 }

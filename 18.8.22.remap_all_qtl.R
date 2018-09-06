@@ -123,6 +123,7 @@ save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
 
 print('determine error rate')
 ers <- er.rate(cross.18)
+print(paste(ers,' error rate'))
 
 print('Re-setimating map from filtered data on',nmar(cross.18),'markers')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
