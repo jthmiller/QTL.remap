@@ -158,7 +158,7 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
 
 
 parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function = c("haldane",
-    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 5,
+    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 5, cores=22
     tol = 1e-06, sex.sp = TRUE, verbose = TRUE,parallel=T )
 {
     if (!("cross" %in% class(cross)))
@@ -223,7 +223,7 @@ parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function
                 #cores=detectCores()
                 #cl <- makeCluster(cores[1])
                 #registerDoParallel(cl)
-                registerDoParallel(12)
+                registerDoParallel(cores)
                 lod.dif <- foreach(j=seq(along=mnames),
                   .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
 

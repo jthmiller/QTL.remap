@@ -2,7 +2,7 @@
 #SBATCH -J array_job
 #SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/array_job_out_%A_%a.txt
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/array_job_err_%A_%a.txt
-#SBATCH --time=12:00:00
+#SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=4500

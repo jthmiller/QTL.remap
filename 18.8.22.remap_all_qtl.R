@@ -109,6 +109,9 @@ print('order filtered markers. Takes awhile...')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=0.002, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-3)
 
+## rename to the correct LG
+names(cross.18$geno) <- X
+
 print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=F)
 
@@ -116,7 +119,7 @@ marker.warning()
 
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
-cross.18 <- dropone.par(cross.18,p=0.025,chr=X,maxit=2,
+cross.18 <- dropone.par(cross.18,p=0.025,chr=X,maxit=3,
   sex.sp = F,verbose=F,parallel=T)
 
 marker.warning()
