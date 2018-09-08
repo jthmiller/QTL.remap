@@ -2,8 +2,8 @@
 ### Map QTLs 2 of 3
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/pop_control_file.R')
 
-cross.18 <- read.cross(format='csv',dir=file.path(basedir,'rQTL'),
-   file=paste(pop,'chr',X,'.QTLmap.csv',sep=''),
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('chr',X,'.QTLmap.csv',sep=''),
    geno=c('AA','AB','BB'),alleles=c("A","B"))
 
 marker.warning()
@@ -20,6 +20,7 @@ ers <- er.rate(cross.18)
 print(paste(ers,' error rate'))
 
 print('Writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
-save.image(paste('chr',X,'.QTLmap_2.Rsave',sep=''))
+print('saving...')
+save.image(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
