@@ -4,8 +4,8 @@
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/array_job_err_%A_%a.txt
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
-#SBATCH --cpus-per-task=24
-#SBATCH --mem-per-cpu=2500
+#SBATCH --cpus-per-task=12
+#SBATCH --mem-per-cpu=5000
 #SBATCH -p med
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
@@ -18,10 +18,12 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 pop='NBH'
 #pop='ELR'
 
-Rscript $scriptdir/18.8.22.remap_qtl.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+Rscript $scriptdir/18.8.22.remap_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+
+wait
+
+Rscript $scriptdir/18.8.22.remap_all_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 
 #wait
 
-#Rscript $scriptdir/18.8.22.remap_all_qtl_2.R --vanilla $pop $SLURM_ARRAY_TASK_ID
-
-#wait
+Rscript $scriptdir/18.8.22.remap_all_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
