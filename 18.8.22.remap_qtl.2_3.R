@@ -21,3 +21,5 @@ print(paste(ers,' error rate'))
 
 print('Writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
+
+save.image(paste('chr',X,'.QTLmap_2.Rsave',sep=''))
