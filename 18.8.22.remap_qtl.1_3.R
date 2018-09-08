@@ -113,13 +113,15 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
+print(summary(pull.map(cross.18))[as.character(X),])
+
 print('removing double cross-overs')
-cross.18 <- removeDoubleXO(cross.18, verbose=F)
+cross.18 <- removeDoubleXO(cross.18, verbose=T)
+print('Done removing dxo..')
 
 marker.warning()
 
-print('Done removing dxo..')
-print(summary(pull.map(cross.18))[X,])
+print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)

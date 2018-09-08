@@ -100,7 +100,7 @@ marker.warning <- function(cross=cross.18){
 er.rate <- function(cross){
   loglik <- err <- c(0.001, 0.0025, 0.005, 0.0075, 0.01, 0.0125, 0.015,
     0.0175, 0.02)
-      registerDoParallel(12)
+      registerDoParallel(slurmcore)
       hoods <- foreach(i=seq(along=err),
         .inorder=T,.packages = "qtl") %dopar% {
         tempmap <- est.map(cross, error.prob=err[i],maxit=1000)
