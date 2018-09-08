@@ -107,7 +107,7 @@ marker.warning()
 print('order filtered markers. Takes awhile...')
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=0.002, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+  error.prob=0.03, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X

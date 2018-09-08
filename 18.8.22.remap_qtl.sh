@@ -18,12 +18,16 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 pop='NBH'
 #pop='ELR'
 
-Rscript $scriptdir/18.8.22.remap_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+#SBATCH --cpus-per-task=2
+#SBATCH --mem-per-cpu=3000
+#Rscript $scriptdir/18.8.22.remap_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+echo $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+wait
 
-#wait
-
+#SBATCH --cpus-per-task=12
+#SBATCH --mem-per-cpu=30000
 #Rscript $scriptdir/18.8.22.remap_all_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
-
+echo $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 #wait
 
 #Rscript $scriptdir/18.8.22.remap_all_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

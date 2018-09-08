@@ -6,7 +6,7 @@ slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
-popdir <- file.path(basedir,'rQTL',pop)
+popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
 setwd(popdir)
 
 ## Funtions for processing rQTL data
