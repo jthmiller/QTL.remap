@@ -18,7 +18,7 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 pop='NBH'
 #pop='ELR'
 
-Rscript $scriptdir/18.8.22.remap_all_qtl_1.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+Rscript $scriptdir/18.8.22.remap_qtl_1.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 
 #wait
 
