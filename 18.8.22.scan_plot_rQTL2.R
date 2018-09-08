@@ -2,17 +2,30 @@
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/pop_control_file.R')
 require(qtl2,lib.loc='/share/apps/rmodules')
 
-pheno.all <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
-pheno.all$pheno_all[which(pheno.all$pheno_all<2)] <- 0
-pheno.all$pheno_all[which(pheno.all$pheno_all>1)] <- 1
-pheno.all$sex <- 0
+load(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
+
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('chr',X,'.QTLmap.csv',sep=''),
+   geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
+phen$pheno_all[which(phen$pheno_all<2)] <- 0
+phen$pheno_all[which(phen$pheno_all>1)] <- 1
+index <- which(phen$pop_all==pop)
+zeros <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['0'])
+ones <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['1'])
+
+no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
+              sex=rep(0,times=zeros+ones),ind=paste('NG',1:length(zeros+ones)),
+              markers= matrix('-',nrow=zeros+ones,ncol=as.numeric(nmar(cross.18))))
+
+write.table(no_genos, 
+
+## Make missing ind for strat analysis
 
 
-
-
-pheno.all$ID <- paste('NG',1:length(pheno.all$sex),sep='_')
-table(pheno.all$pheno_all)-table(cross.18$pheno$Pheno)
-
+## write.table
+## sys
 
 chr18.NBH <- read.cross(format='csv',dir=file.path(basedir,'rQTL'),
   file=paste(pop,'chr',X,'.QTLmap.csv',sep=''),

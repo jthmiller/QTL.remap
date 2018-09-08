@@ -26,4 +26,5 @@ print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('saving...')
+rm(cross.18)
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
