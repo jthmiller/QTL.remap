@@ -4,9 +4,9 @@
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/array_job_err_%A_%a.txt
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
-#SBATCH --cpus-per-task=16
-#SBATCH --mem-per-cpu=4000
-#SBATCH -p hi
+#SBATCH --cpus-per-task=24
+#SBATCH --mem-per-cpu=2500
+#SBATCH -p med
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
 #SBATCH --array=1,2,8,13,18,24%6
