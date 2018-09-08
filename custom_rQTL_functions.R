@@ -158,7 +158,7 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
 
 
 parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function = c("haldane",
-    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 5, cores=slurmcore
+    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 5, cores=slurmcore,
     tol = 1e-06, sex.sp = TRUE, verbose = TRUE,parallel=T )
 {
     if (!("cross" %in% class(cross)))
