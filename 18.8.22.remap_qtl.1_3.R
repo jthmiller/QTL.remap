@@ -41,8 +41,8 @@ cross.18 <- drop.missing(cross.18,50)
 marker.warning()
 
 ## Conservative
-print('Dropping markers with segregation distortion < 0.000005')
-cross.18 <- distort(cross.18,0.005)
+print('Dropping markers with segregation distortion < 0.0005')
+cross.18 <- distort(cross.18,0.0005)
 
 marker.warning()
 
@@ -57,7 +57,7 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
 )
 
 print('forming all linkage groups')
-cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=10, reorgMarkers=TRUE)
+cross.18.all <- formLinkageGroups(cross.18, max.rf=0.4, min.lod=6, reorgMarkers=TRUE)
 
 keep <- sapply(1:nchr(cross.18.all),function(i){
       l <- sum(nmar(cross.18.all))*.01
@@ -96,7 +96,7 @@ marker.warning()
 names(cross.18$geno) <- X
 
 print('second distortion filter')
-cross.18 <- distort.18(cross.18,0.05)
+cross.18 <- distort.18(cross.18,0.005)
 
 marker.warning()
 
