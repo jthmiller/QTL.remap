@@ -20,13 +20,13 @@ if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14') # determined to be dropped low cov
   missing <- 0.75
   grpLod <- 6 ## Standard LG form LOD
-  finLod <- 8 ## Higher final NBH LOD
+  finLod <- 10 ## Higher final NBH LOD
 
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.65
   grpLod <- 4 ## Standard LG form LOD
-  finLod <- 6 ## Higher final NBH LOD
+  finLod <- 8 ## Higher final NBH LOD
 
 }
