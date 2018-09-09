@@ -107,6 +107,49 @@ er.rate <- function(cross){
         return(attr(tempmap[[1]], "loglik"))
         #loglik[i] <- attr(tempmap[[1]], "loglik")
       }
-
       return(err[which.max(abs(unlist(hoods)))])
+}
+
+all.crossed <- function(X=X,i=pop){
+  read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
+  alleles=c("A","B"))
+}
+
+reconst <- function(X,pop,out){
+
+  temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/chr',X,'.QTLmap.csv',sep=''))
+  myfiles <- lapply(temp, function(X,pop=pop){
+    all.crossed(X)
+    }
+  )
+  ID <- myfiles[[1]]$pheno$ID
+  pheno <- myfiles[[1]]$pheno$Pheno
+  sex <- myfiles[[1]]$pheno$sex
+
+  map <- unlist(sapply(seq(along=myfiles),
+    function(i){myfiles[[i]]$geno[[1]]$map}))
+
+  chr <-  unlist(sapply(seq(along=myfiles),
+    function(i){sapply(1:nmar(myfiles[[i]]),
+      function(Z)chrnames(myfiles[[i]]))}))
+
+  registerDoParallel(slurmcore)
+
+  cross <- foreach(i=seq(along=myfiles),
+    .combine=cbind,.packages = "qtl") %dopar% {
+      marks <- colnames(myfiles[[i]]$geno[[1]]$data)
+      data <- myfiles[[i]]$geno[[1]]$data
+      colnames(data) <- marks
+      data
+  }
+  chr <- c('','','',chr)
+  map <- c('','','',map[colnames(cross)])
+  cross <- cbind(pheno,sex,ID=as.character(ID),cross)
+  cross <- rbind(colnames(cross),chr,map,cross)
+
+  write.table(cross,file=out,
+      col.names=F,row.names=F,quote=F,sep=',')
+
+  return(read.cross.jm(file=out,format='csv',
+    geno=c(1:3),estimate.map=FALSE))
 }

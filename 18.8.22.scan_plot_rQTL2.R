@@ -1,41 +1,12 @@
 #!/bin/bash
-source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/pop_control_file.R')
-require(qtl2,lib.loc='/share/apps/rmodules')
 
-load(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
-
-cross.18 <- read.cross(format='csv',dir=popdir,
-   file=paste('chr',X,'.QTLmap.csv',sep=''),
-   geno=c('AA','AB','BB'),alleles=c("A","B"))
-
-pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
-phen$pheno_all[which(phen$pheno_all<2)] <- 0
-phen$pheno_all[which(phen$pheno_all>1)] <- 1
-index <- which(phen$pop_all==pop)
-zeros <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['0'])
-ones <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['1'])
-
-no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
-              sex=rep(0,times=zeros+ones),ind=paste('NG',1:length(zeros+ones)),
-              markers= matrix('-',nrow=zeros+ones,ncol=as.numeric(nmar(cross.18))))
-
-write.table(no_genos, 
-
-## Make missing ind for strat analysis
+#load(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
+out <- file.path(qtldir,'NBH.csv')
+cross.18 <- reconst(X,pop='NBH',out=out)
 
 
-## write.table
-## sys
-
-chr18.NBH <- read.cross(format='csv',dir=file.path(basedir,'rQTL'),
-  file=paste(pop,'chr',X,'.QTLmap.csv',sep=''),
-  geno=c('AA','AB','BB'),alleles=c("A","B"))
-
-load(paste('chr',X,'.QTLmap.Rsave',sep=''))
-
-## QTL2 plotting
-
-cross2 <- convert2cross2(chr18.NBH)
+ers <- 0.02
+cross2 <- convert2cross2(cross.18)
 map <- insert_pseudomarkers(cross2$gmap, step=1)
 pr <- calc_genoprob(cross2, map, err=ers, cores=0)
 pr <- clean_genoprob(pr)
@@ -50,6 +21,8 @@ probs_map <- interp_genoprob(pr, map)
 ## Scan for QTLs
 perms <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=1000,perm_strata=cross2$pheno)
 cutoff <- summary(perms)['0.05',]
+perms.unstrat <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=1000)
+
 
 out_bin <- scan1(pr,cross2$pheno, model="binary", cores=0)
 out_coef <- scan1coef(pr,cross2$pheno,model = 'binary')

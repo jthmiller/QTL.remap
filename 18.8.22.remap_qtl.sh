@@ -19,9 +19,9 @@ pop='NBH'
 #pop='ELR'
 
 ### This requires 2 cpu with 3G memory each, but takes awhile
-#Rscript $scriptdir/18.8.22.remap_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+Rscript $scriptdir/18.8.22.remap_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 
-#wait
+wait
 
 ### This requires 12 cpus with 5G of memory (dasically an entire node, but cant run on 24 cpus with only 2.5Gs of memory)
 Rscript $scriptdir/18.8.22.remap_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
@@ -29,7 +29,4 @@ Rscript $scriptdir/18.8.22.remap_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $
 wait
 
 ### This requires 2 cpu with 3G memory each, but takes awhile
-Rscript $scriptdir/18.8.22.remap_all_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
-
-
-#### sbatch --cpus-per-task=2 --mem-per-cpu=30000 filter : -JMbr1 -N2 –n4 –pt96gpu worker : -JMbr2 –N2 –t96iopx saver
+Rscript $scriptdir/18.8.22.remap_qtl.3_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

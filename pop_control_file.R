@@ -14,15 +14,19 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/removeDoubleXO.R'))
 source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
 
 ## Parameters for rQTL for all datasets
-grpLod <- 4 ## Standard LG form LOD
-finLod <- 6 ## Higher final NBH LOD
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14') # determined to be dropped low cov
-  missing <- 0.70
+  missing <- 0.75
+  grpLod <- 6 ## Standard LG form LOD
+  finLod <- 8 ## Higher final NBH LOD
+
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.60
+  missing <- 0.65
+  grpLod <- 4 ## Standard LG form LOD
+  finLod <- 6 ## Higher final NBH LOD
+
 }
