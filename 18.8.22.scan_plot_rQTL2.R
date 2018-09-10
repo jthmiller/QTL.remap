@@ -1,10 +1,7 @@
 #!/bin/bash
-
 #load(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
-out <- file.path(qtldir,'NBH.csv')
+
 cross.18 <- reconst(X,pop='NBH',out=out)
-
-
 ers <- 0.02
 cross2 <- convert2cross2(cross.18)
 map <- insert_pseudomarkers(cross2$gmap, step=1)

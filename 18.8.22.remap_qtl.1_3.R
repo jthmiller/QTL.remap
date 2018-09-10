@@ -57,7 +57,7 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
 )
 
 print('forming all linkage groups')
-cross.18.all <- formLinkageGroups(cross.18, max.rf=0.4, min.lod=6, reorgMarkers=TRUE)
+cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=6, reorgMarkers=TRUE)
 
 keep <- sapply(1:nchr(cross.18.all),function(i){
       l <- sum(nmar(cross.18.all))*.01
@@ -67,7 +67,7 @@ keep <- sapply(1:nchr(cross.18.all),function(i){
 keep <- names(cross.18.all$geno)[keep]
 
 cross.18 <- subset(cross.18.all, chr=keep)
-cross.18 <- formLinkageGroups(cross.18, max.rf=0.5, min.lod=grpLod, reorgMarkers=TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=grpLod, reorgMarkers=TRUE)
 rm(cross.18.all) ##keep memory light
 
 ## fix phase

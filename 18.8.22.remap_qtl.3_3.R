@@ -25,7 +25,7 @@ POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=1
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Done mapping..')
-print(summary(pull.map(cross.18))[X,])
+print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
