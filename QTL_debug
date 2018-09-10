@@ -1,0 +1,17 @@
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/qtl_control_file.R')
+
+X <- 18
+pop <- 'NBH'
+popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
+
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('chr',X,'.QTLmap.csv',sep=''),
+   geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+cross.18 <- reconst(X,pop='NBH',out=out)
+ers <- 0.02
+cross2 <- convert2cross2(cross.18)
+map <- insert_pseudomarkers(cross2$gmap, step=1)
+pr <- calc_genoprob(cross2, map, err=ers, cores=0)
+pr <- clean_genoprob(pr)
+apr <- genoprob_to_alleleprob(pr)
