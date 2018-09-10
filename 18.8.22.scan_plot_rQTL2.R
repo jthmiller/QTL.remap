@@ -1,7 +1,19 @@
 #!/bin/bash
-#load(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/qtl_control_file.R')
 
-cross.18 <- reconst(X,pop='NBH',out=out)
+slurmcore <- detectCores()
+## rQTL2 to viz single QTL models
+## rQTL for 2 qtls for:
+### permutations
+### multi QTL models
+out <- file.path(qtldir,'out')
+cross <- reconst(X,pop='NBH',out=out)
+print('Writing the markers to rQTL format')
+write.cross(cross.18,filestem=paste(plotdir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
+
+
+
+### rQTL2
 ers <- 0.02
 cross2 <- convert2cross2(cross.18)
 map <- insert_pseudomarkers(cross2$gmap, step=1)
@@ -18,17 +30,30 @@ perms <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=2000,perm_str
 cutoff <- summary(perms)['0.05',]
 perms.unstrat <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=2000)
 cutoff.us <- summary(perms.unstrat)['0.05',]
-
 out_bin <- scan1(pr,cross2$pheno, model="binary", cores=0)
 out_coef <- scan1coef(pr,cross2$pheno,model = 'binary')
-#out_blup <- scan1blup(pr,cross2$pheno)
 max_pos <- rownames(max(out_bin, map['18']))
 fit <- fit1(pr[['18']][,,max_pos], cross2$pheno, model="binary")
 
-find_peaks(out_bin, map, threshold=cutoff, peakdrop=1.8, drop=1.5)
-find_peaks(out_bin, map, threshold=cutoff, peakdrop=1, prob=0.95)
+### Single QTLs
+bayes_int(out_bin, map, lodcolumn=1, prob=0.95, threshold=cutoff)
+a <- find_peaks(out_bin, map, threshold=cutoff, peakdrop=3, prob=0.95)
 
-bayes_int(out_bin, map, lodcolumn=1, chr=2, prob=0.95)
+## Make QTL in rQTL1 with rQTL2 locarions
+GP <- calc.genoprob(cross.18, step=2.5)
+GP <- sim.geno(GP,n.draws=1000, step=2, err=0.02)
+### This uses single qtls from rQTL2
+qtl <- makeqtl(GP, chr=a$chr, pos=a$pos, what="prob")
+out.fq <- fitqtl(GP, qtl=qtl, method="hk")
+rqtl <- refineqtl(GP, qtl=qtl, formula=y~Q1+Q2+Q3, verbose=FALSE)
+stepout1 <- stepwiseqtl(GP,qtl=rqtl, additive.only=TRUE, max.qtl=6, verbose=FALSE)
+
+
+
+
+find_peaks(out_bin, map, threshold=cutoff, peakdrop=3, drop=1.5)
+
+
 
 
 sapply(X,function(X){
@@ -39,27 +64,21 @@ sapply(X,function(X){
 interp_genoprob "to get two sets onto the same map for comparison purposes"
 
 
-
 ### Plot max lod on each chr #####################################
 png(paste(plotdir,'/maxlod.qtl.png',sep='' ),width =1000)
 par(mar=c(5.1, 4.1, 1.1, 1.1))
 plot(out_bin, map, lodcolumn=1, col="slateblue", ylim=c(0, 10))
 dev.off()
 
-
 ### Perform permutation to determine significance ####
 operm <- scan1perm(pr, bin_pheno, n_perm=10000, cores=0)
 summary(operm, alpha=c(0.2, 0.05))
-## For NBH
-#      Pheno
-# 0.2   3.56
-# 0.05  4.33
+
 print(find_peaks(out_bin, map, threshold=3.56, peakdrop=1.8, drop=1.5))
 
 
 
 
-## Scan for QTL with rQTL
 
 print('Scanning for a single QTL')
 GP <- calc.genoprob(cross.18, step=2.5)

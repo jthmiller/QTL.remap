@@ -15,6 +15,8 @@ cross.18 <- dropone.par(cross.18,p=0.025,chr=X,maxit=3,
 
 marker.warning()
 
+print(summary(pull.map(cross.18))[as.character(X),])
+
 print('determine error rate')
 ers <- er.rate(cross.18)
 print(paste(ers,' error rate'))

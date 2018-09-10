@@ -28,7 +28,7 @@ print('Done mapping..')
 print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Re-writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(plotdir,'chr',X,'.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('Re-adding un-genotyped individuals')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
@@ -46,6 +46,7 @@ write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
 system(paste('cat no_genos.csv >> ','chr',X,'.QTLmap.csv',sep=''))
+
 
 print('saving...')
 rm(cross.18)

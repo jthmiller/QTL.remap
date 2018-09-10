@@ -46,7 +46,7 @@ cross.18 <- distort(cross.18,0.0005)
 
 marker.warning()
 
-## Keep markers close to QTLs. Should not be filtered
+print('Finding markers that are near known QTLs')
 qtl.index <-  which(test.QTLs$chrm.n == X)
 tokeep <- unlist(sapply(qtl.index,function(Z){
     markerList <- list()
@@ -56,19 +56,22 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
   )
 )
 
-print('forming all linkage groups')
-cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=6, reorgMarkers=TRUE)
+print('Making 2 or more groups of phased markers per chromosome..')
+print('No evidence for linkage is high RF and low lod with the prev. mapped LG')
 
+cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=6, reorgMarkers=TRUE)
 keep <- sapply(1:nchr(cross.18.all),function(i){
       l <- sum(nmar(cross.18.all))*.01
       return(sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i))) > l)
       }
     )
 keep <- names(cross.18.all$geno)[keep]
-
 cross.18 <- subset(cross.18.all, chr=keep)
-cross.18 <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=grpLod, reorgMarkers=TRUE)
 rm(cross.18.all) ##keep memory light
+
+print('forming initial linkage groups')
+cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
+
 
 ## fix phase
 chrom.b4 <- nchr(cross.18)
@@ -78,7 +81,7 @@ if (chrom.b4 > 1){
   while (chrom.b4 > chrom.after){
     chrom.b4 <- nchr(cross.18)
     cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=1))
-    cross.18 <- formLinkageGroups(cross.18, max.rf=0.5, min.lod=grpLod, reorgMarkers=TRUE)
+    cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
     chrom.after <- nchr(cross.18)
     }
   print('done fixing phase')
@@ -87,7 +90,7 @@ if (chrom.b4 > 1){
 }
 
 ## form linkage groups on phase-fixed data
-LGtable <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=finLod)
+LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
 
 marker.warning()
