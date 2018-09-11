@@ -10,8 +10,8 @@ marker.warning()
 
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
-cross.18 <- dropone.par(cross.18,p=0.025,chr=X,maxit=3,
-  sex.sp = F,verbose=F,parallel=T)
+cross.18 <- dropone.par(cross=cross.18,p=0.025,chr=X,maxit=1,
+  error.prob=0.02,sex.sp = F,verbose=F,parallel=T)
 
 marker.warning()
 
@@ -21,6 +21,7 @@ print('determine error rate')
 ers <- er.rate(cross.18)
 print(paste(ers,' error rate'))
 
+## fix for those that do not have below thr error
 print('dropping markers by error lod')
 cross.18 <- drop.errlod(cross.18,lod=4,ers=0.02)
 

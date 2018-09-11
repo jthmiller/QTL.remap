@@ -15,6 +15,7 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
 
 ## Parameters for rQTL for all datasets
 
+
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov

@@ -157,9 +157,9 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
 }
 
 
-parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function = c("haldane",
-    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 5, cores=slurmcore,
-    tol = 1e-06, sex.sp = TRUE, verbose = TRUE,parallel=T )
+parallel.droponemarker <- function (cross, chr, error.prob = 0.03, map.function = c("haldane",
+    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 1, cores=slurmcore,
+    tol = 1e-06, sex.sp = FALSE, verbose = TRUE , parallel=T)
 {
     if (!("cross" %in% class(cross)))
         stop("Input must have class \"cross\".")
@@ -174,6 +174,8 @@ parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function
             collapse = ", "))
         cross <- subset(cross, chr = tokeep)
     }
+
+    ##
     map.function <- match.arg(map.function)
     if (verbose)
         cat(" -Re-estimating map\n")
@@ -186,72 +188,67 @@ parallel.droponemarker <- function (cross, chr, error.prob = 1e-04, map.function
         origmaptab <- cbind(origmaptab, Ldiff.female = rep(NA,
             nrow(origmaptab)), Ldiff.male = rep(NA, nrow(origmaptab)))
         sexsp <- TRUE
-    }
-    else {
+    } else {
         origmaptab <- cbind(origmaptab, Ldiff = rep(NA, nrow(origmaptab)))
         sexsp <- FALSE
     }
-### Start of par.drop.markers
 
     for (i in names(cross$geno)) {
         if (sexsp) {
             Lf <- diff(range(origmap[[i]][1, ]))
             Lm <- diff(range(origmap[[i]][2, ]))
+        } else {
+         L <- diff(range(origmap[[i]]))
         }
-        else L <- diff(range(origmap[[i]]))
-        if (verbose)
-            cat(" -Chromosome", i, "\n")
+
+        if (verbose){cat(" -Chromosome", i, "\n")}
+
         mnames <- markernames(cross, chr = i)
         temp <- subset(cross, chr = i)
-        for (j in seq(along = mnames)) {
-            if (verbose > 1)
-                cat(" ---Marker", j, "of", length(mnames), "\n")
-            markerll <- qtl:::markerloglik(cross, mnames[j], error.prob)
-            newmap <- est.map(drop.markers(temp, mnames[j]),
-                error.prob = error.prob, map.function = map.function,
-                m = m, p = p, maxit = maxit, tol = tol, sex.sp = sex.sp)
-            if (sexsp) {
-                origmaptab[mnames[j], 4] <- -(attr(origmap[[i]],
-                  "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
-                origmaptab[mnames[j], 5] <- Lf - diff(range(newmap[[1]][1,
-                  ]))
-                origmaptab[mnames[j], 6] <- Lm - diff(range(newmap[[1]][2,
-                  ]))
+
+        if (parallel) {
+              registerDoParallel(slurmcore)
+              lod.dif <- foreach(j=seq(along=mnames),
+                .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
+
+
+                if (verbose > 1) cat(" ---Marker", j, "of", length(mnames), "\n")
+
+                if (sexsp) {
+                  origmaptab[mnames[j], 4] <- -(attr(origmap[[i]],
+                    "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
+                  origmaptab[mnames[j], 5] <- Lf - diff(range(newmap[[1]][1,
+                    ]))
+                  origmaptab[mnames[j], 6] <- Lm - diff(range(newmap[[1]][2,
+                    ]))
+                }
+
+                markerll <- qtl:::markerloglik(cross, mnames[j], error.prob)
+
+                newmap <- qtl:::est.map(drop.markers(temp, mnames[j]),
+                  error.prob = error.prob, map.function=map.function, m=m, p=p,
+                  maxit=maxit, tol=tol,sex.sp=FALSE)
+
+
+                markit <- mnames[j]
+                k <- -(attr(origmap[[i]], "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
+                Z <- L - diff(range(newmap[[1]]))
+
+                N <- cbind(markit,k,Z)
+
+                return(N)
             }
+              rownames(lod.dif) <- lod.dif[,1]
+              origmaptab[mnames,'LOD'] <- lod.dif[mnames,2]
+              origmaptab[mnames,'Ldiff'] <- lod.dif[mnames,3]
 
-            if (parallel) {
-                #cores=detectCores()
-                #cl <- makeCluster(cores[1])
-                #registerDoParallel(cl)
-                registerDoParallel(slurmcore)
-                lod.dif <- foreach(j=seq(along=mnames),
-                  .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
+          } else { print('use qtl if multi cpus not avail')}
 
-                    markerll <- qtl:::markerloglik(cross, mnames[j], error.prob)
-
-                    newmap <- qtl:::est.map(qtl:::drop.markers(temp, mnames[j]), error.prob=error.prob,
-                      map.function=map.function, m=m, p=p, maxit=maxit, tol=tol,
-                      sex.sp=sex.sp)
-
-                    N <- cbind(mnames[j],
-                      (attr(origmap[[i]], "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10),
-                      L - diff(range(newmap[[1]])))
-
-                    return(N)
-                  }
-                names(lod.dif) <- lod.dif[,1]
-                origmaptab[mnames,'LOD'] <- lod.dif[,2]
-                origmaptab[mnames,'Ldiff'] <- lod.dif[,3]
-            } else {
-                origmaptab[mnames[j], 3] <- -(attr(origmap[[i]],
-                  "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
-                origmaptab[mnames[j], 4] <- L - diff(range(newmap[[1]]))
-            }
-        }
-    }
-    class(origmaptab) <- c("scanone", "data.frame")
-    origmaptab$chr <- factor(origmaptab$chr, levels = unique(origmaptab$chr))
-    origmaptab
+      }
+      print('done with parallel on all chrs')
+      class(origmaptab) <- c("scanone", "data.frame")
+      origmaptab$chr <- factor(origmaptab$chr, levels = unique(origmaptab$chr))
+      origmaptab
 }
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')

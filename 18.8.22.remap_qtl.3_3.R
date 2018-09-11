@@ -21,7 +21,14 @@ print('2nd time removing double cross-overs once more')
 
 print('Re-estimating the final map')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
+cross.18 <- replace.map(cross.18, POS.map.18)
 
+print('2nd time removing double cross-overs once more')
+  cross.18 <- removeDoubleXO(cross.18, verbose=T)
+  print('Done removing dxo..')
+
+print('Re-estimating the final map')
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Done mapping..')
@@ -29,6 +36,10 @@ print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
+
+print('Re-estimating final error rate for QTL mapping')
+ers <- er.rate(cross.18)
+print(paste(ers,' error rate'))
 
 print('Re-adding un-genotyped individuals for stratified analysis')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)

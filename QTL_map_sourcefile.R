@@ -79,12 +79,18 @@ keepQTL <- function(Z,i){
   markerVec <- row.names(gt.1[order(abs(pos.m-pos)) < 10,])
   return(markerVec)
 }
-dropone.par <- function(cross,p=0.05,chr=X,map.function = 'kosambi',
-  maxit=2,sex.sp = F,verbose=F,parallel=T){
-  y <- round(sum(nmar(cross))*p) #get rid of 5% of markers
-  cross.drops <- parallel.droponemarker(cross.18,
-        chr=X,map.function = 'kosambi',maxit=2,
+dropone.par <- function(cross,p,chr,map.function = 'kosambi',
+  maxit,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03){
+  y <- round(sum(nmar(cross))*p)
+  ### p = percent of longest markers to drop
+  cross.drops <- parallel.droponemarker(cross,
+        chr, map.function = 'kosambi',maxit=12,
         sex.sp = F,verbose=F,parallel=T)
+  index.lod <- 
+
+  cross.drops <-
+  ### Positive value in Ldif = decrease in length
+  ### Positive value in LOD = increase in ocerall lod
   todrop <- rownames(cross.drops)[1:y]
   cross <- drop.markers(cross.18,unlist(todrop))
   return(cross)
@@ -98,8 +104,8 @@ marker.warning <- function(cross=cross.18){
 
 }
 er.rate <- function(cross){
-  loglik <- err <- c(0.001, 0.0025, 0.005, 0.0075, 0.01, 0.0125, 0.015,
-    0.0175, 0.02)
+  loglik <- err <- c(0.005, 0.01, 0.015,
+     0.02,0.025, 0.03, 0.04, 0.05)
       registerDoParallel(slurmcore)
       hoods <- foreach(i=seq(along=err),
         .inorder=T,.packages = "qtl") %dopar% {
@@ -119,6 +125,7 @@ drop.errlod <- function(cross,lod=lod,ers=ers){
   print(paste('cut below erlod >',lod))
   mapthis <- calc.errorlod(cross, error.prob=ers)
   toperr <- top.errorlod(mapthis, cutoff=lod)
+  if (toperr)
   step <- sort(as.numeric(names(table(round(toperr$errorlod)))), decreasing=T)
   sapply(step,function(Z){
     mapthis <- calc.errorlod(cross, error.prob=ers)
