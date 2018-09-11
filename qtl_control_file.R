@@ -13,5 +13,4 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/removeDoubleXO.R'))
 source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
 
 ## QTL LGs to consider
-X <- c(1,2,8,13,18,24)
-X <- c(1,2,8,13,18)
+X <- c(1:24)

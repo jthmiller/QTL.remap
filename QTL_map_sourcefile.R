@@ -115,9 +115,25 @@ all.crossed <- function(X=X,i=pop){
   alleles=c("A","B"))
 }
 
+drop.errlod <- function(cross,lod=lod,ers=ers){
+  print(paste('cut below erlod >',lod))
+  mapthis <- calc.errorlod(cross, error.prob=ers)
+  toperr <- top.errorlod(mapthis, cutoff=lod)
+  step <- sort(as.numeric(names(table(round(toperr$errorlod)))), decreasing=T)
+  sapply(step,function(Z){
+    mapthis <- calc.errorlod(cross, error.prob=ers)
+    toperr <- top.errorlod(mapthis, cutoff=Z)
+    apply(toperr,1, function(D){
+      D <- as.character(D)
+      cross$geno[[D[1]]]$data[cross$pheno$ID==D[2], D[3]] <<- NA
+      }
+    )
+    }
+  )
+  return(cross)
+}
 reconst <- function(X,pop,out){
-
-  temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/chr',X,'.QTLmap.csv',sep=''))
+  temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/temp.',X,sep=''))
   myfiles <- lapply(temp, function(X,pop=pop){
     all.crossed(X)
     }

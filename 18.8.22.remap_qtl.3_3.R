@@ -1,4 +1,4 @@
-#!/bin/R
+  #!/bin/R
 ### Map QTLs 3 of 3
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/pop_control_file.R')
 
@@ -15,11 +15,11 @@ print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
 
-print('2nd time removing double cross-overs')
+print('2nd time removing double cross-overs once more')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
   print('Done removing dxo..')
 
-print('Re-estimating map..')
+print('Re-estimating the final map')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
 
 cross.18 <- replace.map(cross.18, POS.map.18)
@@ -30,7 +30,7 @@ print(summary(pull.map(cross.18))[as.character(X),])
 print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
-print('Re-adding un-genotyped individuals')
+print('Re-adding un-genotyped individuals for stratified analysis')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
 phen$pheno_all[which(phen$pheno_all<2)] <- 0
 phen$pheno_all[which(phen$pheno_all>1)] <- 1
@@ -45,9 +45,10 @@ no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
 write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
-system(paste('cat no_genos.csv >> ','chr',X,'.QTLmap.csv',sep=''))
+system(paste('cat chr',Z,'.QTLmap.csv no_genos.csv > temp.',Z,sep=''))
 
 
-print('saving...')
+
+print('saving... done with mapping ind chromosomes')
 rm(cross.18)
 save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))

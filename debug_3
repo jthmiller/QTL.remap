@@ -1,0 +1,19 @@
+### Plotting QTL results
+#### rQTL2
+plot.scan1 - plot genome scan results
+plot_scan1 - same as plot.scan1
+xpos_scan1 - determine the x-axis location of a particular genomic position in a genome scan plot (for adding annotations)
+add_threshold - Add horizontal line at a significance threshold to a genome scan plot.
+plot.scan1coef - plot QTL effects along a chromosome
+plot_coef - same as plot.scan1coef
+plot_coefCC - like plot_coef but assuming there are 8 effects and using the standard colors for the Collaborative Cross (CCcolors)
+plot_snpasso - plot SNP association results
+plot_genes - plot locations of a set of genes
+plot_peaks - plot a summary of QTL positions for multiple phenotypes, using the results of find_peaks
+plot_pxg - plot phenotype versus QTL genotypes
+
+
+
+
+### Place two pops on single map
+interp_map - Use interpolate to convert from one map to another

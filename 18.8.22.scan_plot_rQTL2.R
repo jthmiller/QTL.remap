@@ -1,90 +1,76 @@
 #!/bin/bash
+## Permutations take a long time
+## Map QTLs 4
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/qtl_control_file.R')
-
 slurmcore <- detectCores()
 ## rQTL2 to viz single QTL models
 ## rQTL for 2 qtls for:
 ### permutations
 ### multi QTL models
 out <- file.path(qtldir,'out')
-cross <- reconst(X,pop='NBH',out=out)
-print('Writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(plotdir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
-
-
+cross.18 <- reconst(X,pop='NBH',out=out)
+print('Writing the merged chromosome markers to rQTL format')
+write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
 
 ### rQTL2
 ers <- 0.02
-cross2 <- convert2cross2(cross.18)
+cross2 <- convert2cross2(cross)
 map <- insert_pseudomarkers(cross2$gmap, step=1)
-pr <- calc_genoprob(cross2, map, err=ers, cores=0)
+pr <- calc_genoprob(cross2, map, err=ers, cores=slurmcore)
 pr <- clean_genoprob(pr)
 apr <- genoprob_to_alleleprob(pr)
-
-## Get genotype probabilities for inserted psuedomarkers
-## Two populations can be compared at CM position rather than markers
-## probs_map <- interp_genoprob(pr, map)
-
-## Scan for QTLs
-perms <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=2000,perm_strata=cross2$pheno)
+## Scan for QTLs in each pop
+perms <- scan1perm(pr,cross2$pheno, model="binary", cores=slurmcore,n_perm=2000,perm_strata=cross2$pheno[,1])
 cutoff <- summary(perms)['0.05',]
-perms.unstrat <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=2000)
-cutoff.us <- summary(perms.unstrat)['0.05',]
-out_bin <- scan1(pr,cross2$pheno, model="binary", cores=0)
-out_coef <- scan1coef(pr,cross2$pheno,model = 'binary')
-max_pos <- rownames(max(out_bin, map['18']))
-fit <- fit1(pr[['18']][,,max_pos], cross2$pheno, model="binary")
-
-### Single QTLs
+#perms.unstrat <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=2000)
+#cutoff.us <- summary(perms.unstrat)['0.05',]
+out_bin <- scan1(pr,cross2$pheno[,1], model="binary", cores=slurmcore)
+## uses a lod10 likelyhood function that results in a posterior dist of the QTL location
 bayes_int(out_bin, map, lodcolumn=1, prob=0.95, threshold=cutoff)
-a <- find_peaks(out_bin, map, threshold=cutoff, peakdrop=3, prob=0.95)
+single <- find_peaks(out_bin, map, threshold=cutoff, peakdrop=2, prob=0.95)
 
-## Make QTL in rQTL1 with rQTL2 locarions
-GP <- calc.genoprob(cross.18, step=2.5)
-GP <- sim.geno(GP,n.draws=1000, step=2, err=0.02)
-### This uses single qtls from rQTL2
-qtl <- makeqtl(GP, chr=a$chr, pos=a$pos, what="prob")
-out.fq <- fitqtl(GP, qtl=qtl, method="hk")
-rqtl <- refineqtl(GP, qtl=qtl, formula=y~Q1+Q2+Q3, verbose=FALSE)
-stepout1 <- stepwiseqtl(GP,qtl=rqtl, additive.only=TRUE, max.qtl=6, verbose=FALSE)
+out_coef <- scan1coef(pr[,2],cross2$pheno[,1],model = 'binary', maxit = 1000,
+  contrasts=cbind(mu=c(1,1,1), a=c(-1, 0, 1), d=c(0, 1, 0)))
 
+## Fit QTLs from rQTL2 with rQTL and genoprobs (Haley knott)
+cross <- calc.genoprob(cross.18, step=1,error.prob=0.02,map.function='kosambi')
+qtl <- makeqtl(cross, chr=single$chr, pos=single$pos,what='prob')
+qtl.rf <- refineqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q3,method="hk",verbose=FALSE)
+out.fit <- fitqtl(cross, qtl=qtl.rf, formula=y~Q1+Q2+Q3,method="hk",get.ests=T)
 
+### After fitting single addative QTLs, search model space for addition addative
+stepout1 <- stepwiseqtl(cross,qtl=qtl.rf,pheno.col=1,model="binary",
+  additive.only=TRUE, max.qtl=6, verbose=FALSE)
 
+### qtl1 with em
+strata <- cross$pheno$pheno==1
+names(strata) <- cross$pheno$ID
+out_scan.em <- scanone(cross, pheno.col=1, model="binary", method="em",perm.strata=strata)
+out_perm.em <- scanone(cross, pheno.col=1, model="binary", method="em",perm.strata=strata,n.perm=100)
 
-find_peaks(out_bin, map, threshold=cutoff, peakdrop=3, drop=1.5)
+save.image(paste('QTLmap.Rsave',sep=''))
 
+cross.no2 <- subset(cross,chr=c(1,3:24))
+registerDoParallel(slurmcore)
+operm.hk <- foreach(i=500,
+  .combine=c,.packages = "qtl") %dopar% {
+    operm <- scantwo(cross.no2, method="hk", n.perm=1,
+                       perm.strata=strata)
+}
+save.image(paste('QTLmap.Rsave',sep=''))
 
+### qtl scan2
+registerDoParallel(slurmcore)
+operm.em <- foreach(i=500,
+  .combine=c,.packages = "qtl") %dopar% {
+    operm <- scantwo(cross.no2, method="em", n.perm=1,
+                       perm.strata=strata)
+}
+pen <- calc.penalties(operm)
 
-
-sapply(X,function(X){
-  bayes_int(out_bin, map, lodcolumn=1, chr=X, prob=0.95)
-  }
-)
-
-interp_genoprob "to get two sets onto the same map for comparison purposes"
-
-
-### Plot max lod on each chr #####################################
-png(paste(plotdir,'/maxlod.qtl.png',sep='' ),width =1000)
-par(mar=c(5.1, 4.1, 1.1, 1.1))
-plot(out_bin, map, lodcolumn=1, col="slateblue", ylim=c(0, 10))
-dev.off()
-
-### Perform permutation to determine significance ####
-operm <- scan1perm(pr, bin_pheno, n_perm=10000, cores=0)
-summary(operm, alpha=c(0.2, 0.05))
-
-print(find_peaks(out_bin, map, threshold=3.56, peakdrop=1.8, drop=1.5))
-
-
-
-
-
-print('Scanning for a single QTL')
-GP <- calc.genoprob(cross.18, step=2.5)
-GP <- sim.geno(GP,n.draws=1000, step=2, err=0.02)
-scanQTL <- scanone(GP, pheno.col=1, model="binary", method="hk")
+##contrasts > to get mean, additive effect, and dominance effect.
+## contrasts matrix (arg provided)
 
 print('Done scanning. Saving...')
-save.image(paste('chr',X,'.QTLmap.Rsave',sep=''))
-print(paste('done with chrom',X,'in pop',pop))
+save.image(paste('QTLmap.Rsave',sep=''))
+## probs_map <- interp_genoprob(pr, map)

@@ -21,6 +21,9 @@ print('determine error rate')
 ers <- er.rate(cross.18)
 print(paste(ers,' error rate'))
 
+print('dropping markers by error lod')
+cross.18 <- drop.errlod(cross.18,lod=4,ers=0.02)
+
 print('Writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
 
