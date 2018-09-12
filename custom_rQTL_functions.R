@@ -156,7 +156,6 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
     cross
 }
 
-
 parallel.droponemarker <- function (cross, chr, error.prob = 0.03, map.function = c("haldane",
     "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 1, cores=slurmcore,
     tol = 1e-06, sex.sp = FALSE, verbose = TRUE , parallel=T)
@@ -250,5 +249,6 @@ parallel.droponemarker <- function (cross, chr, error.prob = 0.03, map.function 
       origmaptab$chr <- factor(origmaptab$chr, levels = unique(origmaptab$chr))
       origmaptab
 }
+
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')

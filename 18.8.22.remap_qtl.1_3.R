@@ -57,7 +57,7 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
 )
 
 print('Making 2 or more groups of phased markers per chromosome..')
-print('No evidence for linkage is high RF and low lod with the prev. mapped LG')
+print('Evidence for linkage is low if high RF and low lod with prev. mapped markers')
 
 cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=6, reorgMarkers=TRUE)
 keep <- sapply(1:nchr(cross.18.all),function(i){
@@ -71,7 +71,6 @@ rm(cross.18.all) ##keep memory light
 
 print('forming initial linkage groups')
 cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
-
 
 ## fix phase
 chrom.b4 <- nchr(cross.18)
@@ -111,7 +110,7 @@ marker.warning()
 print('order filtered markers. Takes awhile...')
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=0.002, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X

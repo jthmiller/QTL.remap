@@ -1,9 +1,3 @@
-## Libraries
-packs <- c('qtl','foreach','doParallel')
-lapply(packs, require, character.only = TRUE)
-## Load a couple fixed rQTL functions
-source(file.path(basedir,'rQTL/scripts/QTL_remap/custom_rQTL_functions.R'))
-
 marker.density <- function(cross,gt.1){
   index <- gsub('\\:.*','',rownames(gt.1))==X
   x <- order(as.numeric(gsub('.*\\:','',rownames(gt.1)))[index])
@@ -79,20 +73,30 @@ keepQTL <- function(Z,i){
   markerVec <- row.names(gt.1[order(abs(pos.m-pos)) < 10,])
   return(markerVec)
 }
-dropone.par <- function(cross,p,chr,map.function = 'kosambi',
+dropone.par <- function(cross,p,chr,map.function = 'kosambi',length.imp = 1, LOD.imp = 0,
   maxit,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03){
   y <- round(sum(nmar(cross))*p)
   ### p = percent of longest markers to drop
   cross.drops <- parallel.droponemarker(cross,
         chr, map.function = 'kosambi',maxit=12,
         sex.sp = F,verbose=F,parallel=T)
-  index.lod <- 
 
-  cross.drops <-
+  Len <- quantile(as.numeric(cross.drops$Ldiff),p)
+  Lod <- quantile(as.numeric(cross.drops$LOD),p)
+
+  index.lod <- rownames(cross.drops[which(as.numeric(cross.drops$LOD) > Lod & as.numeric(cross.drops$LOD) > LOD.imp),])
+  index.ldif <- rownames(cross.drops[which(as.numeric(cross.drops$Ldiff) > Len & as.numeric(cross.drops$Ldiff) > length.imp),])
+  drops <- unique(c(index.lod,index.ldif))
+  if (length(drops)>0){
+    cross <- drop.markers(cross.18,unlist(drops))
+    print(paste('dropping',cross.drops[drops,1]))
+    print(paste('dropping',cross.drops[drops,3]))
+    print(paste('dropping',cross.drops[drops,4]))
+  } else {
+    print('no drops made')
+  }
   ### Positive value in Ldif = decrease in length
   ### Positive value in LOD = increase in ocerall lod
-  todrop <- rownames(cross.drops)[1:y]
-  cross <- drop.markers(cross.18,unlist(todrop))
   return(cross)
 }
 marker.warning <- function(cross=cross.18){
@@ -115,34 +119,40 @@ er.rate <- function(cross){
       }
       return(err[which.max(abs(unlist(hoods)))])
 }
-
 all.crossed <- function(X=X,i=pop){
   read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
   alleles=c("A","B"))
 }
-
 drop.errlod <- function(cross,lod=lod,ers=ers){
-  print(paste('cut below erlod >',lod))
+  print(paste('remove genotypes with erlod >',lod))
   mapthis <- calc.errorlod(cross, error.prob=ers)
   toperr <- top.errorlod(mapthis, cutoff=lod)
-  if (toperr)
-  step <- sort(as.numeric(names(table(round(toperr$errorlod)))), decreasing=T)
-  sapply(step,function(Z){
-    mapthis <- calc.errorlod(cross, error.prob=ers)
-    toperr <- top.errorlod(mapthis, cutoff=Z)
-    apply(toperr,1, function(D){
-      D <- as.character(D)
-      cross$geno[[D[1]]]$data[cross$pheno$ID==D[2], D[3]] <<- NA
-      }
-    )
+  dropped <- 0
+  if (length(toperr[,1]) > 0){
+    step <- sort(as.numeric(names(table(floor(toperr$errorlod)))), decreasing=T)
+    while (!sum(step)==0) {
+      sapply(step,function(Z){
+        apply(toperr[which(toperr$errorlod>Z),],1, function(marks){
+          marks <- as.character(marks)
+          cross$geno[[marks[1]]]$data[cross$pheno$ID==marks[2], marks[3]] <<- NA
+          dropped <<- dropped + 1
+          }
+        )
+        mapthis <<- calc.errorlod(cross, error.prob=ers)
+        toperr2 <<- top.errorlod(mapthis, cutoff=lod)
+          if (!is.null(toperr2)){ step <<- sort(as.numeric(names(table(floor(toperr2$errorlod)))), decreasing=T)
+          } else { step <<- 0 }
+        }
+      )
     }
-  )
+  }
+  print(paste('done...dropped',dropped,'genotypes'))
   return(cross)
 }
 reconst <- function(X,pop,out){
   temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/temp.',X,sep=''))
-  myfiles <- lapply(temp, function(X,pop=pop){
-    all.crossed(X)
+  myfiles <- lapply(temp, function(tocross,pop=pop){
+    all.crossed(tocross)
     }
   )
   ID <- myfiles[[1]]$pheno$ID
@@ -170,9 +180,9 @@ reconst <- function(X,pop,out){
   cross <- cbind(pheno,sex,ID=as.character(ID),cross)
   cross <- rbind(colnames(cross),chr,map,cross)
 
-  write.table(cross,file=out,
+  write.table(cross,file=file.path(outdir,'tempout'),
       col.names=F,row.names=F,quote=F,sep=',')
 
-  return(read.cross.jm(file=out,format='csv',
+  return(read.cross.jm(file=file.path(outdir,'tempout'),format='csv',
     geno=c(1:3),estimate.map=FALSE))
 }

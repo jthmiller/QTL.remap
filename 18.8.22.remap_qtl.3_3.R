@@ -19,16 +19,8 @@ print('2nd time removing double cross-overs once more')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
   print('Done removing dxo..')
 
-print('Re-estimating the final map')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
-cross.18 <- replace.map(cross.18, POS.map.18)
-
-print('2nd time removing double cross-overs once more')
-  cross.18 <- removeDoubleXO(cross.18, verbose=T)
-  print('Done removing dxo..')
-
-print('Re-estimating the final map')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X)
+print('Re-estimating the final map with many iterations...')
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=10000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Done mapping..')
@@ -48,7 +40,6 @@ phen$pheno_all[which(phen$pheno_all>1)] <- 1
 index <- which(phen$pop_all==pop)
 zeros <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['0'])
 ones <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['1'])
-
 no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
               sex=rep(0,times=zeros+ones),ind=paste('NG',1:as.numeric(zeros+ones),sep=''),
               markers= matrix('-',nrow=zeros+ones,ncol=as.numeric(nmar(cross.18))))
@@ -57,8 +48,6 @@ write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
 system(paste('cat chr',Z,'.QTLmap.csv no_genos.csv > temp.',Z,sep=''))
-
-
 
 print('saving... done with mapping ind chromosomes')
 rm(cross.18)

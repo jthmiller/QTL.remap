@@ -7,14 +7,19 @@ basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
 popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
+qtldir <- file.path(basedir,'rQTL/remap_out')
+errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 setwd(popdir)
 
-## Funtions for processing rQTL data
+## Funtions for processing rQTL map data
 source(file.path(basedir,'rQTL/scripts/QTL_remap/removeDoubleXO.R'))
 source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/custom_rQTL_functions.R'))
 
-## Parameters for rQTL for all datasets
-
+## Libraries
+packs <- c('qtl','foreach','doParallel')
+lapply(packs, require, character.only = TRUE)
+## Load a couple fixed rQTL functions
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
@@ -33,3 +38,10 @@ if (pop=='ELR'){
   grpRf <- 0.35
   finRf <- 0.25
 }
+## Try to get error exported by map
+expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
+try(ers <- as.numeric(system(expr,intern=T)))
+
+if (length(ers)==0){ print('couldnt find the error. Using 0.02')
+  ers <- 0.02
+} else {print(paste(ers,'genotyping error'))}
