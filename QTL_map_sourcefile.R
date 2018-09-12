@@ -74,12 +74,12 @@ keepQTL <- function(Z,i){
   return(markerVec)
 }
 dropone.par <- function(cross,p,chr,map.function = 'kosambi',length.imp = 1, LOD.imp = 0,
-  maxit,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03){
+  maxit=1,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03,cores){
   y <- round(sum(nmar(cross))*p)
   ### p = percent of longest markers to drop
   cross.drops <- parallel.droponemarker(cross,
-        chr, map.function = 'kosambi',maxit=12,
-        sex.sp = F,verbose=F,parallel=T)
+        chr, map.function = 'kosambi',maxit,
+        sex.sp = F,verbose=F,parallel=T,cores)
 
   Len <- quantile(as.numeric(cross.drops$Ldiff),p)
   Lod <- quantile(as.numeric(cross.drops$LOD),p)

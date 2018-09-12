@@ -206,7 +206,7 @@ parallel.droponemarker <- function (cross, chr, error.prob = 0.03, map.function 
         temp <- subset(cross, chr = i)
 
         if (parallel) {
-              registerDoParallel(slurmcore)
+              registerDoParallel(cores)
               lod.dif <- foreach(j=seq(along=mnames),
                 .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
 
