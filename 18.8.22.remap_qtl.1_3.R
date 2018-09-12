@@ -56,12 +56,12 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
   )
 )
 
-print('Making 2 or more groups of phased markers per chromosome..')
-print('Evidence for linkage is low if high RF and low lod with prev. mapped markers')
+print('Making groups of inclusive markers per chromosome to switch phase on the groups that make up at least 10% of the data.')
+print(paste('Using a high initial lod to form the 4 sets of linked markers')
 
-cross.18.all <- formLinkageGroups(cross.18, max.rf=0.35, min.lod=6, reorgMarkers=TRUE)
+cross.18.all <- formLinkageGroups(cross.18, max.rf=0.4, min.lod=6, reorgMarkers=TRUE)
 keep <- sapply(1:nchr(cross.18.all),function(i){
-      l <- sum(nmar(cross.18.all))*.01
+      l <- sum(nmar(cross.18.all))*.15
       return(sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i))) > l)
       }
     )
@@ -97,12 +97,9 @@ marker.warning()
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
-print('second distortion filter')
-cross.18 <- distort.18(cross.18,0.005)
-
 marker.warning()
 
-print('second distortion filter')
+print('second missing filter')
 cross.18 <- drop.missing.18(cross.18,missing=missing)
 
 marker.warning()

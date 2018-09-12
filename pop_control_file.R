@@ -24,7 +24,7 @@ lapply(packs, require, character.only = TRUE)
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov
-  missing <- 0.80
+  missing <- 0.9
   grpLod <- 8 ## Standard LG form LOD
   finLod <- 12 ## Higher final NBH LOD
   grpRf <- 0.35
@@ -32,9 +32,9 @@ if (pop=='NBH'){
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.75
+  missing <- 0.80
   grpLod <- 8 ## Standard LG form LOD
-  finLod <- 12 ## Higher final NBH LOD
+  finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.35
   finRf <- 0.25
 }
