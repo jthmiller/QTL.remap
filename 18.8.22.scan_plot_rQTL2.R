@@ -17,6 +17,7 @@ pr.sub <- calc_genoprob(subset(cross2,chr=1:24[-2]), map, err=ers, cores=slurmco
 perms <- scan1perm(pr.sub,cross2$pheno, model="binary", cores=slurmcore,n_perm=2000,perm_strata=cross2$pheno[,1])
 cutoff <- summary(perms)['0.05',]
 perms.unstrat <- scan1perm(pr,cross2$pheno, model="binary", cores=0,n_perm=2000)
+### Figure out why permutations is usually returning the max LOD from each Chr
 cutoff.us <- summary(perms.unstrat)['0.05',]
 out_bin <- scan1(pr,cross2$pheno[,1], model="binary", cores=slurmcore)
 out_coef <- scan1coef(pr[,2],cross2$pheno[,1],model = 'binary', maxit = 1000,

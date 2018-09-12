@@ -14,7 +14,7 @@ test.QTLs <- read.table(file.path(basedir,'rQTL/metadata/QTLs.txt'),
 test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 
 print(pop)
-
+print(X)
 ## read in the QTL cross
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
@@ -35,8 +35,8 @@ cross.18 <- subset(cross.18, chr=subset.qtl)
 marker.warning()
 
 ## Conservative
-print('Dropping marker with less than 50 genotypes')
-cross.18 <- drop.missing(cross.18,50)
+print('Dropping marker with less than 60 genotypes')
+cross.18 <- drop.missing(cross.18,60)
 
 marker.warning()
 
@@ -56,13 +56,12 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
   )
 )
 
-print('Making groups of inclusive markers per chromosome to switch phase on the groups that make up at least 10% of the data.')
-print(paste('Using a high initial lod to form the 4 sets of linked markers'))
+print('Keeping markers that show even low linkage to any previously known mapped marker')
+print(paste('Using an initial lod of 6 to keep markers '))
 
-cross.18.all <- formLinkageGroups(cross.18, max.rf=0.4, min.lod=6, reorgMarkers=TRUE)
+cross.18.all <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
 keep <- sapply(1:nchr(cross.18.all),function(i){
-      l <- sum(nmar(cross.18.all))*.15
-      return(sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i))) > l)
+      return(sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i))) > 1)
       }
     )
 keep <- names(cross.18.all$geno)[keep]
@@ -70,9 +69,9 @@ cross.18 <- subset(cross.18.all, chr=keep)
 rm(cross.18.all) ##keep memory light
 
 print('forming initial linkage groups')
-cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
 
-## fix phase
+## iteritively fix phase by inverting phase of the growing LG and re-eval linkage
 chrom.b4 <- nchr(cross.18)
 if (chrom.b4 > 1){
   print('fixing phase')
@@ -80,20 +79,24 @@ if (chrom.b4 > 1){
   while (chrom.b4 > chrom.after){
     chrom.b4 <- nchr(cross.18)
     cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=1))
-    cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
+    cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod, reorgMarkers=TRUE)
     chrom.after <- nchr(cross.18)
     }
-  print('done fixing phase')
+  print('done fixing phase... switching phase added no new markers to the LG')
 } else {
   print('did not need to fix phase')
 }
-
+### Keep all with linkage to marker mapped to the LG
+keep <- sapply(1:nchr(cross.18),function(i){
+      return(sum(X==gsub('\\:.*','',markernames(cross.18,chr=i))) > 1)
+      }
+    )
+keep <- names(cross.18$geno)[keep]
+cross.18 <- subset(cross.18, chr=keep)
+cross.18 <- formLinkageGroups(cross.18, max.rf=0.25, min.lod=5, reorgMarkers=TRUE)
+LGtable <- formLinkageGroups(cross.18, max.rf=0.25, min.lod=5)
 ## form linkage groups on phase-fixed data
-LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
-
-marker.warning()
-
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
