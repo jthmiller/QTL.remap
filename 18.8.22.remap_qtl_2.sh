@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH -J array_job
+#SBATCH -J parallel_drop
 #SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/%j_out_%A_%a.txt
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/%j_err_%A_%a.txt
 #SBATCH --time=24:00:00
