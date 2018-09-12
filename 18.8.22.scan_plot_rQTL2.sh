@@ -5,7 +5,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
-#SBATCH --mem-per-cpu=3000
+#SBATCH --mem-per-cpu=5000
 #SBATCH -p med
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
@@ -17,6 +17,13 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 
 pop='NBH'
 #pop='ELR'
+
+### This requires 2 cpu with 3G memory each, but takes awhile
+Rscript $scriptdir/18.8.22.scan_plot_rQTL2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+
+wait
+
+pop='ELR'
 
 ### This requires 2 cpu with 3G memory each, but takes awhile
 Rscript $scriptdir/18.8.22.scan_plot_rQTL2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

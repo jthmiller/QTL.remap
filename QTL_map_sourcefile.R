@@ -119,10 +119,6 @@ er.rate <- function(cross){
       }
       return(err[which.max(abs(unlist(hoods)))])
 }
-all.crossed <- function(X=X,i=pop){
-  read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
-  alleles=c("A","B"))
-}
 drop.errlod <- function(cross,lod=lod,ers=ers){
   print(paste('remove genotypes with erlod >',lod))
   mapthis <- calc.errorlod(cross, error.prob=ers)
@@ -149,9 +145,14 @@ drop.errlod <- function(cross,lod=lod,ers=ers){
   print(paste('done...dropped',dropped,'genotypes'))
   return(cross)
 }
-reconst <- function(X,pop,out){
+all.crossed <- function(X){
+  read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
+  alleles=c("A","B"))
+}
+
+reconst <- function(X,pop,dir){
   temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/temp.',X,sep=''))
-  myfiles <- lapply(temp, function(tocross,pop=pop){
+  myfiles <- lapply(temp, function(tocross){
     all.crossed(tocross)
     }
   )
@@ -180,9 +181,9 @@ reconst <- function(X,pop,out){
   cross <- cbind(pheno,sex,ID=as.character(ID),cross)
   cross <- rbind(colnames(cross),chr,map,cross)
 
-  write.table(cross,file=file.path(outdir,'tempout'),
+  write.table(cross,file=file.path(dir,'tempout'),
       col.names=F,row.names=F,quote=F,sep=',')
 
-  return(read.cross.jm(file=file.path(outdir,'tempout'),format='csv',
+  return(read.cross.jm(file=file.path(dir,'tempout'),format='csv',
     geno=c(1:3),estimate.map=FALSE))
 }

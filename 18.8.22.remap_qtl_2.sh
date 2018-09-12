@@ -5,7 +5,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
-#SBATCH --mem-per-cpu=3000
+#SBATCH --mem-per-cpu=5000
 #SBATCH -p med
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
@@ -16,17 +16,12 @@
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 
 pop='NBH'
-#pop='ELR'
-
-### This requires 2 cpu with 3G memory each, but takes awhile
-Rscript $scriptdir/18.8.22.remap_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
-
-wait
-
 ### This requires 12 cpus with 5G of memory (dasically an entire node, but cant run on 24 cpus with only 2.5Gs of memory)
 Rscript $scriptdir/18.8.22.remap_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 
 wait
 
-### This requires 2 cpu with 3G memory each, but takes awhile
-Rscript $scriptdir/18.8.22.remap_qtl.3_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+pop='ELR'
+
+### This requires 12 cpus with 5G of memory (dasically an entire node, but cant run on 24 cpus with only 2.5Gs of memory)
+Rscript $scriptdir/18.8.22.remap_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

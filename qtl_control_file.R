@@ -7,7 +7,6 @@ basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
 qtldir <- file.path(basedir,'rQTL/remap_out')
-out <- file.path(qtldir,'out') ## Temp out
 errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 setwd(qtldir)
 
