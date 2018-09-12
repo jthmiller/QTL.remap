@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH -J parallel_drop
-#SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/%j_out_%A_%a.txt
-#SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/%j_err_%A_%a.txt
+#SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/$step_$pop_out_%A_%a.txt
+#SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/$step_$pop_err_%A_%a.txt
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
@@ -12,7 +12,7 @@
 #SBATCH --array=1-24%6
 
 ####QTLs are on chrm '1 2 8 13 18 24'
-
+step=parallel_drop
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 
 pop='NBH'
