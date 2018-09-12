@@ -57,7 +57,7 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
 )
 
 print('Making groups of inclusive markers per chromosome to switch phase on the groups that make up at least 10% of the data.')
-print(paste('Using a high initial lod to form the 4 sets of linked markers')
+print(paste('Using a high initial lod to form the 4 sets of linked markers'))
 
 cross.18.all <- formLinkageGroups(cross.18, max.rf=0.4, min.lod=6, reorgMarkers=TRUE)
 keep <- sapply(1:nchr(cross.18.all),function(i){
