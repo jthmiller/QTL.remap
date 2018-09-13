@@ -12,9 +12,7 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 setwd(popdir)
 
 ## Funtions for processing rQTL map data
-source(file.path(basedir,'rQTL/scripts/QTL_remap/removeDoubleXO.R'))
-source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
-source(file.path(basedir,'rQTL/scripts/QTL_remap/custom_rQTL_functions.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/Source_file.R'))
 
 ## Libraries
 packs <- c('qtl','foreach','doParallel')
@@ -32,7 +30,7 @@ if (pop=='NBH'){
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.9
+  missing <- 0.8
   grpLod <- 8 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.35
