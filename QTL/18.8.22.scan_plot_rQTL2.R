@@ -1,5 +1,6 @@
 #!/bin/bash
-source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/qtl_control_file.R')
+setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
+source('control_file.R')
 
 cross.18 <- reconst(X=chrms,pop=popq)
 #cross.18 <- reconst(X,pop=popq,dir=qtldir)

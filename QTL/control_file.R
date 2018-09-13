@@ -11,9 +11,7 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 setwd(qtldir)
 
 ## Funtions for processing rQTL data
-source(file.path(basedir,'rQTL/scripts/QTL_remap/removeDoubleXO.R'))
-source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL_map_sourcefile.R'))
-source(file.path(basedir,'rQTL/scripts/QTL_remap/custom_rQTL_functions.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/source_file.R'))
 
 ## Libraries
 packs <- c('qtl','foreach','doParallel')

@@ -228,7 +228,7 @@ markersInInterval <- function(cross, chr, min, max) {
 
 singleMarkerInInterval <- function(cross, chr, min, max) {
 
-  tmp <- markersInInterval(cross,chr,min,max)  
+  tmp <- markersInInterval(cross,chr,min,max)
 
   val <- ifelse(sum(!is.na(tmp) == 1 | is.na(tmp) == 2), tmp[!is.na(tmp)], FALSE)
 
@@ -252,9 +252,9 @@ singleMarkerInInterval <- function(cross, chr, min, max) {
 
 
 
-removeDoubleXO <- function(cross, chr, verbose=TRUE) { 
+removeDoubleXO <- function(cross, chr, verbose=TRUE) {
 
-  if (!missing(chr)) 
+  if (!missing(chr))
 
       chr <- matchchr(chr, names(cross$geno))
 
@@ -274,7 +274,7 @@ removeDoubleXO <- function(cross, chr, verbose=TRUE) {
 
     # vector with estimated crossover locations
 
-    
+
 
     xo <- locateXO(cross, ch)
 
@@ -284,7 +284,7 @@ removeDoubleXO <- function(cross, chr, verbose=TRUE) {
 
     # of changes
 
-    
+
 
     total_removed <- 0
 
@@ -296,7 +296,7 @@ removeDoubleXO <- function(cross, chr, verbose=TRUE) {
 
     for (ind in 1:length(xo)) {            # loop through individuals
 
-      if (length(xo[[ind]]) <= 1) 
+      if (length(xo[[ind]]) <= 1)
 
         next  # skip individuals with one or fewer recombination events
 
@@ -310,7 +310,7 @@ removeDoubleXO <- function(cross, chr, verbose=TRUE) {
 
         # event and the next (location -1 thru location)
 
-        
+
 
         sMar <- singleMarkerInInterval(cross,ch,xo[[ind]][location-2],xo[[ind]][location+1])
 
@@ -347,6 +347,3 @@ removeDoubleXO <- function(cross, chr, verbose=TRUE) {
   cross
 
 }
-
-
-
