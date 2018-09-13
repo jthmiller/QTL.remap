@@ -13,7 +13,7 @@
 
 ####QTLs are on chrm '1 2 8 13 18 24'
 step=parallel_drop
-scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
+scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
 pop='NBH'
 ### This requires 12 cpus with 5G of memory (dasically an entire node, but cant run on 24 cpus with only 2.5Gs of memory)
