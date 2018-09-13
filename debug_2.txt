@@ -1,0 +1,80 @@
+##################################
+# 9.3.7 stepwiseqtl
+###################################
+
+# Stratified permutation test for 2d, 2-QTL scan
+
+operm2 <- scantwo(cross.18, method="imp", n.perm=1000,
+                  perm.strat=strat)
+
+# Estimated significance thresholds
+summary(operm2)
+
+# Calculate penalties for use with stepwiseqtl
+print(pen <- calc.penalties(operm2))
+
+# Calculate penalties for both 5% and 20% significance levels
+calc.penalties(operm2, alpha=c(0.05, 0.20))
+
+# stepwise model selection
+outsw1 <- stepwiseqtl(hyper, max.qtl=8, penalties=pen,
+                      verbose=FALSE)
+
+# print results
+outsw1
+
+# stepwise model selection, saving LOD profiles and trace through model space
+outsw2 <- stepwiseqtl(hyper, max.qtl=8, penalties=pen,
+                      verbose=FALSE, keeplodprofile=TRUE,
+                      keeptrace=TRUE)
+
+# plot LOD profiles
+plotLodProfile(outsw2)
+
+# print attribute names
+names(attributes(outsw2))
+
+# pull out the model "trace" and print the first model seen
+thetrace <- attr(outsw2, "trace")
+thetrace[[1]]
+
+# plot models visited in stepwiseqtl
+par(mfrow=c(6,3))
+for(i in seq(along=thetrace))
+  plotModel(thetrace[[i]], chronly=TRUE,
+            main=paste(i, ": pLOD =",
+              round(attr(thetrace[[i]], "pLOD"), 2)))
+
+# stepwise analysis with all heavy penalties
+outsw3 <- stepwiseqtl(hyper, max.qtl=8, penalties=pen[1:2],
+                      verbose=FALSE)
+
+# print results
+outsw3
+
+# stepwise analysis with more liberal penalties
+liberalpen <- calc.penalties(operm2, alpha=0.2)
+outsw4 <- stepwiseqtl(hyper, max.qtl=8, penalties=liberalpen,
+                      verbose=FALSE)
+
+# print results
+outsw4
+
+# stepwise analysis allowing only additive models
+outsw5 <- stepwiseqtl(hyper, max.qtl=8, penalties=pen,
+                      additive.only=TRUE, verbose=FALSE)
+
+# print results
+outsw5
+
+# stepwise analysis starting at the 4-QTL model with the 6x15 interaction
+qtl <- makeqtl(hyper, chr=c(1, 4, 6, 15),
+               pos=c(68.3, 30, 60, 18))
+outsw6 <- stepwiseqtl(hyper, max.qtl=8, penalties=pen,
+                      qtl=qtl, formula=y~Q1+Q2+Q3*Q4,
+                      verbose=FALSE)
+
+# print results
+outsw6
+
+# end of chap09.R

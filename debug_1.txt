@@ -1,0 +1,127 @@
+
+X <- 18
+pop <- 'NBH'
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/qtl_control_file.R')
+popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
+
+sapply(X,function(Z){
+  system(paste('cat chr',Z,'.QTLmap.csv no_genos.csv > temp.',Z,sep=''))
+}
+
+
+
+
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('chr',X,'.QTLmap.csv',sep=''),
+   geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+   X <- c(1,2,8,24)
+
+X <- 18
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('chr',X,'.QTLmap.csv',sep=''),
+   geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+
+   mapthis <- calc.errorlod(cross.2, error.prob=0.02)
+   toperr <- top.errorlod(mapthis, cutoff=10)
+
+
+ind <- cross.1$pheno$ID[grep('NG',cross.1$pheno$ID, invert=T)]
+plotGeno(cross.1,chr=18,ind=ind)
+
+plotGeno(cross.1, chr=18, ind=toperr$id,cutoff=6, include.xo=FALSE)
+
+plotGeno(cross.1, chr=18, ind=toperr$id,cutoff=10, include.xo=FALSE)
+
+
+mapthis.clean <- mapthis
+  for(i in 1:nrow(toperr)) {
+    chr <- toperr$chr[i]
+    id <- toperr$id[i]
+    mar <- toperr$marker[i]
+    mapthis.clean$geno[[chr]]$data[mapthis.clean$pheno$ID==id, mar] <- NA
+}
+
+mapthis2 <- calc.errorlod(mapthis.clean, error.prob=0.02)
+toperr <- top.errorlod(mapthis2, cutoff=5)
+
+plotGeno(cross.2, chr=18, ind=toperr$id,cutoff=5, include.xo=FALSE)
+
+
+
+
+mapthis.clean2 <- mapthis.clean
+  for(i in 1:nrow(toperr)) {
+    chr <- toperr$chr[i]
+    id <- toperr$id[i]
+    mar <- toperr$marker[i]
+    mapthis.clean$geno[[chr]]$data[mapthis.clean$pheno$ID==id, mar] <- NA
+}
+
+mapthis2 <- calc.errorlod(mapthis.clean, error.prob=0.02)
+toperr <- top.errorlod(mapthis2, cutoff=0.5)
+plotGeno(mapthis.clean, chr=18, ind=ind, include.xo=FALSE)
+
+
+toperr <- top.errorlod(mapthis2, cutoff=2)
+
+
+
+
+
+
+cross.18 <- reconst(X,pop='NBH',out=out)
+ers <- 0.02
+cross2 <- convert2cross2(cross.18)
+map <- insert_pseudomarkers(cross2$gmap, step=1)
+pr <- calc_genoprob(cross2, map, err=ers, cores=0)
+pr <- clean_genoprob(pr)
+apr <- genoprob_to_alleleprob(pr)
+##### Build a model in rQTL
+
+
+
+qtl <- makeqtl(sug, chr=c(7,15), pos=c(47.7, 12), what="prob")
+out.fq <- fitqtl(sug, qtl=qtl, method="hk")
+summary(out.fq)
+summary(fitqtl(sug, qtl=qtl, method="hk", get.ests=TRUE, dropone=FALSE))
+
+out.fqi <- fitqtl(sug, qtl=qtl, method="hk", formula=y ̃Q1*Q2)
+out.fqi <- fitqtl(sug, qtl=qtl, method="hk", formula=y ̃Q1+Q2+Q1:Q2)
+summary(out.fqi)
+addint(sug, qtl=qtl, method="hk")
+
+## rQTL ##
+The next important addition is refineqtl, which uses an iterative algorithm to refine the locations of QTL in a multiple-QTL model, with the aim of obtaining the maximum likelihood estimates of the QTL positions. If the function is called with keeplodprofile=TRUE (which is the default), one may use another new function, plotLodProfile, to plot the LOD profiles for each QTL, in the context of the multiple-QTL model, as is commonly used in multiple interval mapping.
+## scan context of the multiple-QTL model
+
+print('Scanning for a single QTL')
+GP <- calc.genoprob(cross.18, step=2.5)
+GP <- sim.geno(GP,n.draws=1000, step=2, err=0.02)
+
+scanQTL.perm <- scanone(GP, pheno.col=1, model="binary", method="hk")
+scanQTL <- scanone(GP, pheno.col=1, model="binary", method="hk")
+
+
+qtl <- makeqtl(GP, chr=c(1, 4, 6, 15), pos=c(67.3, 30, 60, 17.5))
+out.fq <- fitqtl(GP, qtl=qtl, formula=y~Q1+Q2+Q3*Q4)
+
+rqtl <- refineqtl(GP, qtl=qtl, formula=y~Q1+Q2+Q3*Q4, verbose=FALSE)
+out.fq2 <- fitqtl(GP, qtl=rqtl, formula=y~Q1+Q2+Q3*Q4, dropone=FALSE)
+
+## Add only addative loci
+stepout1 <- stepwiseqtl(hyper, additive.only=TRUE, max.qtl=6, verbose=FALSE)
+stepout2 <- stepwiseqtl(hyper, max.qtl=6, keeptrace=TRUE, verbose=FALSE)
+
+
+
+
+rqtl <- refineqtl(sug, qtl=qtl, method="hk")
+summary(out.fqr <- fitqtl(sug, qtl=rqtl, method="hk"))
+
+
+### penalized LOD scores
+print(pen <- calc.penalties(operm2))
+
+out.sq <- stepwiseqtl(sug, max.qtl=5, penalties=pen, method="hk", verbose=2)
