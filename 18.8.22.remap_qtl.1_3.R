@@ -93,8 +93,8 @@ keep <- sapply(1:nchr(cross.18),function(i){
     )
 keep <- names(cross.18$geno)[keep]
 cross.18 <- subset(cross.18, chr=keep)
-cross.18 <- formLinkageGroups(cross.18, max.rf=0.25, min.lod=5, reorgMarkers=TRUE)
-LGtable <- formLinkageGroups(cross.18, max.rf=0.25, min.lod=5)
+cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod, reorgMarkers=TRUE)
+LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod)
 ## form linkage groups on phase-fixed data
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
 ## rename to the correct LG

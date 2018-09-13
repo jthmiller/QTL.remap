@@ -28,15 +28,15 @@ if (pop=='NBH'){
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.35
-  finRf <- 0.25
+  finRf <- 0.20
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.85
+  missing <- 0.9
   grpLod <- 8 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.35
-  finRf <- 0.25
+  finRf <- 0.20
 }
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
