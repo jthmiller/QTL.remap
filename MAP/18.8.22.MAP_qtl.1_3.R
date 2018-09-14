@@ -68,6 +68,8 @@ keep <- names(cross.18.all$geno)[keep]
 cross.18 <- subset(cross.18.all, chr=keep)
 rm(cross.18.all) ##keep memory light
 
+print(paste(length(markernames(cross.18)),'markers in',nchr(cross.18),'linkage groups going into phase fix'))
+
 print('forming initial linkage groups')
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
 
