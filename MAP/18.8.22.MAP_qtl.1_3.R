@@ -111,9 +111,6 @@ marker.warning()
 
 print('order filtered markers. Takes awhile...')
 
-clean <- ls()[!ls() %in% c('X','ers','popdir','cross.18','marker.warning','marker.density','removeDoubleXO',"singleMarkerInInterval","markersInInterval")]
-rm(list=clean)
-
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
 
