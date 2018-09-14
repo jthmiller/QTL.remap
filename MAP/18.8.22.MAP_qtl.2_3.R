@@ -28,13 +28,15 @@ ers <- er.rate(cross.18)
 print(paste(pop,'error rate for chromosome',X,'is',ers,))
 system(paste('echo',pop,X,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/genotyping_error_rate.txt'))
 
+print('saving...')
+save.image(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
+
+clean <- ls()[!ls() %in% c('X','ers','popdir','cross.18','marker.warning','marker.density')]
+rm(list=clean)
+
 print('Re-estimating the map')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
-
-print('saving...')
-rm(cross.18)
-save.image(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
