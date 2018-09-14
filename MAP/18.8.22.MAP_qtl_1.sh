@@ -6,7 +6,7 @@
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=2
 #SBATCH --mem-per-cpu=4000
-#SBATCH -p med
+#SBATCH -p hi
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
 #SBATCH --array=1-24%12
