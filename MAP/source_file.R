@@ -454,9 +454,9 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
     #cat(" --Cross type:", class(cross)[1], "\n")
     cross
 }
-parallel.droponemarker <- function (cross, chr, error.prob, map.function = c("haldane",
+parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = c("haldane",
     "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 2, cores=slurmcore,
-    tol = 1e-06, sexsp = FALSE, verbose = TRUE , parallel=T)
+    tol = 1e-06, sex.sp = FALSE, verbose = TRUE , parallel=T)
 {
     if (!("cross" %in% class(cross)))
         stop("Input must have class \"cross\".")
@@ -476,7 +476,7 @@ parallel.droponemarker <- function (cross, chr, error.prob, map.function = c("ha
     map.function <- match.arg(map.function)
     if (verbose)
         cat(" -Re-estimating map\n")
-    origmap <- qtl:::est.map(cross, error.prob = error.prob, map.function = map.function,
+    origmap <- qtl:::est.map(cross, error.prob = 0.03, map.function = map.function,
         maxit = maxit, tol = tol, sex.sp = sex.sp,m = 0, p = 0)
     cat(" Done Re-estimating map\n")
     cross <- replace.map(cross, origmap)
@@ -485,14 +485,14 @@ parallel.droponemarker <- function (cross, chr, error.prob, map.function = c("ha
     if (is.matrix(origmap[[1]])) {
         origmaptab <- cbind(origmaptab, Ldiff.female = rep(NA,
             nrow(origmaptab)), Ldiff.male = rep(NA, nrow(origmaptab)))
-        sexsp <- TRUE
+        sex.sp <- TRUE
     } else {
         origmaptab <- cbind(origmaptab, Ldiff = rep(NA, nrow(origmaptab)))
-        sexsp <- FALSE
+        sex.sp <- FALSE
     }
 
     for (i in names(cross$geno)) {
-        if (sexsp) {
+        if (sex.sp) {
             Lf <- diff(range(origmap[[i]][1, ]))
             Lm <- diff(range(origmap[[i]][2, ]))
         } else {
@@ -513,7 +513,7 @@ parallel.droponemarker <- function (cross, chr, error.prob, map.function = c("ha
 
                 if (verbose > 1) cat(" ---Marker", j, "of", length(mnames), "\n")
 
-                if (sexsp) {
+                if (sex.sp) {
                   origmaptab[mnames[j], 4] <- -(attr(origmap[[i]],
                     "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
                   origmaptab[mnames[j], 5] <- Lf - diff(range(newmap[[1]][1,
@@ -525,7 +525,7 @@ parallel.droponemarker <- function (cross, chr, error.prob, map.function = c("ha
                 markerll <- qtl:::markerloglik(cross, mnames[j], error.prob)
 
                 newmap <- qtl:::est.map(drop.markers(temp, mnames[j]),
-                  error.prob = error.prob, map.function='kosambi', m=0, p=0,
+                  error.prob = 0.03, map.function='kosambi', m=0, p=0,
                   maxit=maxit, tol=tol,sex.sp=FALSE)
 
 
