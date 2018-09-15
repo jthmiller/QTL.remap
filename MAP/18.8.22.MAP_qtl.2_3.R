@@ -31,9 +31,6 @@ system(paste('echo',pop,X,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_o
 print('saving...')
 save.image(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
 
-clean <- ls()[!ls() %in% c('X','ers','popdir','cross.18','marker.warning','marker.density')]
-rm(list=clean)
-
 print('Re-estimating the map')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1000)
 cross.18 <- replace.map(cross.18, POS.map.18)
