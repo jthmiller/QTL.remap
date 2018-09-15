@@ -9,6 +9,8 @@ cross.18 <- read.cross(format='csv',dir=popdir,
 
 marker.warning()
 
+print(summary(pull.map(cross.18))[as.character(X),])
+
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
 cross.18d <- dropone.par(cross=cross.18,prop=0.025,chr=X, maxit=2 ,map.function = 'kosambi',
@@ -25,7 +27,7 @@ cross.18 <- drop.errlod(cross.18,lod=4,ers=ers)
 ## Error rate
 print('determine error rate for last round of mapping')
 ers <- er.rate(cross.18)
-print(paste(pop,'error rate for chromosome',X,'is',ers,))
+print(paste(pop,'error rate for chromosome',X,'is',ers))
 system(paste('echo',pop,X,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/genotyping_error_rate.txt'))
 
 print('saving...')

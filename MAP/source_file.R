@@ -109,7 +109,7 @@ marker.warning <- function(cross=cross.18){
     sum(!markernames(cross) %in% markernames(cross.18,chr=X))))
 
 }
-er.rate <- function(cross){
+er.rate <- function(cross,slurmcore){
   loglik <- err <- c(0.005, 0.01, 0.015,
      0.02,0.025, 0.03, 0.04, 0.05)
       registerDoParallel(slurmcore)
