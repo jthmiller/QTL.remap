@@ -34,6 +34,10 @@ cross.18 <- subset(cross.18, chr=subset.qtl)
 ## Starting marker number
 marker.warning()
 
+## Specific to 'outname'
+drop <- markernames(cross.18)[which(!X==gsub('\\:.*','',markernames(cross.18,chr=X)))]
+cross.18 <- drop.markers(cross.18,drop)
+
 ## Conservative
 print('Dropping marker with less than 60 genotypes')
 cross.18 <- drop.missing(cross.18,60)
@@ -128,8 +132,8 @@ marker.warning()
 print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(popdir,'/chr',X,'.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('saving...')
 rm(cross.18)
-save.image(paste(popdir,'/chr',X,'.QTLmap.Rsave',sep=''))
+save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
