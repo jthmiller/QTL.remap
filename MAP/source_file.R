@@ -91,9 +91,7 @@ dropone.par <- function(cross,chr,prop=0.025,map.function = c("haldane",
   drops <- unique(c(index.lod,index.ldif))
   if (length(drops)>0){
     cross <- drop.markers(cross.18,unlist(drops))
-    print(paste('dropping',cross.drops[drops,1]))
-    print(paste('dropping',cross.drops[drops,3]))
-    print(paste('dropping',cross.drops[drops,4]))
+    print(paste('dropping',cross.drops[drops,1],cross.drops[drops,3],cross.drops[drops,4]))
   } else {
     print('no drops made')
   }
@@ -115,7 +113,7 @@ er.rate <- function(cross,slurmcore){
       registerDoParallel(slurmcore)
       hoods <- foreach(i=seq(along=err),
         .inorder=T,.packages = "qtl") %dopar% {
-        tempmap <- est.map(cross, error.prob=err[i],maxit=1000)
+        tempmap <- est.map(cross, error.prob=err[i],maxit=10000)
         return(attr(tempmap[[1]], "loglik"))
         #loglik[i] <- attr(tempmap[[1]], "loglik")
       }

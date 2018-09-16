@@ -13,7 +13,7 @@ print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion  of worst markers to drop
-cross.18d <- dropone.par(cross=cross.18,prop=0.025,chr=X, maxit=2 ,map.function = 'kosambi',
+cross.18 <- dropone.par(cross=cross.18,prop=0.025,chr=X, maxit=5 ,map.function = 'kosambi',
   length.imp = 1, LOD.imp = 0,error.prob=0.03,sex.sp = F,verbose=F,parallel=T,cores=slurmcore)
 
 marker.warning()
