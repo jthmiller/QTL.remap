@@ -1,3 +1,5 @@
+setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
+outname <- 'NW_dropped'
 pop <- 'NBH'
 X <- 16
 slurmcore <- 12
@@ -34,11 +36,9 @@ if (pop=='ELR'){
   finRf <- 0.15
 }
 ## Try to get error exported by map
-expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
+expr <- paste('cat ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $5}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
 
 if (length(ers)==0){ print('couldnt find the error. Using 0.02')
   ers <- 0.02
 } else {print(paste(ers,'genotyping error'))}
-
-setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
