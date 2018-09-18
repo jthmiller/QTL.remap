@@ -139,7 +139,6 @@ drop.errlod <- function(cross,cutoff,error.prob){
   print(paste('done...dropped',dropped,'genotypes'))
   return(cross)
 }
-
 all.crossed <- function(X){
   read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
   alleles=c("A","B"))

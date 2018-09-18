@@ -39,10 +39,13 @@ save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 print('Re-estimating the map')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1000)
 cross.18 <- replace.map(cross.18, POS.map.18)
+
+### Write Map information
 system(paste('echo ',pop,X,outname,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/map.txt',sep='\t'))
 line <- unlist(summary(pull.map(cross.18))[as.character(X),])
 write('mar  length  avesp  max',file="/home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/map.txt",append=TRUE)
 write(line,file="/home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/map.txt",append=TRUE)
 
+### Write cross to file
 print('Writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
