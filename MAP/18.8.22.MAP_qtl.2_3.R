@@ -9,6 +9,9 @@ cross.18 <- read.cross(format='csv',dir=popdir,
 
 marker.warning()
 
+zero.map <- shiftmap(pull.map(cross.18))
+cross.18 <- replacemap(cross.18, zero.map)
+
 print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')

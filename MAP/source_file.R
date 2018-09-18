@@ -75,27 +75,19 @@ keepQTL <- function(Z,i){
   return(markerVec)
 }
 dropone.par <- function(cross,chr,prop=0.025,map.function = c("haldane",
-    "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0,
+    "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0,tile=0.975, drop.its=3,
   maxit=1,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03,cores=slurmcore)
 
   {
-  y <- round(sum(nmar(cross))*prop)
-  ### p = percent of longest markers to drop
+
   print('starting parallel.droponemarker')
-  cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
-
-  Len <- quantile(as.numeric(cross.drops$Ldiff),prop)
-  Lod <- quantile(as.numeric(cross.drops$LOD),prop)
-
-  index.lod <- rownames(cross.drops[which(as.numeric(cross.drops$LOD) > Lod & as.numeric(cross.drops$LOD) > LOD.imp),])
-  index.ldif <- rownames(cross.drops[which(as.numeric(cross.drops$Ldiff) > Len & as.numeric(cross.drops$Ldiff) > length.imp),])
-  drops <- unique(c(index.lod,index.ldif))
-  if (length(drops)>0){
-    cross <- drop.markers(cross.18,unlist(drops))
-    print(paste('dropping',cross.drops[drops,1],cross.drops[drops,3],cross.drops[drops,4]))
-  } else {
-    print('no drops made')
+  for (i in 1:drop.its){
+    cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
+    drops <- unique(rownames(cross.drops[c(which.max(cross.drops$Ldiff),which.max(cross.drops$LOD)),]))
+    cross <- drop.markers(cross,drops)
   }
+  print(summary(pull.map(cross.18))[as.character(X),])
+
   ### Positive value in Ldif = decrease in length
   ### Positive value in LOD = increase in ocerall lod
   return(cross)

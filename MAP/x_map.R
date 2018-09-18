@@ -80,17 +80,21 @@ cross.18a <- subset(cross.18, chr=1)
 cross.18$pheno$sex <- as.numeric(nmissing(cross.18a)[cross.18a$pheno$ID]>130)
 y <- pull.pheno(cross.18, 2)
 
-cross.18m <- subset(cross.18,ind=(y==1))
 cross.18f <- subset(cross.18,ind=(y==0))
-
-cross.18f <- drop.missing(cross.18f,5)
 cross.18f <- formLinkageGroups(cross.18f, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-cross.18a <- orderMarkers(cross.18a,chr=X,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=100,tol=1e-2)
-  print('Dropping marker with less than 60 genotypes')
+cross.18f <- drop.missing(cross.18f,5)
+names(cross.18f$geno) <- X
+cross.18f <- orderMarkers(cross.18f,chr=X,window=5,use.ripple=T,
+  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-2)
 
+cross.18m <- subset(cross.18,ind=(y==1))
+cross.18m <- formLinkageGroups(cross.18m, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
+cross.18m <- drop.missing(cross.18m,10)
+names(cross.18m$geno) <- X
+cross.18m <- orderMarkers(cross.18m,chr=X,window=5,use.ripple=T,
+    error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-2)
 
-
+save.image('~/debug.Rsave')
 
 ### Try mapping each LG in 5 to see if cov is different between top/bottom half
 

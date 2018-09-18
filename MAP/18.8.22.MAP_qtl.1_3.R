@@ -121,7 +121,7 @@ marker.warning()
 print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
+  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=100,tol=1e-2)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X
