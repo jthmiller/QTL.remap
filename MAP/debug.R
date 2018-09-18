@@ -1,7 +1,7 @@
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 outname <- 'NW_dropped'
 pop <- 'ELR'
-X <- 5
+X <- 3
 mapped.only=TRUE
 #slurmcore <- detectCores()
 slurmcore <- 12
