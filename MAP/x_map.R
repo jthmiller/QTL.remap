@@ -1,7 +1,7 @@
 #!/bin/R
 ### Map Chromosome 5 (potentiall sex)
-setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
-source('control_file.R')
+###setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
+###source('control_file.R')
 
 ## For plotting
 marker_dens <- list()
@@ -39,15 +39,74 @@ if(mapped.only==T){
 cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cross.18))])
 }
 
-### Conservative for sex specific coverage
-##print('Dropping marker with less than 60 genotypes')
-##cross.18 <- drop.missing(cross.18,35)
+cross.18.all <- drop.missing(cross.18.all,40)
+cross.18.all <- formLinkageGroups(cross.18.all, min.lod=16, reorgMarkers=TRUE)
+cross.18.all <- subset(cross.18.all, chr=c(1:10))
+cross.18.all <- formLinkageGroups(cross.18.all, min.lod=16,max.rf=0.05, reorgMarkers=TRUE)
+cross.18.all$pheno$cov <- nmissing(subset(cross.18.all,chr=1))
+
+
+
+cross.18.all.AAxAB <- subset(cross.18.all, chr=c(1:5,7,9:11))
+cross.18.all.AAxAB$pheno$hets1 <- rowSums(cross.18.all.AAxAB$geno$'1'[[1]]=='2',na.rm=T)
+cross.18.all.AAxAB$pheno$hets2 <- rowSums(cross.18.all.AAxAB$geno$'2'[[1]]=='2',na.rm=T)
+cross.18.all.AAxAB$pheno$hets3 <- rowSums(cross.18.all.AAxAB$geno$'3'[[1]]=='2',na.rm=T)
+cross.18.all.AAxAB$pheno$hom1 <- rowSums(cross.18.all.AAxAB$geno$'1'[[1]]=='1',na.rm=T)
+cross.18.all.AAxAB$pheno$hom2 <- rowSums(cross.18.all.AAxAB$geno$'1'[[1]]=='3',na.rm=T)
+cross.18.all.ABxAB <- orderMarkers(cross.18.all.ABxAB,window=5,chr=3,use.ripple=T,
+  error.prob=0.2, map.function='kosambi',sex.sp=F,maxit=5,tol=1e-2)
+
+
+
+cross.18.all.ABxAB <- subset(cross.18.all, chr=c(6,8))
+cross.18.all.ABxAB <- switchAlleles(cross.18.all.ABxAB,markernames(cross.18.all.ABxAB,chr=8))
+cross.18.all.ABxAB <- formLinkageGroups(cross.18.all.ABxAB, min.lod=finLod,max.rf=finRf, reorgMarkers=TRUE)
+cross.18.all.ABxAB <- orderMarkers(cross.18.all.ABxAB,window=5,use.ripple=T,
+  error.prob=0.2, map.function='kosambi',sex.sp=F,maxit=100,tol=1e-2)
+cross.18.all.ABxAB$pheno$homP <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='2',na.rm=T)/rowSums(!is.na(cross.18.all.ABxAB$geno$'1'[[1]]))
+cross.18.all.ABxAB$pheno$hets1 <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='2',na.rm=T)/rowSums(!is.na(cross.18.all.ABxAB$geno$'1'[[1]]))
+cross.18.all.ABxAB$pheno$hom1 <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='1',na.rm=T)
+cross.18.all.ABxAB$pheno$hom2 <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='3',na.rm=T)
+cross.18.all.ABxAB$pheno$homP1 <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='1',na.rm=T)/rowSums(!is.na(cross.18.all.ABxAB$geno$'1'[[1]]))
+cross.18.all.ABxAB$pheno$homP2 <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='3',na.rm=T)/rowSums(!is.na(cross.18.all.ABxAB$geno$'1'[[1]]))
+cross.18.all.ABxAB$pheno$homP3 <- rowSums(cross.18.all.ABxAB$geno$'1'[[1]]=='1' |
+  cross.18.all.ABxAB$geno$'1'[[1]]=='3',na.rm=T) /rowSums(!is.na(cross.18.all.ABxAB$geno$'1'[[1]]))
+
+cross.18.all.ABxAB$pheno$XO <- countXO(cross.18.all.ABxAB)
+
+cross.18.all.ABxAB2 <- drop.missing(cross.18.all.ABxAB,66)
+
+
+write.cross(cross.18.all.AB,filestem='~/debug.csv',format="csv")
+save.image('~/debug.Rsave')
+
+
+
+
+
+g <- pull.geno(cross.18.all.ABxAB2))
+gfreq <- apply(g, 1, function(a) table(factor(a, levels=1:3)))
+gfreq <- t(t(gfreq) / colSums(gfreq))
+par(mfrow=c(1,3), las=1)
+for (i in 1:3){
+ plot(gfreq[i,], ylab="Genotype frequency", main=c("AA", "AB", "BB")[i], ylim=c(0,1))
+}
+
+
+
+pr <- convert2cross2(cross.18.all.ABxAB)
+map <- insert_pseudomarkers(pr$gmap, step=1)
+pr <- calc_genoprob(pr, map, error_prob=0.02, cores=1)
+kinship <- calc_kinship(pr)
+grid <- calc_grid(map, step=1)
+pr_grid <- probs_to_grid(pr, grid)
+kinship_grid <- calc_kinship(pr_grid)
+
+
 
 ## Conservative
 print('Dropping markers with segregation distortion < 0.0005')
 cross.18 <- distort(cross.18,0.0005)
-
-cross.18.all <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
 
 keep <- sapply(1:nchr(cross.18.all),function(i){
       return(sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i))) > 1)
@@ -77,15 +136,22 @@ if (chrom.b4 > 1){
 
 cross.18a <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=15, reorgMarkers=TRUE)
 cross.18a <- subset(cross.18, chr=1)
-cross.18$pheno$sex <- as.numeric(nmissing(cross.18a)[cross.18a$pheno$ID]>130)
+
+#### Set sex phenotype
+cross.18$pheno$sex <- as.numeric(nmissing(cross.18a)[cross.18a$pheno$ID]>850)
 y <- pull.pheno(cross.18, 2)
 
 cross.18f <- subset(cross.18,ind=(y==0))
 cross.18f <- formLinkageGroups(cross.18f, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
+cross.18a <- subset(cross.18, chr=1)
+
 cross.18f <- drop.missing(cross.18f,5)
-names(cross.18f$geno) <- X
+#names(cross.18f$geno) <- X
 cross.18f <- orderMarkers(cross.18f,chr=X,window=5,use.ripple=T,
   error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-2)
+#######################
+
+
 
 cross.18m <- subset(cross.18,ind=(y==1))
 cross.18m <- formLinkageGroups(cross.18m, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
@@ -94,70 +160,25 @@ names(cross.18m$geno) <- X
 cross.18m <- orderMarkers(cross.18m,chr=X,window=5,use.ripple=T,
     error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-2)
 
-save.image('~/debug.Rsave')
+## rename to the correct LG
+names(cross.18$geno) <- X
 
-### Try mapping each LG in 5 to see if cov is different between top/bottom half
+cross.18 <- sim.geno(cross.18,step=5,error.prob=0.1,map.function='kosambi')
+cross.18 <- calc.genoprob(cross.18,step=5,error.prob=0.1,map.function='kosambi')
 
-#### indiv linkage groups (use to find diffs in cov)
-### Split high missing
-cross.18a <- subset(cross.18, chr=1)
-cross.18a <- drop.missing(cross.18a,10)
-cross.18a <- formLinkageGroups(cross.18a, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-cross.18a <- orderMarkers(cross.18a,chr=X,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=100,tol=1e-2)
-  print('Dropping marker with less than 60 genotypes')
+print('removing double cross-overs')
+cross.18 <- removeDoubleXO(cross.18, verbose=T)
+print('Done removing dxo..')
 
+print('Estimating the initial map with high errorprob')
+POS.map.18 <- est.map(cross.18,error.prob=0.1,map.function="kosambi", chr=X,maxit=100)
+cross.18 <- replace.map(cross.18, POS.map.18)
 
-cross.18b <- subset(cross.18, chr=c(2,3))
-cross.18b <- switchAlleles(cross.18b,markernames(cross.18b,chr=2))
-cross.18b <- formLinkageGroups(cross.18b, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-cross.18b <- orderMarkers(cross.18b,chr=1,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
-################
+print(summary(pull.map(cross.18))[as.character(X),])
 
-#### Low missing in whole group
-### map low missing (if something is still not in linkage here, should distinguish)
-cross.18c <- drop.missing(cross.18,82)
-cross.18c <- formLinkageGroups(cross.18c, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-cross.18c <- subset(cross.18c, chr=1)
-cross.18c <- orderMarkers(cross.18c,chr=1,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
+print('Writing the markers to rQTL format')
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
 
-cross.18d <- subset(cross.18, chr=1)
-cross.18d <- formLinkageGroups(cross.18d, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-
-cross.18d <- subset(cross.18d,ind=names(nmissing(cross.18)[which(nmissing(cross.18)<100)]))
-cross.18d <- drop.missing(cross.18d,10)
-cross.18d <- subset(cross.18d, chr=1)
-cross.18d <- orderMarkers(cross.18d,chr=1,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-2)
-
-### any markers in lower half that have lots of data?
-cross.18z <- subset(cross.18,ind=names(nmissing(cross.18)[which(nmissing(cross.18)>100)]))
-cross.18z <- formLinkageGroups(cross.18z, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-cross.18z <- drop.missing(cross.18z,10)
-cross.18z <- subset(cross.18z, chr=1)
-cross.18z <- formLinkageGroups(cross.18z, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-cross.18z <- orderMarkers(cross.18z,chr=1,window=5,use.ripple=T,
-    error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-2)
-
-
-save.image('~/debug.Rsave')
-
-
-
-
-
-
-### Keep all with linkage to marker mapped to the LG
-keep <- sapply(1:nchr(cross.18),function(i){
-      return(sum(X==gsub('\\:.*','',markernames(cross.18,chr=i))) > 1)
-      }
-    )
-keep <- names(cross.18$geno)[keep]
-cross.18 <- subset(cross.18, chr=keep)
-cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod, reorgMarkers=TRUE)
-LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod)
-
-## form linkage groups on phase-fixed data
-cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
+print('saving...')
+rm(cross.18)
+save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
