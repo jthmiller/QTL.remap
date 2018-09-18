@@ -112,10 +112,11 @@ er.rate <- function(cross,slurmcore){
       }
       return(err[which.max(abs(unlist(hoods)))])
 }
-drop.errlod <- function(cross,lod=lod,ers=ers){
-  print(paste('remove genotypes with erlod >',lod))
-  mapthis <- calc.errorlod(cross, error.prob=ers)
-  toperr <- top.errorlod(mapthis, cutoff=lod)
+drop.errlod <- function(cross,cutoff,error.prob){
+
+  print(paste('remove genotypes with erlod >',cutoff))
+  mapthis <- calc.errorlod(cross)
+  toperr <- top.errorlod(mapthis)
   dropped <- 0
   if (length(toperr[,1]) > 0){
     step <- sort(as.numeric(names(table(floor(toperr$errorlod)))), decreasing=T)
@@ -127,8 +128,8 @@ drop.errlod <- function(cross,lod=lod,ers=ers){
           dropped <<- dropped + 1
           }
         )
-        mapthis <<- calc.errorlod(cross, error.prob=ers)
-        toperr2 <<- top.errorlod(mapthis, cutoff=lod)
+        mapthis <<- calc.errorlod(cross)
+        toperr2 <<- top.errorlod(mapthis)
           if (!is.null(toperr2)){ step <<- sort(as.numeric(names(table(floor(toperr2$errorlod)))), decreasing=T)
           } else { step <<- 0 }
         }
@@ -138,6 +139,7 @@ drop.errlod <- function(cross,lod=lod,ers=ers){
   print(paste('done...dropped',dropped,'genotypes'))
   return(cross)
 }
+
 all.crossed <- function(X){
   read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
   alleles=c("A","B"))

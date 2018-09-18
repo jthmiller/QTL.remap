@@ -121,7 +121,7 @@ marker.warning()
 print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=100,tol=1e-2)
+  error.prob=0.5, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X
@@ -133,13 +133,14 @@ print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
+cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod,reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
 
 print('Estimating the initial map with high errorprob')
 POS.map.18 <- est.map(cross.18,error.prob=0.1,map.function="kosambi", chr=X,maxit=100)
 cross.18 <- replace.map(cross.18, POS.map.18)
-
+names(cross.18$geno) <- X
 print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Writing the markers to rQTL format')

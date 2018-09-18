@@ -25,7 +25,7 @@ print(summary(pull.map(cross.18))[as.character(X),])
 
 ## fix for those that do not have below thr error
 print('dropping markers by error lod')
-cross.18 <- drop.errlod(cross.18,lod=4,ers=ers)
+cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
 
 ## Error rate
 print('determine error rate for last round of mapping')
