@@ -19,8 +19,8 @@ print(X)
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
 
-## Change phenotype to 0/1
-cross.18 <- fix.pheno(cross.18) ## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
+## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
+cross.18 <- fix.pheno(cross.18)
 
 ## Remove problematic individuals
 subset.ind <- cross.18$pheno$ID[!cross.18$pheno$ID %in% inds]
@@ -35,8 +35,9 @@ cross.18 <- subset(cross.18, chr=subset.qtl)
 marker.warning()
 
 ## Specific to 'outname'
-drop <- markernames(cross.18)[which(!X==gsub('\\:.*','',markernames(cross.18,chr=X)))]
-cross.18 <- drop.markers(cross.18,drop)
+if(mapped.only==T){
+cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cross.18))])
+}
 
 ## Conservative
 print('Dropping marker with less than 60 genotypes')
@@ -60,10 +61,12 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
   )
 )
 
-print('Keeping markers that show even low linkage to any previously known mapped marker')
+if (mapped.only==T){print('keeping only previously mapped markers')
+} else {print('Keeping markers that show even low linkage to any previously known mapped marker')}
 print(paste('Using an initial lod of 6 to keep markers '))
 
 cross.18.all <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
+
 keep <- sapply(1:nchr(cross.18.all),function(i){
       return(sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i))) > 1)
       }
@@ -101,8 +104,10 @@ keep <- names(cross.18$geno)[keep]
 cross.18 <- subset(cross.18, chr=keep)
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod, reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod)
+
 ## form linkage groups on phase-fixed data
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
+
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
@@ -113,21 +118,24 @@ cross.18 <- drop.missing.18(cross.18,missing=missing)
 
 marker.warning()
 
-print('order filtered markers. Takes awhile...')
+print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+  error.prob=0.1, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
-print(summary(pull.map(cross.18))[as.character(X),])
+cross.18 <- sim.geno(cross.18,step=5,error.prob=0.1,map.function='kosambi')
+cross.18 <- calc.genoprob(cross.18,step=5,error.prob=0.1,map.function='kosambi')
 
 print('removing double cross-overs')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
-marker.warning()
+print('Estimating the initial map with high errorprob')
+POS.map.18 <- est.map(cross.18,error.prob=0.1,map.function="kosambi", chr=X,maxit=100)
+cross.18 <- replace.map(cross.18, POS.map.18)
 
 print(summary(pull.map(cross.18))[as.character(X),])
 

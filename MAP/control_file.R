@@ -1,5 +1,7 @@
 #!/bin/R
 outname <- 'NW_dropped'
+## Only use previously mapped markers?
+mapped.only=TRUE
 ## Each chrom/pop info
 pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number

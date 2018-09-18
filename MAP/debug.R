@@ -1,8 +1,10 @@
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 outname <- 'NW_dropped'
-pop <- 'NBH'
-X <- 16
-slurmcore <- 12
+pop <- 'ELR'
+X <- 2
+mapped.only=TRUE
+#slurmcore <- detectCores()
+slurmcore <- 3
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
