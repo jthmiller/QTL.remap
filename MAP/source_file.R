@@ -634,6 +634,6 @@ plot.draws <- function (x, chr, reorder = FALSE, main = "Genotype data", alterna
     title(main = main)
     invisible()
 }
-attributes(plot.draws) <- attributes(plotGeno)
+environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')
