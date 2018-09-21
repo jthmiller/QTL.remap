@@ -3,7 +3,7 @@
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 source('control_file.R')
 
-load(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
+#load(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
 cross.18 <- read.cross(format='csv',dir=popdir,
    file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),
@@ -21,7 +21,7 @@ print('2nd time removing double cross-overs once more')
   print('Done removing dxo..')
 
 print('Re-estimating the final map with many iterations...')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=10000)
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1500)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Done mapping..')
@@ -31,7 +31,7 @@ print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('Re-estimating final error rate for QTL mapping')
-ers <- er.rate(cross.18)
+ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
 print(paste(ers,' error rate'))
 
 print('Re-adding un-genotyped individuals for stratified analysis')

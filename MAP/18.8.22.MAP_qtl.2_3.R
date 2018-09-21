@@ -28,6 +28,14 @@ Sys.time()
 print('dropping markers by error lod')
 cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
 
+cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
+  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+
+Sys.time()
+print('Re-estimating the map')
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1000)
+cross.18 <- replace.map(cross.18, POS.map.18)
+
 Sys.time()
 ## Error rate
 print('determine error rate for last round of mapping')
@@ -37,11 +45,6 @@ system(paste('echo',pop,X,'_',outname,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/
 
 print('saving...')
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
-
-Sys.time()
-print('Re-estimating the map')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1000)
-cross.18 <- replace.map(cross.18, POS.map.18)
 
 Sys.time()
 ### Write Map information
