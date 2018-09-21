@@ -100,13 +100,13 @@ marker.warning <- function(cross=cross.18){
     sum(!markernames(cross) %in% markernames(cross.18,chr=X))))
 
 }
-er.rate <- function(cross,slurmcore){
+er.rate <- function(cross,cpus,maxit){
   loglik <- err <- c(0.005, 0.01, 0.015,
      0.02,0.025, 0.03, 0.04, 0.05)
-      registerDoParallel(slurmcore)
+      registerDoParallel(cpus)
       hoods <- foreach(i=seq(along=err),
         .inorder=T,.packages = "qtl") %dopar% {
-        tempmap <- est.map(cross, error.prob=err[i],maxit=10000)
+        tempmap <- est.map(cross, error.prob=err[i],maxit)
         return(attr(tempmap[[1]], "loglik"))
         #loglik[i] <- attr(tempmap[[1]], "loglik")
       }
