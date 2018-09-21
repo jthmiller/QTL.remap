@@ -101,8 +101,7 @@ marker.warning <- function(cross=cross.18){
 
 }
 er.rate <- function(cross,cpus,maxit){
-  loglik <- err <- c(0.005, 0.01, 0.015,
-     0.02,0.025, 0.03, 0.04, 0.05)
+  loglik <- err <- c(0.02,0.03,0.04,0.05)
       registerDoParallel(cpus)
       hoods <- foreach(i=seq(along=err),
         .inorder=T,.packages = "qtl") %dopar% {

@@ -4,7 +4,7 @@
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final_map_err_%A_%a.txt
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=4
 #SBATCH --mem-per-cpu=5000
 #SBATCH -p med
 ######SBATCH --mail-type=ALL

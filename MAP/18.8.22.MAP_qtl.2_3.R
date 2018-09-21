@@ -23,30 +23,35 @@ marker.warning()
 
 print(summary(pull.map(cross.18))[as.character(X),])
 
-Sys.time()
 ## fix for those that do not have below thr error
 print('dropping markers by error lod')
-cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
+Sys.time(
+  cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
+)
 
-cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
+Sys.time(
+  cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+)
 
-Sys.time()
 print('Re-estimating the map')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=1000)
-cross.18 <- replace.map(cross.18, POS.map.18)
-
-Sys.time()
+system.time(
+  POS.map.18 <- est.map(cross.18,error.prob=0.05,map.function="kosambi", chr=X,maxit=1000)
+  cross.18 <- replace.map(cross.18, POS.map.18)
+)
 ## Error rate
 print('determine error rate for last round of mapping')
-ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=10)
+
+Sys.time(
+  ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
+)
+
 print(paste(pop,'error rate for chromosome',X,'is',ers))
 system(paste('echo',pop,X,'_',outname,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/genotyping_error_rate.txt'))
 
 print('saving...')
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
-Sys.time()
 ### Write Map information
 system(paste('echo ',pop,X,outname,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/map.txt',sep='\t'))
 line <- unlist(summary(pull.map(cross.18))[as.character(X),])
