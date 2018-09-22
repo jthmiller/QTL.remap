@@ -1,3 +1,5 @@
+source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
+
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 outname <- 'NW_dropped'
 pop <- 'NBH'
@@ -14,7 +16,6 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 setwd(popdir)
 
 ## Funtions for processing rQTL map data
-source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 ## Libraries
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
