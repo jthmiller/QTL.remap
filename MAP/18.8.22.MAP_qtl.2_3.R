@@ -7,43 +7,46 @@ cross.18 <- read.cross(format='csv',dir=popdir,
    file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),
    geno=c('AA','AB','BB'),alleles=c("A","B"))
 
-marker.warning()
 
 zero.map <- shiftmap(pull.map(cross.18))
 cross.18 <- replacemap(cross.18, zero.map)
 
+marker.warning()
 print(summary(pull.map(cross.18))[as.character(X),])
+print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 
 ## Drop one marker, p is proportion  of worst markers to drop
-print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
-cross.18 <- dropone.par(cross=cross.18, prop=0.025,chr=X, maxit=1000, map.function = 'kosambi',
-  length.imp = 1, LOD.imp = 0, error.prob=0.05, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
-
-Sys.time()
+system.time(
+  cross.18 <- dropone.par(cross=cross.18, prop=0.025,chr=X, maxit=1000, map.function = 'kosambi',
+    length.imp = 1, LOD.imp = 0, error.prob=0.05, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
+)
 
 marker.warning()
-
 print(summary(pull.map(cross.18))[as.character(X),])
-
-## fix for those that do not have below thr error
 print('dropping markers by error lod')
-cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
-Sys.time()
+
+## fix for those that do not have below thresh error
+system.time(
+  cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
+)
 
 print('Re-order markers')
+system.time(
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
-Sys.time()
+  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+)
 
 print('Re-estimating the map')
+system.time(
 POS.map.18 <- est.map(cross.18,error.prob=0.05,map.function="kosambi", chr=X,maxit=1000)
+)
 cross.18 <- replace.map(cross.18, POS.map.18)
-system.time()
 
 ## Error rate
 print('determine error rate for last round of mapping')
+system.time(
 ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
-Sys.time()
+)
 
 print(paste(pop,'error rate for chromosome',X,'is',ers))
 system(paste('echo',pop,X,'_',outname,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/genotyping_error_rate.txt'))
