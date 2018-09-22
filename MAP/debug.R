@@ -1,12 +1,14 @@
-source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
-
-setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 outname <- 'NW_dropped'
-pop <- 'NBH'
-X <- 1
+## Only use previously mapped markers?
 mapped.only=TRUE
-#slurmcore <- detectCores()
+## Each chrom/pop info
+
+####### DEBUG ONLY ####
+pop <- 'ELR'
+X <- 1
 slurmcore <- 12
+####### DEBUG ONLY ####
+
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
@@ -16,6 +18,8 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 setwd(popdir)
 
 ## Funtions for processing rQTL map data
+source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
+
 ## Libraries
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
@@ -45,3 +49,6 @@ try(ers <- as.numeric(system(expr,intern=T)))
 if (length(ers)==0){ print('couldnt find the error. Using 0.02')
   ers <- 0.02
 } else {print(paste(ers,'genotyping error'))}
+
+### Begin of code
+setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')

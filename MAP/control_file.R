@@ -27,7 +27,7 @@ lapply(packs, require, character.only = TRUE)
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov
   missing <- 0.9
-  grpLod <- 10 ## Standard LG form LOD
+  grpLod <- 8 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
   finRf <- 0.10

@@ -77,13 +77,12 @@ keepQTL <- function(Z,i){
 dropone.par <- function(cross,chr,prop=0.025,map.function = c("haldane",
     "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0,tile=0.975, drop.its=3,
   maxit=1,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03,cores=slurmcore)
-
   {
-
   print('starting parallel.droponemarker')
   for (i in 1:drop.its){
     cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
     drops <- unique(rownames(cross.drops[c(which.max(cross.drops$Ldiff),which.max(cross.drops$LOD)),]))
+
     cross <- drop.markers(cross,drops)
   }
   print(summary(pull.map(cross.18))[as.character(X),])
@@ -633,6 +632,14 @@ plot.draws <- function (x, chr, reorder = FALSE, main = "Genotype data", alterna
     }
     title(main = main)
     invisible()
+}
+return.dropped.markers <- function(){
+  if(length(mar <- tokeep[!tokeep %in% markernames(cross.18)])>0){
+    for (i in tokeep[!tokeep %in% markernames(cross.18)]){
+      cross.18 <<- addmarker(cross.18,chr=which.max(nmar(cross.18)),pos=which(tokeep==i),
+      markername=i,genotypes=gi[,i])
+    }
+  }
 }
 environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
