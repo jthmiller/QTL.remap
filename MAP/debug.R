@@ -4,9 +4,9 @@ mapped.only=TRUE
 ## Each chrom/pop info
 
 ####### DEBUG ONLY ####
-pop <- 'ELR'
-X <- 1
-slurmcore <- 12
+pop <- 'NBH'
+X <- 2
+#slurmcore <- 12
 ####### DEBUG ONLY ####
 
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
@@ -28,7 +28,7 @@ lapply(packs, require, character.only = TRUE)
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov
-  missing <- 0.9
+  missing <- 0.8
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.30
@@ -47,7 +47,7 @@ expr <- paste('cat ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $5}\
 try(ers <- as.numeric(system(expr,intern=T)))
 
 if (length(ers)==0){ print('couldnt find the error. Using 0.02')
-  ers <- 0.02
+  ers <- 0.05
 } else {print(paste(ers,'genotyping error'))}
 
 ### Begin of code

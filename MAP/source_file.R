@@ -641,6 +641,14 @@ return.dropped.markers <- function(){
     }
   }
 }
+plot.geno <- function(L,gen.main){
+  plot(NULL,xlim=c(min(pos),max(pos)),ylim=c(min(pval),max(pval)),main=gen.main)
+  points(as.numeric(gsub(paste(X,':',sep=''),'',rownames(L))), log10(L$P.value),
+  pch=20)
+}
+hist.geno <- function(gt){
+  hist(log10(gt),breaks=100,ylim=c(0,300),xlim=c(-20,0))
+}
 environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')

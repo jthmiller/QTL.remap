@@ -13,8 +13,8 @@ test.QTLs <- read.table(file.path(basedir,'rQTL/metadata/QTLs.txt'),
 ## Get chrom number vector
 test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 
-print(pop)
-print(X)
+print(paste(pop,X,sep=' '))
+
 ## read in the QTL cross
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
@@ -39,15 +39,21 @@ if(mapped.only==T){
 cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cross.18))])
 }
 
-## Conservative
-print('Dropping marker with less than 60 genotypes')
-cross.18 <- drop.missing(cross.18,60)
-
-marker.warning()
+### Table before missing filter
+gt.b4 <- geno.table(cross.18)
 
 ## Conservative
-print('Dropping markers with segregation distortion < 0.0005')
-cross.18 <- distort(cross.18,0.0005)
+print('Dropping markers with more than 60 genotypes missing')
+cross.18 <- drop.missing(cross.18,40)
+
+### Table after missing filter
+gt.af <- geno.table(cross.18)
+
+print(paste('Dropping markers with segregation distortion < ',cutoff))
+#cross.18 <- distort(cross.18,0.01)
+cross.18 <- distort(cross.18,cutoff)
+
+gt.dis <- geno.table(cross.18)
 
 marker.warning()
 
@@ -164,9 +170,26 @@ cross.18 <- replace.map(cross.18, POS.map.18)
 names(cross.18$geno) <- X
 print(summary(pull.map(cross.18))[as.character(X),])
 
+gt.fin <- geno.table(cross.18)
+
 print('Writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
 
 print('saving...')
 rm(cross.18)
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
+
+## Plot fitration step
+png(paste(X,'pval.png',sep=''))
+hist.geno(gt.af$P.value)
+abline(v=log10(cutoff))
+dev.off()
+
+png(paste(X,'.png',sep=''))
+par(mfrow=c(4,1),mar=c(1,2,3,1))
+plot.geno(gt.b4,gen.main='All Markers')
+plot.geno(gt.af,gen.main='Filter loci missing > 40')
+abline(h=log10(cutoff))
+plot.geno(gt.dis,gen.main=paste('Filter distortion > ',cutoff))
+plot.geno(gt.fin,gen.main='Final Markers')
+dev.off()

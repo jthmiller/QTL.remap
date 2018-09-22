@@ -31,6 +31,7 @@ if (pop=='NBH'){
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
   finRf <- 0.10
+  cutoff <- 0.0001
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
@@ -39,11 +40,15 @@ if (pop=='ELR'){
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.20
   finRf <- 0.10
+  cutoff <- 0.001
+  if (X==c(2,)){
+    cutoff <- 0.0001
+  }
 }
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
 
 if (length(ers)==0){ print('couldnt find the error. Using 0.02')
-  ers <- 0.02
+  ers <- 0.05
 } else {print(paste(ers,'genotyping error'))}
