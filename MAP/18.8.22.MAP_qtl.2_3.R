@@ -28,17 +28,10 @@ marker.warning()
 return.dropped.markers()
 marker.warning()
 
-print('dropping markers by error lod')
-
-## fix for those that do not have below thresh error
-system.time(
-  cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
-)
-
 print('Re-order markers')
 system.time(
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-3)
+  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-3)
 )
 
 print('Re-estimating the map')
