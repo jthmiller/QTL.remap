@@ -30,7 +30,7 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 
 print('Re-estimating the final map with many iterations...')
 
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",n.cluster=12, chr=X,maxit=5000)
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=5000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Done mapping..')
