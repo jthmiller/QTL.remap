@@ -6,6 +6,8 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
 RES=$(sbatch --parsable $scriptdir/18.8.22.MAP_qtl_1.sh)
 
-RES2=$(sbatch --parsable --dependency=afterok:$RES $scriptdir/18.8.22.MAP_qtl_2.sh)
+RES2=$(sbatch --parsable --dependency=afterany:$RES $scriptdir/18.8.22.MAP_qtl_1_ELR.sh)
 
-sbatch --dependency=afterok:$RES2 $scriptdir/18.8.22.MAP_qtl_3.sh
+RES3=$(sbatch --parsable --dependency=afterany:$RES2 $scriptdir/18.8.22.MAP_qtl_2.sh)
+
+sbatch --dependency=afterok:$RES3 $scriptdir/18.8.22.MAP_qtl_3.sh
