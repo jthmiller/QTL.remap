@@ -5,8 +5,8 @@ mapped.only=TRUE
 
 ####### DEBUG ONLY ####
 pop <- 'NBH'
-X <- 2
-#slurmcore <- 12
+X <- 13
+slurmcore <- 12
 ####### DEBUG ONLY ####
 
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'

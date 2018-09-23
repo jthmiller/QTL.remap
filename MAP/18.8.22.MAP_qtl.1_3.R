@@ -52,7 +52,7 @@ cross.18 <- drop.missing(cross.18,40)
 gt.af <- geno.table(cross.18)
 
 print(paste('Dropping markers with segregation distortion < ',cutoff))
-#cross.18 <- distort(cross.18,0.01)
+
 cross.18 <- distort(cross.18,cutoff)
 
 gt.dis <- geno.table(cross.18)

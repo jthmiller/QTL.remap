@@ -1,4 +1,4 @@
-  #!/bin/R
+#!/bin/R
 ### Map QTLs 3 of 3
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 source('control_file.R')
