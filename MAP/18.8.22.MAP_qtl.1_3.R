@@ -140,7 +140,7 @@ names(cross.18$geno) <- X
 marker.warning()
 
 print('second missing filter')
-cross.18 <- drop.missing.18(cross.18,missing=missing)
+##cross.18c <- drop.missing.18(cross.18,missing=missing)
 
 marker.warning()
 
@@ -187,7 +187,7 @@ hist.geno(gt.af$P.value)
 abline(v=log10(cutoff))
 dev.off()
 
-png(paste(X,'.png',sep=''))
+png(file.path(popdir,paste(X,'_pos.png',sep='')))
 par(mfrow=c(4,1),mar=c(1,2,3,1))
 plot.geno(gt.b4,gen.main='All Markers')
 plot.geno(gt.af,gen.main='Filter loci missing > 40')
