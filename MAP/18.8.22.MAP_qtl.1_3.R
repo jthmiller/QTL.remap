@@ -140,7 +140,7 @@ names(cross.18$geno) <- X
 marker.warning()
 
 print('second missing filter')
-##cross.18c <- drop.missing.18(cross.18,missing=missing)
+cross.18 <- drop.missing.18(cross.18,missing=missing)
 
 marker.warning()
 
