@@ -149,6 +149,7 @@ print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod,reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
 cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
+names(cross.18$geno) <- X
 
 ### add QTL markers to cross that may have been removed
 return.dropped.markers()
