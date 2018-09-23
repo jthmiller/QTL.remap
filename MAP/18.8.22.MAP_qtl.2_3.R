@@ -46,9 +46,7 @@ cross.18 <- replace.map(cross.18, POS.map.18)
 
 ## Error rate
 print('determine error rate for last round of mapping')
-system.time(
-ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=2000)
-)
+ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
 
 print(paste(pop,'error rate for chromosome',X,'is',ers))
 system(paste('echo',pop,X,'_',outname,ers,'>> /home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/genotyping_error_rate.txt'))

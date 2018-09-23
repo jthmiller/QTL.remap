@@ -1,3 +1,9 @@
+## Figure out if all AAxAB are lumped or out of order
+## plot errorlod
+
+
+
+
 outname <- 'NW_dropped'
 ## Only use previously mapped markers?
 mapped.only=TRUE

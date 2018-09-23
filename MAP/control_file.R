@@ -54,6 +54,6 @@ if (pop=='ELR'){
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
 
-if (length(ers)==0){ print('couldnt find the error. Using 0.05')
-  ers <- 0.05
+if (length(ers)==0){ print('couldnt find the error. Using 0.03')
+  ers <- 0.03
 } else {print(paste(ers,'genotyping error'))}

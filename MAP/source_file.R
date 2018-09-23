@@ -100,15 +100,19 @@ marker.warning <- function(cross=cross.18){
 
 }
 er.rate <- function(cross,cpus,maxit){
-  loglik <- err <- c(0.02,0.03,0.04,0.05)
+  loglik <- err <- c(0.002,0.003,0.005,0.01,0.015,0.02,0.05)
       registerDoParallel(cpus)
-      hoods <- foreach(i=seq(along=err),
+      hoods <- foreach(i=seq(along=err),.combine=c,
         .inorder=T,.packages = "qtl") %dopar% {
         tempmap <- est.map(cross, error.prob=err[i],maxit)
-        return(attr(tempmap[[1]], "loglik"))
-        #loglik[i] <- attr(tempmap[[1]], "loglik")
+        return(sum(sapply(tempmap,attr,"loglik")))
       }
-      return(err[which.max(abs(unlist(hoods)))])
+      lod <- (hoods - max(hoods))/log(10)
+      png(file.path(popdir,paste(X,'_error.png',sep='')))
+      plot(err, lod, xlab="Genotyping error rate", xlim=c(0,0.5),
+        ylab=expression(paste(log[10], " likelihood")))
+      dev.off()
+      return(err[which.max(lod)])
 }
 drop.errlod <- function(cross,cutoff,error.prob){
 
@@ -445,7 +449,7 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
 }
 parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = c("haldane",
     "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 2, cores=slurmcore,
-    tol = 1e-06, sex.sp = FALSE, verbose = TRUE , parallel=T){
+    tol = 1e-06, sex.sp = FALSE, verbose = F , parallel=T){
     if (!("cross" %in% class(cross)))
         stop("Input must have class \"cross\".")
     if (!missing(chr))
@@ -493,7 +497,7 @@ parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = 
         temp <- subset(cross, chr = i)
 
         if (parallel) {
-              print('starting parallel droponemarker')
+
               registerDoParallel(cores)
               lod.dif <- foreach(j=seq(along=mnames),
                 .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
@@ -532,7 +536,6 @@ parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = 
           } else { print('use rqtl if multi cpus not avail')}
 
       }
-      print('done with parallel on all chrs')
       class(origmaptab) <- c("scanone", "data.frame")
       origmaptab$chr <- factor(origmaptab$chr, levels = unique(origmaptab$chr))
       origmaptab
