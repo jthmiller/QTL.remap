@@ -44,7 +44,6 @@ gt.b4 <- geno.table(cross.18)
 pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt.b4)))
 pval <- log10(gt.b4$P.value)
 
-
 ## Conservative
 print('Dropping markers with more than 60 genotypes missing')
 cross.18 <- drop.missing(cross.18,40)
@@ -183,7 +182,7 @@ rm(cross.18)
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
 ## Plot fitration step
-png(paste(X,'pval.png',sep=''))
+png(file.path(popdir,paste(X,'_pval.png',sep='')))
 hist.geno(gt.af$P.value)
 abline(v=log10(cutoff))
 dev.off()
