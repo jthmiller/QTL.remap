@@ -293,8 +293,7 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
     na.strings = c("-", "NA"), genotypes = c("A", "H", "B", "D",
         "C"), alleles = c("A", "B"), estimate.map = FALSE, convertXdata = TRUE,
     error.prob = 1e-04, map.function = c("haldane", "kosambi",
-        "c-f", "morgan"), BC.gen = 0, F.gen = 0, crosstype, ...)
-{
+        "c-f", "morgan"), BC.gen = 0, F.gen = 0, crosstype, ...){
     if (format == "csvrs") {
         format <- "csvsr"
         warning("Assuming you mean 'csvsr' rather than 'csvrs'.\n")
@@ -446,8 +445,7 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
 }
 parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = c("haldane",
     "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 2, cores=slurmcore,
-    tol = 1e-06, sex.sp = FALSE, verbose = TRUE , parallel=T)
-{
+    tol = 1e-06, sex.sp = FALSE, verbose = TRUE , parallel=T){
     if (!("cross" %in% class(cross)))
         stop("Input must have class \"cross\".")
     if (!missing(chr))
@@ -539,9 +537,7 @@ parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = 
       origmaptab$chr <- factor(origmaptab$chr, levels = unique(origmaptab$chr))
       origmaptab
 }
-plot.draws <- function (x, chr, reorder = FALSE, main = "Genotype data", alternate.chrid = FALSE,
-    ...)
-{
+plot.draws <- function (x, chr, reorder = FALSE, main = "Genotype data", alternate.chrid = FALSE,...){
     cross <- x
     if (!any(class(cross) == "cross"))
         stop("Input should have class \"cross\".")

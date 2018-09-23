@@ -21,9 +21,9 @@ pop='NBH'
 ### This requires 12 cpus with 5G of memory (dasically an entire node, but cant run on 24 cpus with only 2.5Gs of memory)
 Rscript $scriptdir/18.8.22.MAP_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 
-wait
+#wait
 
-pop='ELR'
+#pop='ELR'
 
 ### This requires 12 cpus with 5G of memory (dasically an entire node, but cant run on 24 cpus with only 2.5Gs of memory)
-Rscript $scriptdir/18.8.22.MAP_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+#Rscript $scriptdir/18.8.22.MAP_qtl.2_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

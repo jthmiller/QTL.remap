@@ -11,8 +11,12 @@ zero.map <- shiftmap(pull.map(cross.18))
 cross.18 <- replacemap(cross.18, zero.map)
 
 ## keep genotypes for QTL markers
-try(tokeep <- readLines(paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep='')))
-gi <- pull.geno(cross.18)[,tokeep]
+tokeep <- readLines(paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''))
+if(!tokeep==''){
+  gi <- pull.geno(cross.18)[,tokeep]
+} else {
+  tokeep <- NULL
+}
 
 marker.warning()
 print(summary(pull.map(cross.18))[as.character(X),])

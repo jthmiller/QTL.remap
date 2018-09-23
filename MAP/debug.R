@@ -5,7 +5,7 @@ mapped.only=TRUE
 
 ####### DEBUG ONLY ####
 pop <- 'NBH'
-X <- 13
+X <- 3
 slurmcore <- 12
 ####### DEBUG ONLY ####
 
