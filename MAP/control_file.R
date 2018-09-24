@@ -1,11 +1,13 @@
 #!/bin/R
-outname <- 'NW_dropped'
-## Only use previously mapped markers?
-mapped.only=TRUE
 ## Each chrom/pop info
 pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
 slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
+
+outname <- 'NW_dropped'
+## Only use previously mapped markers?
+mapped.only=TRUE
+
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
@@ -13,7 +15,6 @@ indpops <- file.path(basedir,'plinkfiles/ind.pops')
 popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
 qtldir <- file.path(basedir,'rQTL/remap_out')
 errfile <- file.path(qtldir,'genotyping_error_rate.txt')
-setwd(popdir)
 
 ## Funtions for processing rQTL map data
 source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))

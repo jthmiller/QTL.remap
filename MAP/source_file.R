@@ -100,7 +100,7 @@ marker.warning <- function(cross=cross.18){
 
 }
 er.rate <- function(cross,cpus,maxit){
-  loglik <- err <- c(0.002,0.003,0.005,0.01,0.015,0.02,0.05)
+  loglik <- err <- c(0.001,0.0025,0.005,0.0075,0.01,0.015,0.02)
       registerDoParallel(cpus)
       hoods <- foreach(i=seq(along=err),.combine=c,
         .inorder=T,.packages = "qtl") %dopar% {
@@ -109,7 +109,7 @@ er.rate <- function(cross,cpus,maxit){
       }
       lod <- (hoods - max(hoods))/log(10)
       png(file.path(popdir,paste(X,'_error.png',sep='')))
-      plot(err, lod, xlab="Genotyping error rate", xlim=c(0,0.5),
+      plot(err, lod, xlab="Genotyping error rate", xlim=c(0,0.05),
         ylab=expression(paste(log[10], " likelihood")))
       dev.off()
       return(err[which.max(lod)])

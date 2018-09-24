@@ -23,25 +23,21 @@ print(summary(pull.map(cross.18))[as.character(X),])
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 
 ## Drop one marker, p is proportion of worst markers to drop
-system.time(
-  cross.18 <- dropone.par(cross=cross.18, prop=0.025,chr=X, maxit=2000, map.function = 'kosambi',
-    length.imp = 1, LOD.imp = 0, error.prob=0.05, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
-)
+cross.18 <- dropone.par(cross=cross.18, prop=0.025,chr=X, maxit=2000, map.function = 'kosambi',
+  length.imp = 1, LOD.imp = 0, error.prob=0.05, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
+
 
 marker.warning()
 return.dropped.markers()
 marker.warning()
 
 print('Re-order markers')
-system.time(
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-3)
-)
+
 
 print('Re-estimating the map')
-system.time(
 POS.map.18 <- est.map(cross.18,error.prob=0.05,map.function="kosambi", chr=X,maxit=2000)
-)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 ## Error rate
