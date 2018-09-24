@@ -45,21 +45,19 @@ pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt.b4)))
 pval <- log10(gt.b4$P.value)
 
 ## Conservative
-print('Dropping markers with more than 40 genotypes missing')
-cross.18 <- drop.missing(cross.18,5)
-
+print('Dropping markers with more than 5 genotypes missing')
+cross.18 <- drop.missing(cross.18,3)
 gt <- geno.table(cross.18, scanone.output=T)
-
-p.ind <- which(gt$neglog10P > 2.5)
-A.ind <- which(gt$AA > 0.18 | gt$AA < 0.82)
-cross.18 <- drop.markers(cross.18,rownames(gt[intersect(p.ind,A.ind),]))
-
-### Table after missing filter
+cross.18 <- drop.markers(cross.18,rownames(gt[gt$neglog10P>20,]))
 gt.af <- geno.table(cross.18)
-
+gt <- geno.table(cross.18, scanone.output=T)
+a <- intersect(which(gt$neglog10P > 2.5),which(gt$AA < 0.15 & gt$BB > 0.15))
+b <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA > 0.15))
+c <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA < 0.15))
+cross.18 <- drop.markers(cross.18,rownames(gt[unique(c(a,b,c)),]))
+gt.dis <- geno.table(cross.18)
 #print(paste('Dropping markers with segregation distortion < ',cutoff))
 #cross.18 <- distort(cross.18,cutoff)
-gt.dis <- geno.table(cross.18)
 
 marker.warning()
 
