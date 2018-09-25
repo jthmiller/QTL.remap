@@ -6,7 +6,7 @@ slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 
 outname <- 'NW_dropped'
 ## Only use previously mapped markers?
-mapped.only=TRUE
+mapped.only=FALSE
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
@@ -49,7 +49,7 @@ if (pop=='ELR'){
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-08
-  if (X %in% dis.elr){cutoff <- 1.0e-08}
+  if (X %in% dis.elr){cutoff <- 1.0e-10}
 }
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')

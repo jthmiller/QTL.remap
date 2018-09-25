@@ -62,8 +62,8 @@ cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cr
 
 ### Table before missing filter
 gt <- geno.table(cross.18)
-pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt.b4)))
-pval <- log10(gt.b4$P.value)
+pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt)))
+pval <- log10(gt$P.value)
 
 #### Filter Conservative
 print('Dropping markers with more than 5 genotypes missing')
