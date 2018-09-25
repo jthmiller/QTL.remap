@@ -71,8 +71,8 @@ cross.18 <- drop.missing(cross.18,5)
 gt.missing <- geno.table(cross.18)
 
 ### grandparent confirmed markers
-marks.confirm <- !rownames(gt.pval) %in% par.confirm.marks
-cross.18 <- drop.markers(cross.18,rownames(gt.pval)[marks.confirm])
+marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
+cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
 par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
 gt.cross.par <- geno.table(cross.18)
 
