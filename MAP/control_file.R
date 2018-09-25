@@ -37,8 +37,8 @@ if (pop=='NBH'){
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
   finRf <- 0.10
-  cutoff <- 0.003
-  if (X %in% dis.nbh){cutoff <- 0.0005}
+  cutoff <- 1.0e-10
+  if (X %in% dis.nbh){cutoff <- 1.0e-10}
 
 }
 if (pop=='ELR'){
@@ -48,13 +48,13 @@ if (pop=='ELR'){
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.20
   finRf <- 0.10
-  cutoff <- 0.001
-  if (X %in% dis.elr){cutoff <- 0.0001}
+  cutoff <- 1.0e-08
+  if (X %in% dis.elr){cutoff <- 1.0e-08}
 }
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
 
-if (length(ers)==0){ print('couldnt find the error. Using 0.03')
+if (length(ers)==0|is.null(ers)){ print('couldnt find the error. Using 0.03')
   ers <- 0.03
 } else {print(paste(ers,'genotyping error'))}

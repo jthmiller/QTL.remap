@@ -15,9 +15,30 @@ test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 
 print(paste(pop,X,sep=' '))
 
+
+### parents ###
+cross.pars <- read.cross.jm(file=file.path(indpops,paste(pop,'.parents.csvr',sep='')),
+                format='csvr', geno=c(1:3),estimate.map=FALSE)
+
+
+allbut <- c(1:24)[-X]
+subset.qtl <- chrnames(cross.pars)[!chrnames(cross.pars) %in% allbut]
+cross.pars <- subset(cross.pars, chr=subset.qtl)
+
+if(mapped.only==T){
+cross.pars <- drop.markers(cross.pars,markernames(cross.pars)[grep('NW',markernames(cross.pars))])
+}
+
+gt.par <- geno.table(cross.pars)
+
+par.confirm.marks <- rownames(gt.par[which(gt.par$AA==1 & gt.par$BB==1),])
+
+############
+
 ## read in the QTL cross
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
+
 
 ## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
 cross.18 <- fix.pheno(cross.18)
@@ -40,22 +61,31 @@ cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cr
 }
 
 ### Table before missing filter
-gt.b4 <- geno.table(cross.18)
+gt <- geno.table(cross.18)
 pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt.b4)))
 pval <- log10(gt.b4$P.value)
 
-## Conservative
+#### Filter Conservative
 print('Dropping markers with more than 5 genotypes missing')
-cross.18 <- drop.missing(cross.18,3)
-gt <- geno.table(cross.18, scanone.output=T)
-cross.18 <- drop.markers(cross.18,rownames(gt[gt$neglog10P>20,]))
-gt.af <- geno.table(cross.18)
-gt <- geno.table(cross.18, scanone.output=T)
-a <- intersect(which(gt$neglog10P > 2.5),which(gt$AA < 0.15 & gt$BB > 0.15))
-b <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA > 0.15))
-c <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA < 0.15))
-cross.18 <- drop.markers(cross.18,rownames(gt[unique(c(a,b,c)),]))
-gt.dis <- geno.table(cross.18)
+cross.18 <- drop.missing(cross.18,5)
+gt.missing <- geno.table(cross.18)
+
+### grandparent confirmed markers
+marks.confirm <- !rownames(gt.pval) %in% par.confirm.marks
+cross.18 <- drop.markers(cross.18,rownames(gt.pval)[marks.confirm])
+par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
+gt.cross.par <- geno.table(cross.18)
+
+### invariants
+cross.18 <- drop.markers(cross.18,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
+gt.pval <- geno.table(cross.18)
+
+
+#a <- intersect(which(gt$neglog10P > 2.5),which(gt$AA < 0.15 & gt$BB > 0.15))
+#b <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA > 0.15))
+#c <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA < 0.15))
+#cross.18 <- drop.markers(cross.18,rownames(gt[unique(c(a,b,c)),]))
+#gt.dis <- geno.table(cross.18)
 #print(paste('Dropping markers with segregation distortion < ',cutoff))
 #cross.18 <- distort(cross.18,cutoff)
 
@@ -192,9 +222,10 @@ dev.off()
 
 png(file.path(popdir,paste(X,'_pos.png',sep='')))
 par(mfrow=c(4,1),mar=c(1,2,3,1))
-plot.geno(gt.b4,gen.main='All Markers')
-plot.geno(gt.af,gen.main='Filter loci missing > 40')
-abline(h=log10(cutoff))
-plot.geno(gt.dis,gen.main=paste('Filter distortion > ',cutoff))
+plot.geno(gt,gen.main='All Mapped Markers')
+plot.geno(gt.missing,gen.main='Filter loci missing > 5')
+plot.geno(gt.cross.par,gen.main='Grandparents',par.gt=par.confirm.marks)
+abline(h=log10(cutoff),col='red')
+plot.geno(gt.pval,gen.main=paste('Filter distortion > ',cutoff))
 plot.geno(gt.fin,gen.main='Final Markers')
 dev.off()
