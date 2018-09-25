@@ -4,8 +4,8 @@
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/initial_map_err_%A_%a.txt
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
-#SBATCH --cpus-per-task=3
-#SBATCH --mem-per-cpu=5000
+#SBATCH --cpus-per-task=2
+#SBATCH --mem-per-cpu=3000
 #SBATCH -p high
 #####SBATCH --mail-type=ALL
 #####SBATCH --mail-user=jthmiller@ucdavis.edu
