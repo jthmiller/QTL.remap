@@ -216,7 +216,7 @@ save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
 ## Plot fitration step
 png(file.path(popdir,paste(X,'_pval.png',sep='')))
-hist.geno(gt.af$P.value)
+hist.geno(gt.missing$P.value)
 abline(v=log10(cutoff))
 dev.off()
 
