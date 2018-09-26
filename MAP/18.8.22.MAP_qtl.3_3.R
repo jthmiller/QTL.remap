@@ -14,26 +14,22 @@ marker.warning()
 print('dropping markers by error lod')
 
 ## fix for those that do not have below thresh error
-system.time(
-  cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
-)
+cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
 
 print('2nd time removing double cross-overs once more')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
-  print('Done removing dxo..')
+print('Done removing dxo..')
 
 
 print('Re-setimating map from filtered data on')
-
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=5000,tol=1e-3)
 
 print('Re-estimating the final map with many iterations...')
-
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=5000)
 cross.18 <- replace.map(cross.18, POS.map.18)
-
 print('Done mapping..')
+
 print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Re-writing the markers to rQTL format')
@@ -43,7 +39,7 @@ print('Re-estimating error rate for QTL mapping')
 ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
 print(paste(ers,' error rate'))
 
-print('Re-adding un-genotyped individuals for stratified analysis')
+print('Adding un-genotyped individuals for stratified analysis')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
 phen$pheno_all[which(phen$pheno_all<2)] <- 0
 phen$pheno_all[which(phen$pheno_all>1)] <- 1

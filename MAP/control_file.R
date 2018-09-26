@@ -54,7 +54,7 @@ if (pop=='ELR'){
   if (X %in% dis.elr){cutoff <- 1.0e-10}
 }
 ## Try to get error exported by map
-expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
+expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $5}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
 
 if (length(ers)==0|is.null(ers)){ print('couldnt find the error. Using 0.03')

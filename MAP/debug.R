@@ -1,7 +1,7 @@
 ## Figure out if all AAxAB are lumped or out of order and plot errorlod
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
-pop <- 'ELR'
+pop <- 'NBH'
 X <- 1
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
@@ -55,9 +55,9 @@ if (pop=='ELR'){
   if (X %in% dis.elr){cutoff <- 1.0e-08}
 }
 ## Try to get error exported by map
-expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
+expr <- expression('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $3}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
 
-if (length(ers)==0|is.null(ers)){ print('couldnt find the error. Using 0.03')
+if (length(ers)==0|is.null(ers)|is.na(ers)){ print('couldnt find the error. Using 0.03')
   ers <- 0.03
 } else {print(paste(ers,'genotyping error'))}
