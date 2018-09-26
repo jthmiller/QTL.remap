@@ -297,7 +297,8 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
     na.strings = c("-", "NA"), genotypes = c("A", "H", "B", "D",
         "C"), alleles = c("A", "B"), estimate.map = FALSE, convertXdata = TRUE,
     error.prob = 1e-04, map.function = c("haldane", "kosambi",
-        "c-f", "morgan"), BC.gen = 0, F.gen = 0, crosstype, ...){
+        "c-f", "morgan"), BC.gen = 0, F.gen = 0, crosstype, ...)
+        {
     if (format == "csvrs") {
         format <- "csvsr"
         warning("Assuming you mean 'csvsr' rather than 'csvrs'.\n")

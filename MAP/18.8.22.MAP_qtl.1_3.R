@@ -176,7 +176,7 @@ cross.18 <- drop.missing.18(cross.18,missing=missing)
 
 marker.warning()
 
-print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
+print('initial order filtered markers with 0.1 errorprob. Takes awhile...')  ###
 
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod,reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
@@ -184,7 +184,7 @@ cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
 names(cross.18$geno) <- X
 
 ### add QTL markers to cross that may have been removed
-return.dropped.markers()
+##return.dropped.markers()
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=0.5, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
@@ -213,19 +213,3 @@ write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''
 print('saving...')
 rm(cross.18)
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
-
-## Plot fitration step
-png(file.path(popdir,paste(X,'_pval.png',sep='')))
-hist.geno(gt.missing$P.value)
-abline(v=log10(cutoff))
-dev.off()
-
-png(file.path(popdir,paste(X,'_pos.png',sep='')))
-par(mfrow=c(4,1),mar=c(1,2,3,1))
-plot.geno(gt,gen.main='All Mapped Markers')
-plot.geno(gt.missing,gen.main='Filter loci missing > 5')
-plot.geno(gt.cross.par,gen.main='Grandparents',par.gt=par.confirm.marks)
-abline(h=log10(cutoff),col='red')
-plot.geno(gt.pval,gen.main=paste('Filter distortion > ',cutoff))
-plot.geno(gt.fin,gen.main='Final Markers')
-dev.off()
