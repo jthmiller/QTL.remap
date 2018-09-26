@@ -67,8 +67,9 @@ pval <- log10(gt$P.value)
 
 #### Filter Conservative
 print('Dropping markers with more than 5 genotypes missing')
-cross.18 <- drop.missing(cross.18,5)
+cross.18 <- drop.missing(cross.18,miss)
 gt.missing <- geno.table(cross.18)
+marker.warning()
 
 ### grandparent confirmed markers
 marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks

@@ -38,6 +38,7 @@ if (pop=='NBH'){
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-10
+  miss <- 5
   if (X %in% dis.nbh){cutoff <- 1.0e-10}
 
 }
@@ -49,6 +50,7 @@ if (pop=='ELR'){
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-08
+  miss <- 12
   if (X %in% dis.elr){cutoff <- 1.0e-10}
 }
 ## Try to get error exported by map
