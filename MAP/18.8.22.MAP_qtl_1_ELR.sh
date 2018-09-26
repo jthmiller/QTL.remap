@@ -5,11 +5,11 @@
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=2
-#SBATCH --mem-per-cpu=5000
+#SBATCH --mem-per-cpu=7000
 #SBATCH -p high
 #####SBATCH --mail-type=ALL
 #####SBATCH --mail-user=jthmiller@ucdavis.edu
-#SBATCH --array=1-20
+#SBATCH --array=1-24
 
 ####QTLs are on chrm '1 2 8 13 18 24'
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
