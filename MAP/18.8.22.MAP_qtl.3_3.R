@@ -20,7 +20,6 @@ print('2nd time removing double cross-overs once more')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
-
 print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=5000,tol=1e-3)
