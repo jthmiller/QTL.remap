@@ -641,12 +641,16 @@ return.dropped.markers <- function(){
     }
   }
 }
-plot.geno <- function(L,gen.main,par.gt=NULL){
+plot.geno <- function(L,gen.main){
   plot(NULL,xlim=c(min(pos),max(pos)),ylim=c(min(pval),max(pval)),main=gen.main)
   points(as.numeric(gsub(paste(X,':',sep=''),'',rownames(L))), log10(L$P.value),pch=20)
-  if(!is.null(par.gt)){
+}
+plot.geno.2 <- function(L,gen.main,wtf=FALSE){
+  plot(NULL,xlim=c(min(pos),max(pos)),ylim=c(min(pval),max(pval)),main=gen.main)
+  points(as.numeric(gsub(paste(X,':',sep=''),'',rownames(L))), log10(L$P.value),pch=20)
+  if(wtf==TRUE){
     ##points(as.numeric(gsub(paste(X,':',sep=''),'',par.gt)),rep(0,length=length(par.gt)), col='green',pch=20)
-    points(as.numeric(gsub(paste(X,':',sep=''),'',par.gt)),log10(L[par.gt,8]), col='green',pch=20)
+    points(as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks)),log10(L[par.confirm.marks,8]), col='green',pch=20)
   }
 }
 hist.geno <- function(gt){
@@ -655,3 +659,4 @@ hist.geno <- function(gt){
 environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')
+assignInNamespace
