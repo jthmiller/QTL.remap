@@ -7,21 +7,14 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --mem-per-cpu=5000
 #SBATCH -p high
-######SBATCH --mail-type=ALL
-######SBATCH --mail-user=jthmiller@ucdavis.edu
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=jthmiller@ucdavis.edu
 #SBATCH --array=1-24%10
 
 ####QTLs are on chrm '1 2 8 13 18 24'
 
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
-pop='NBH'
+pop=$1
 ### This requires 2 cpu with 3G memory each, but takes awhile
 Rscript $scriptdir/18.8.22.remap_qtl.3_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
-
-#wait
-
-#pop='ELR'
-
-### This requires 2 cpu with 3G memory each, but takes awhile
-#Rscript $scriptdir/18.8.22.remap_qtl.3_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
