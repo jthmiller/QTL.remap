@@ -74,25 +74,16 @@ keepQTL <- function(Z,i){
   markerVec <- row.names(gt.1[order(abs(pos.m-pos)) < 10,])
   return(markerVec)
 }
-dropone.par <- function(cross,chr,prop=0.025,map.function = c("haldane",
-    "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0, tile=0.975, drop.its=3,
-  maxit=1, sex.sp = F, verbose=F, parallel=T, error.prob = 0.03, cores=1)
+dropone.par <- function(cross,chr, drop.its=1, ...)
   {
-  print('newest starting parallel.droponemarker')
-
-
+  ### Wrapper for parallel.droponemarker... see arguments there ##
+  print('starting parallel.droponemarker')
   for (i in 1:drop.its) {
-      cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
+      cross.drops <- parallel.droponemarker(cross,chr, ...)
       drops <- unique(rownames(cross.drops[c(which.max(cross.drops$Ldiff),which.max(cross.drops$LOD)),]))
       cross <- drop.markers(cross,drops)
     }
-
   return(cross)
-  print(summary(pull.map(cross))[as.character(X),])
-
-  ### Positive value in Ldif = decrease in length
-  ### Positive value in LOD = increase in ocerall lod
-
 }
 marker.warning <- function(cross=cross.18){
   print(paste('Starting markers mapped =',
