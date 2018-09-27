@@ -20,7 +20,7 @@ cores=slurmcore
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
 pop <- 'NBH'
-X <- 1
+X <- 18
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
@@ -53,14 +53,17 @@ cov.nbh <- c(13,18)
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov
   missing <- 0.9
-  if (X %in% cov.nbh){missing <- 0.8}
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-08
   if (X %in% dis.nbh){cutoff <- 1.0e-08}
-
+  if (X %in% cov.nbh){
+    missing <- 0.8
+    grpLod <- 8 ## Standard LG form LOD
+    finLod <- 10 ## Higher final NBH LOD
+  }
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
@@ -70,7 +73,11 @@ if (pop=='ELR'){
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-08
-  if (X %in% dis.elr){cutoff <- 1.0e-08}
+  if (X %in% dis.elr){
+    cutoff <- 1.0e-08
+    grpLod <- 8 ## Standard LG form LOD
+    finLod <- 10 ## Higher final ELR LOD
+  }
 }
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $5}\'',sep='')

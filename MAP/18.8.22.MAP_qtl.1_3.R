@@ -214,3 +214,18 @@ write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''
 print('saving...')
 rm(cross.18)
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
+
+print('plotting')
+png(file.path(popdir,paste(X,'_pval.png',sep='')))
+hist.geno(gt.missing$P.value)
+abline(v=log10(cutoff))
+dev.off()
+
+png(file.path(popdir,paste(X,'_pos.png',sep='')))
+par(mfrow=c(4,1),mar=c(1,2,3,1))
+plot.geno(gt,gen.main=paste('All Mapped Markers on Chr',X))
+plot.geno.2(gt.missing,wtf=T, gen.main='Markers with < 5 missing GT, Grandparent Confirmed markers in Green')
+abline(h=log10(cutoff),col='red')
+plot.geno(gt.pval,gen.main=paste('Filter distortion > ',cutoff))
+plot.geno(gt.fin,gen.main='Final Markers')
+dev.off()
