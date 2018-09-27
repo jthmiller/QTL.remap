@@ -10,14 +10,6 @@ cross.18 <- read.cross(format='csv',dir=popdir,
 zero.map <- shiftmap(pull.map(cross.18))
 cross.18 <- replacemap(cross.18, zero.map)
 
-## keep genotypes for QTL markers
-tokeep <- readLines(paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''))
-if(!tokeep==''){
-  gi <- pull.geno(cross.18)[,tokeep]
-} else {
-  tokeep <- NULL
-}
-
 marker.warning()
 print(summary(pull.map(cross.18))[as.character(X),])
 print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
@@ -26,8 +18,6 @@ print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
 cross.18 <- dropone.par(cross=cross.18, prop=0.025,chr=X, maxit=2000, map.function = 'kosambi',
   length.imp = 1, LOD.imp = 0, error.prob=0.03, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
 
-marker.warning()
-return.dropped.markers()
 marker.warning()
 
 print('Re-order markers')

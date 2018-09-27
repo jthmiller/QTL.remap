@@ -52,7 +52,7 @@ no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
 write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
-system(paste('cat chr',Z,'.QTLmap.csv no_genos.csv > temp.',Z,sep=''))
+system(paste('cat ',popdir,'/chr',X,'_',outname,'.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
 
 print('saving... done with mapping ind chromosomes')
 rm(cross.18)
