@@ -1,7 +1,8 @@
 ### Debug QTL
 ## rQTL2
-slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
-popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
+slurmcore <- 12
+popq <- 'NBH'
+setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
@@ -9,10 +10,11 @@ plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
 qtldir <- file.path(basedir,'rQTL/remap_out')
 errfile <- file.path(qtldir,'genotyping_error_rate.txt')
+popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
 setwd(qtldir)
 
 ## Funtions for processing rQTL data
-source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/source_file.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 
 ## Libraries
 packs <- c('qtl','foreach','doParallel')
@@ -21,8 +23,9 @@ require(qtl2,lib.loc='/share/apps/rmodules')
 
 ## QTL LGs to consider
 #X <- c(1,2,8,13,18,24) ## When only mapping qTLs
-chrms <- c(1:24)
-pops <- c('NBH','ELR')
+chrms <- c(1,2,3)
+#pops <- c('NBH','ELR')
+
 
 ## Try to get chromosome avg error exported by map
 ers <- mean(sapply(chrms,function(Z,pop='NBH'){

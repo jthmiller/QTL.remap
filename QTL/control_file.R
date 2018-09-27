@@ -25,10 +25,10 @@ pops <- c('NBH','ELR')
 
 ## Try to get chromosome avg error exported by map
 ers <- mean(sapply(chrms,function(Z,pop='NBH'){
-  expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',Z,'\' | awk \'{print $3}\'',sep='')
+  expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',Z,'\' | awk \'{print $5}\'',sep='')
   try(ers <- as.numeric(system(expr,intern=T)))
     if (length(ers)==0){ ers <- 0.03 }
-    return(ers)
+    return(round(ers,digits=4))
     }
   )
 )

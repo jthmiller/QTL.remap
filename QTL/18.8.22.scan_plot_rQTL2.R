@@ -2,8 +2,8 @@
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
 source('control_file.R')
 
-cross.18 <- reconst(X=chrms,pop=popq)
-#cross.18 <- reconst(X,pop=popq,dir=qtldir)
+cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
+#cross.18 <- reconst(X,pop=popq, dir=qtldir)
 print('Writing the merged chromosome markers to rQTL format')
 write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
 
