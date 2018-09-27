@@ -41,8 +41,7 @@ if (pop=='NBH'){
   miss <- 5
   if (X %in% dis.nbh){cutoff <- 1.0e-10}
 
-}
-if (pop=='ELR'){
+} else if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.8
   grpLod <- 10 ## Standard LG form LOD

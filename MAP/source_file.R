@@ -75,21 +75,24 @@ keepQTL <- function(Z,i){
   return(markerVec)
 }
 dropone.par <- function(cross,chr,prop=0.025,map.function = c("haldane",
-    "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0,tile=0.975, drop.its=3,
-  maxit=1,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03,cores=slurmcore)
+    "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0, tile=0.975, drop.its=3,
+  maxit=1, sex.sp = F, verbose=F, parallel=T, error.prob = 0.03, cores=1)
   {
   print('newest starting parallel.droponemarker')
-  for (i in 1:drop.its){
-    cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
-    drops <- unique(rownames(cross.drops[c(which.max(cross.drops$Ldiff),which.max(cross.drops$LOD)),]))
 
-    cross <<- drop.markers(cross,drops)
-  }
-  print(summary(pull.map(cross.18))[as.character(X),])
+
+  for (i in 1:drop.its) {
+      cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
+      drops <- unique(rownames(cross.drops[c(which.max(cross.drops$Ldiff),which.max(cross.drops$LOD)),]))
+      cross <- drop.markers(cross,drops)
+    }
+
+  return(cross)
+  print(summary(pull.map(cross))[as.character(X),])
 
   ### Positive value in Ldif = decrease in length
   ### Positive value in LOD = increase in ocerall lod
-  return(cross)
+
 }
 marker.warning <- function(cross=cross.18){
   print(paste('Starting markers mapped =',
@@ -450,7 +453,9 @@ read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx
 }
 parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = c("haldane",
     "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 2, cores=slurmcore,
-    tol = 1e-06, sex.sp = FALSE, verbose = F , parallel=T){
+    tol = 1e-06, sex.sp = FALSE, verbose = F , parallel=T)
+
+    {
     if (!("cross" %in% class(cross)))
         stop("Input must have class \"cross\".")
     if (!missing(chr))
