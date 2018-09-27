@@ -173,7 +173,7 @@ reconst <- function(X,pop,temp.dir){
   write.table(cross,file=file.path(temp.dir,'tempout'),
       col.names=F,row.names=F,quote=F,sep=',')
 
-  return(read.cross.jm(file=file.path(dir,'tempout'),format='csv',
+  return(read.cross.jm(file=file.path(temp.dir,'tempout'),format='csv',
     geno=c(1:3),estimate.map=FALSE))
 }
 markersInInterval <- function(cross, chr, min, max) {
