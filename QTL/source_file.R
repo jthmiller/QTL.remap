@@ -6,6 +6,7 @@ marker.density <- function(cross,gt.1){
 }
 fix.pheno <- function(cross){
   cross$pheno$ID <- paste("ind", 1:nind(cross), sep="")
+  cross$pheno$Pheno_05 <- cross$pheno$Pheno
   cross$pheno[which(cross$pheno[,1]<2),1] <- 0
   cross$pheno[which(cross$pheno[,1]>1),1] <- 1
   cross <- subset(cross, ind=(!is.na(cross$pheno$Pheno))) ## drop g.parents from main set
@@ -73,28 +74,19 @@ keepQTL <- function(Z,i){
   markerVec <- row.names(gt.1[order(abs(pos.m-pos)) < 10,])
   return(markerVec)
 }
-dropone.par <- function(cross,p,chr,map.function = 'kosambi',length.imp = 1, LOD.imp = 0,
-  maxit=1,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03,cores){
-  y <- round(sum(nmar(cross))*p)
-  ### p = percent of longest markers to drop
-  cross.drops <- parallel.droponemarker(cross,
-        chr, map.function = 'kosambi',maxit,
-        sex.sp = F,verbose=F,parallel=T,cores)
+dropone.par <- function(cross,chr,prop=0.025,map.function = c("haldane",
+    "kosambi", "c-f", "morgan"),length.imp = 1, LOD.imp = 0,tile=0.975, drop.its=3,
+  maxit=1,sex.sp = F,verbose=F,parallel=T,error.prob = 0.03,cores=slurmcore)
+  {
+  print('newest starting parallel.droponemarker')
+  for (i in 1:drop.its){
+    cross.drops <- parallel.droponemarker(cross,chr,maxit,cores,map.function='kosambi')
+    drops <- unique(rownames(cross.drops[c(which.max(cross.drops$Ldiff),which.max(cross.drops$LOD)),]))
 
-  Len <- quantile(as.numeric(cross.drops$Ldiff),p)
-  Lod <- quantile(as.numeric(cross.drops$LOD),p)
-
-  index.lod <- rownames(cross.drops[which(as.numeric(cross.drops$LOD) > Lod & as.numeric(cross.drops$LOD) > LOD.imp),])
-  index.ldif <- rownames(cross.drops[which(as.numeric(cross.drops$Ldiff) > Len & as.numeric(cross.drops$Ldiff) > length.imp),])
-  drops <- unique(c(index.lod,index.ldif))
-  if (length(drops)>0){
-    cross <- drop.markers(cross.18,unlist(drops))
-    print(paste('dropping',cross.drops[drops,1]))
-    print(paste('dropping',cross.drops[drops,3]))
-    print(paste('dropping',cross.drops[drops,4]))
-  } else {
-    print('no drops made')
+    cross <<- drop.markers(cross,drops)
   }
+  print(summary(pull.map(cross.18))[as.character(X),])
+
   ### Positive value in Ldif = decrease in length
   ### Positive value in LOD = increase in ocerall lod
   return(cross)
@@ -107,22 +99,26 @@ marker.warning <- function(cross=cross.18){
     sum(!markernames(cross) %in% markernames(cross.18,chr=X))))
 
 }
-er.rate <- function(cross){
-  loglik <- err <- c(0.005, 0.01, 0.015,
-     0.02,0.025, 0.03, 0.04, 0.05)
-      registerDoParallel(slurmcore)
-      hoods <- foreach(i=seq(along=err),
+er.rate <- function(cross,cpus,maxit){
+  loglik <- err <- c(0.0025,0.005,0.0075,0.01,0.015,0.02)
+      registerDoParallel(cpus)
+      hoods <- foreach(i=seq(along=err),.combine=c,
         .inorder=T,.packages = "qtl") %dopar% {
-        tempmap <- est.map(cross, error.prob=err[i],maxit=1000)
-        return(attr(tempmap[[1]], "loglik"))
-        #loglik[i] <- attr(tempmap[[1]], "loglik")
+        tempmap <- est.map(cross, error.prob=err[i],maxit)
+        return(sum(sapply(tempmap,attr,"loglik")))
       }
-      return(err[which.max(abs(unlist(hoods)))])
+      lod <- (hoods - max(hoods))/log(10)
+      png(file.path(popdir,paste(X,'_error.png',sep='')))
+      plot(err, lod, xlab="Genotyping error rate", xlim=c(0,0.05),
+        ylab=expression(paste(log[10], " likelihood")))
+      dev.off()
+      return(err[which.max(lod)])
 }
-drop.errlod <- function(cross,lod=lod,ers=ers){
-  print(paste('remove genotypes with erlod >',lod))
-  mapthis <- calc.errorlod(cross, error.prob=ers)
-  toperr <- top.errorlod(mapthis, cutoff=lod)
+drop.errlod <- function(cross,cutoff,error.prob){
+
+  print(paste('remove genotypes with erlod >',cutoff))
+  mapthis <- calc.errorlod(cross)
+  toperr <- top.errorlod(mapthis)
   dropped <- 0
   if (length(toperr[,1]) > 0){
     step <- sort(as.numeric(names(table(floor(toperr$errorlod)))), decreasing=T)
@@ -134,8 +130,8 @@ drop.errlod <- function(cross,lod=lod,ers=ers){
           dropped <<- dropped + 1
           }
         )
-        mapthis <<- calc.errorlod(cross, error.prob=ers)
-        toperr2 <<- top.errorlod(mapthis, cutoff=lod)
+        mapthis <<- calc.errorlod(cross)
+        toperr2 <<- top.errorlod(mapthis)
           if (!is.null(toperr2)){ step <<- sort(as.numeric(names(table(floor(toperr2$errorlod)))), decreasing=T)
           } else { step <<- 0 }
         }
@@ -149,7 +145,6 @@ all.crossed <- function(X){
   read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
   alleles=c("A","B"))
 }
-
 reconst <- function(X,pop,dir){
   temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/temp.',X,sep=''))
   myfiles <- lapply(temp, function(tocross){
@@ -187,21 +182,6 @@ reconst <- function(X,pop,dir){
   return(read.cross.jm(file=file.path(dir,'tempout'),format='csv',
     geno=c(1:3),estimate.map=FALSE))
 }
-
-#####
-
-# markersInInterval(cross, chr, min, max)
-
-# returns a list of marker names that fall within a range of locations
-
-# (in cM) along a linkage group (chr). Requires a single linkage group
-
-# output is a character vector
-
-#####
-
-
-
 markersInInterval <- function(cross, chr, min, max) {
 
  names(which(pull.map(cross=cross, chr=chr)[[chr]] < max &
@@ -209,23 +189,6 @@ markersInInterval <- function(cross, chr, min, max) {
              pull.map(cross=cross, chr=chr)[[chr]] > min))
 
 }
-
-
-
-#####
-
-# singleMarkerInInterval(cross, chr, min, max)
-
-# returns the marker name if only a single marker falls in a given
-
-# interval (including the possible case of NAs surrounding marker
-
-# on a linkage group, else returns value FALSE
-
-#####
-
-
-
 singleMarkerInInterval <- function(cross, chr, min, max) {
 
   tmp <- markersInInterval(cross,chr,min,max)
@@ -233,25 +196,6 @@ singleMarkerInInterval <- function(cross, chr, min, max) {
   val <- ifelse(sum(!is.na(tmp) == 1 | is.na(tmp) == 2), tmp[!is.na(tmp)], FALSE)
 
 }
-
-#####
-
-# removeDoubleXO(cross,chr,verbose)
-
-# Takes a cross object, returns a cross object with all double-recombinant
-
-# genotypes removed.  This is useful to determine if the genotyping errors
-
-# from stacks influence the genetic maps.  if verbose = 1 (TRUE), minimal
-
-# reporting happens, if verbose > 1, all changed genotypes are written to
-
-# STDOUT
-
-#####
-
-
-
 removeDoubleXO <- function(cross, chr, verbose=TRUE) {
 
   if (!missing(chr))
@@ -347,3 +291,372 @@ removeDoubleXO <- function(cross, chr, verbose=TRUE) {
   cross
 
 }
+read.cross.jm <- function (format = c("csv", "csvr", "csvs", "csvsr", "mm", "qtx",
+    "qtlcart", "gary", "karl", "mapqtl", "tidy"), dir = "", file,
+    genfile, mapfile, phefile, chridfile, mnamesfile, pnamesfile,
+    na.strings = c("-", "NA"), genotypes = c("A", "H", "B", "D",
+        "C"), alleles = c("A", "B"), estimate.map = FALSE, convertXdata = TRUE,
+    error.prob = 1e-04, map.function = c("haldane", "kosambi",
+        "c-f", "morgan"), BC.gen = 0, F.gen = 0, crosstype, ...)
+        {
+    if (format == "csvrs") {
+        format <- "csvsr"
+        warning("Assuming you mean 'csvsr' rather than 'csvrs'.\n")
+    }
+    format <- match.arg(format)
+    if (format == "csv" || format == "csvr") {
+        cross <- read.cross.csv(dir, file, na.strings, genotypes,
+            estimate.map, rotate = (format == "csvr"), ...)
+    }
+    else if (format == "csvs" || format == "csvsr") {
+        if (missing(phefile) && !missing(file) && !missing(genfile)) {
+            phefile <- genfile
+            genfile <- file
+        }
+        else if (missing(genfile) && !missing(file) && !missing(phefile)) {
+            genfile <- file
+        }
+        cross <- read.cross.csvs(dir, genfile, phefile, na.strings,
+            genotypes, estimate.map=FALSE, rotate = (format == "csvsr"),
+            ...)
+    }
+    else if (format == "qtx") {
+        cross <- read.cross.qtx(dir, file, estimate.map)
+    }
+    else if (format == "qtlcart") {
+        if (missing(mapfile) && !missing(genfile))
+            mapfile <- genfile
+        cross <- read.cross.qtlcart(dir, file, mapfile)
+    }
+    else if (format == "karl") {
+        if (missing(genfile))
+            genfile <- "gen.txt"
+        if (missing(mapfile))
+            mapfile <- "map.txt"
+        if (missing(phefile))
+            phefile <- "phe.txt"
+        cross <- read.cross.karl(dir, genfile, mapfile, phefile)
+    }
+    else if (format == "mm") {
+        if (missing(mapfile) && !missing(genfile))
+            mapfile <- genfile
+        cross <- read.cross.mm(dir, file, mapfile, estimate.map)
+    }
+    else if (format == "gary") {
+        if (missing(genfile))
+            genfile <- "geno.dat"
+        if (missing(mnamesfile))
+            mnamesfile <- "mnames.txt"
+        if (missing(chridfile))
+            chridfile <- "chrid.dat"
+        if (missing(phefile))
+            phefile <- "pheno.dat"
+        if (missing(pnamesfile))
+            pnamesfile <- "pnames.txt"
+        if (missing(mapfile))
+            mapfile <- "markerpos.txt"
+        cross <- read.cross.gary(dir, genfile, mnamesfile, chridfile,
+            phefile, pnamesfile, mapfile, estimate.map, na.strings)
+    }
+    else if (format == "mapqtl") {
+        cross <- read.cross.mq(dir = dir, locfile = genfile,
+            mapfile = mapfile, quafile = phefile)
+    }
+    else if (format == "tidy") {
+        if (!missing(file) && !missing(genfile) && !missing(mapfile) &&
+            missing(phefile)) {
+            phefile <- mapfile
+            mapfile <- genfile
+            genfile <- file
+        }
+        if (missing(genfile))
+            genfile <- "gen.csv"
+        if (missing(phefile))
+            phefile <- "phe.csv"
+        if (missing(mapfile))
+            mapfile <- "map.csv"
+        cross <- read.cross.tidy(dir = dir, genfile = genfile,
+            phefile = phefile, mapfile = mapfile, na.strings = na.strings,
+            genotypes = genotypes)
+    }
+    estimate.map <- cross[[2]]
+    cross <- cross[[1]]
+    chrnam <- names(cross$geno)
+    if (all(regexpr("^[Cc][Hh][Rr]", chrnam) > 0)) {
+        chrnam <- substr(chrnam, 4, nchar(chrnam))
+        if (all(regexpr("^[Oo][Mm][Oo][Ss][Oo][Mm][Ee]", chrnam) >
+            0))
+            chrnam <- substr(chrnam, 8, nchar(chrnam))
+    }
+    if (sum(chrnam == "x") > 0)
+        chrnam[chrnam == "x"] <- "X"
+    names(cross$geno) <- chrnam
+    for (i in 1:length(cross$geno)) if (names(cross$geno)[i] ==
+        "X")
+        class(cross$geno[[i]]) <- "X"
+    chrtype <- sapply(cross$geno, class)
+    if (any(chrtype == "X") && convertXdata) {
+        if (class(cross)[1] == "bc")
+            cross <- fixXgeno.bc(cross)
+        if (class(cross)[1] == "f2") {
+            if (missing(alleles))
+                alleles <- c("A", "B")
+            cross <- fixXgeno.f2(cross, alleles)
+        }
+    }
+    cross <- read.cross.bcsft(cross = cross, BC.gen = BC.gen,
+        F.gen = F.gen, ...)
+    if (estimate.map) {
+        cat(" --Estimating genetic map\n")
+        map.function <- match.arg(map.function)
+        newmap <- est.map(cross, error.prob = error.prob, map.function = map.function)
+        cross <- replace.map(cross, newmap)
+    }
+    for (i in 1:nchr(cross)) storage.mode(cross$geno[[i]]$data) <- "integer"
+    if (class(cross)[1] != "4way") {
+        if (length(alleles) > 2) {
+            warning("length of arg alleles should be 2")
+            alleles <- alleles[1:2]
+        }
+        if (length(alleles) < 2)
+            stop("length of arg alleles should be 2")
+    }
+    else {
+        if (missing(alleles))
+            alleles <- c("A", "B", "C", "D")
+        if (length(alleles) > 4) {
+            warning("length of arg alleles should be 4 for a 4-way cross")
+            alleles <- alleles[1:4]
+        }
+        if (length(alleles) < 4)
+            stop("length of arg alleles should be 4 for a 4-way cross")
+    }
+    if (any(nchar(alleles)) != 1) {
+        warning("Each item in arg alleles should be a single character")
+        alleles <- substr(alleles, 1, 1)
+    }
+    attr(cross, "alleles") <- alleles
+    type <- class(cross)[1]
+    if (!missing(crosstype)) {
+        if (crosstype == "risib")
+            cross <- convert2risib(cross)
+        else if (crosstype == "riself")
+            cross <- convert2riself(cross)
+        else class(cross)[1] <- crosstype
+    }
+    #summary(cross)
+    #cat(" --Cross type:", class(cross)[1], "\n")
+    cross
+}
+parallel.droponemarker <- function (cross, chr, error.prob=0.03, map.function = c("haldane",
+    "kosambi", "c-f", "morgan"), m = 0, p = 0, maxit = 2, cores=slurmcore,
+    tol = 1e-06, sex.sp = FALSE, verbose = F , parallel=T){
+    if (!("cross" %in% class(cross)))
+        stop("Input must have class \"cross\".")
+    if (!missing(chr))
+        cross <- subset(cross, chr = chr)
+    if (any(nmar(cross) < 3)) {
+        if (all(nmar(cross) < 3))
+            stop("No chromosomes with at least three markers\n")
+        todrop <- names(cross$geno)[nmar(cross) < 3]
+        tokeep <- names(cross$geno)[nmar(cross) > 2]
+        warning("Dropping chr with <3 markers: ", paste(todrop,
+            collapse = ", "))
+        cross <- subset(cross, chr = tokeep)
+    }
+
+
+    map.function <- match.arg(map.function)
+    if (verbose)
+        cat(" -Re-estimating map\n")
+    origmap <- qtl:::est.map(cross, error.prob = 0.03, map.function = map.function,
+        maxit = maxit, tol = tol, sex.sp = sex.sp,m = 0, p = 0)
+    cat(" Done Re-estimating map\n")
+    cross <- replace.map(cross, origmap)
+    origmaptab <- pull.map(cross, as.table = TRUE)
+    origmaptab <- cbind(origmaptab, LOD = rep(NA, nrow(origmaptab)))
+    if (is.matrix(origmap[[1]])) {
+        origmaptab <- cbind(origmaptab, Ldiff.female = rep(NA,
+            nrow(origmaptab)), Ldiff.male = rep(NA, nrow(origmaptab)))
+        sex.sp <- TRUE
+    } else {
+        origmaptab <- cbind(origmaptab, Ldiff = rep(NA, nrow(origmaptab)))
+        sex.sp <- FALSE
+    }
+
+    for (i in names(cross$geno)) {
+        if (sex.sp) {
+            Lf <- diff(range(origmap[[i]][1, ]))
+            Lm <- diff(range(origmap[[i]][2, ]))
+        } else {
+         L <- diff(range(origmap[[i]]))
+        }
+
+        if (verbose){cat(" -Chromosome", i, "\n")}
+
+        mnames <- markernames(cross, chr = i)
+        temp <- subset(cross, chr = i)
+
+        if (parallel) {
+
+              registerDoParallel(cores)
+              lod.dif <- foreach(j=seq(along=mnames),
+                .inorder=T,.combine='rbind',.packages = "qtl") %dopar% {
+
+
+                if (verbose > 1) cat(" ---Marker", j, "of", length(mnames), "\n")
+
+                if (sex.sp) {
+                  origmaptab[mnames[j], 4] <- -(attr(origmap[[i]],
+                    "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
+                  origmaptab[mnames[j], 5] <- Lf - diff(range(newmap[[1]][1,
+                    ]))
+                  origmaptab[mnames[j], 6] <- Lm - diff(range(newmap[[1]][2,
+                    ]))
+                }
+
+                markerll <- qtl:::markerloglik(cross, mnames[j], error.prob)
+
+                newmap <- qtl:::est.map(drop.markers(temp, mnames[j]),
+                  error.prob = 0.03, map.function='kosambi', m=0, p=0,
+                  maxit=maxit, tol=tol,sex.sp=FALSE)
+
+
+                markit <- mnames[j]
+                k <- -(attr(origmap[[i]], "loglik") - markerll - attr(newmap[[1]], "loglik"))/log(10)
+                Z <- L - diff(range(newmap[[1]]))
+
+                N <- cbind(markit,k,Z)
+
+                return(N)
+            }
+              rownames(lod.dif) <- lod.dif[,1]
+              origmaptab[mnames,'LOD'] <- lod.dif[mnames,2]
+              origmaptab[mnames,'Ldiff'] <- lod.dif[mnames,3]
+
+          } else { print('use rqtl if multi cpus not avail')}
+
+      }
+      class(origmaptab) <- c("scanone", "data.frame")
+      origmaptab$chr <- factor(origmaptab$chr, levels = unique(origmaptab$chr))
+      origmaptab
+}
+plot.draws <- function (x, chr, reorder = FALSE, main = "Genotype data", alternate.chrid = FALSE,...){
+    cross <- x
+    if (!any(class(cross) == "cross"))
+        stop("Input should have class \"cross\".")
+    if (!missing(chr))
+        cross <- subset(cross, chr = chr)
+    type <- class(cross)[1]
+    if (type == "bc" || type == "f2") {
+        chrtype <- sapply(cross$geno, class)
+        if (any(chrtype == "X")) {
+            for (i in which(chrtype == "X")) cross$geno[[i]]$data <- reviseXdata(type,
+                "simple", getsex(cross), geno = cross$geno[[i]]$data,
+                cross.attr = attributes(cross))
+        }
+    }
+    Geno <- pull.draws(cross)[,,1]
+    maxgeno <- max(Geno, na.rm = TRUE)
+    if (type != "4way") {
+        thecolors <- c("white", "#E41A1C", "#377EB8", "#4DAF4A",
+            "#984EA3", "#FF7F00")
+        thebreaks <- seq(-0.5, 5.5, by = 1)
+    }
+    else {
+        if (maxgeno <= 5) {
+            thecolors <- c("white", "#E41A1C", "#377EB8", "#4DAF4A",
+                "#984EA3", "#FF7F00")
+            thebreaks <- seq(-0.5, 5.5, by = 1)
+        }
+        else {
+            thecolors <- c("white", "#8DD3C7", "#FFFFB3", "#BEBADA",
+                "#FB8072", "#80B1D3", "#FDB462", "#B3DE69", "#FCCDE5",
+                "#D9D9D9", "#BC80BD")
+            thebreaks <- seq(-0.5, 10.5, by = 1)
+        }
+    }
+    thecolors <- thecolors[1:(maxgeno + 1)]
+    thebreaks <- thebreaks[1:(maxgeno + 2)]
+    o <- 1:nrow(Geno)
+    if (reorder) {
+        if (is.numeric(reorder)) {
+            if (reorder < 1 || reorder > nphe(cross))
+                stop("reorder should be TRUE, FALSE, or an integer between 1 and ",
+                  nphe(cross))
+            o <- order(cross$pheno[, reorder])
+        }
+        else {
+            wh <- sapply(cross$pheno, is.numeric)
+            o <- order(apply(cross$pheno[, wh, drop = FALSE],
+                1, sum))
+        }
+    }
+    g <- t(Geno[o, ])
+    g[is.na(g)] <- 0
+    old.xpd <- par("xpd")
+    old.las <- par("las")
+    par(xpd = TRUE, las = 1)
+    on.exit(par(xpd = old.xpd, las = old.las))
+    plot_image_sub <- function(g, ylab = "Individuals", xlab = "Markers",
+        col = thecolors, ...) {
+        if (length(thebreaks) != length(col) + 1)
+            stop("Must have one more break than color\n", "length(breaks) = ",
+                length(thebreaks), "\nlength(col) = ", length(col))
+        image(1:nrow(g), 1:ncol(g), g, col = col, xlab = xlab,
+            ylab = ylab, breaks = thebreaks, ...)
+    }
+    plot_image_sub(g, ...)
+    n.mar <- nmar(cross)
+    n.chr <- nchr(cross)
+    a <- c(0.5, cumsum(n.mar) + 0.5)
+    b <- par("usr")
+    segments(a, b[3], a, b[4] + diff(b[3:4]) * 0.02)
+    abline(h = 0.5 + c(0, ncol(g)), xpd = FALSE)
+    a <- par("usr")
+    wh <- cumsum(c(0.5, n.mar))
+    x <- 1:n.chr
+    for (i in 1:n.chr) x[i] <- mean(wh[i + c(0, 1)])
+    thechr <- names(cross$geno)
+    if (!alternate.chrid || length(thechr) < 2) {
+        for (i in seq(along = x)) axis(side = 3, at = x[i], thechr[i],
+            tick = FALSE, line = -0.5)
+    }
+    else {
+        odd <- seq(1, length(x), by = 2)
+        even <- seq(2, length(x), by = 2)
+        for (i in odd) axis(side = 3, at = x[i], labels = thechr[i],
+            line = -0.75, tick = FALSE)
+        for (i in even) axis(side = 3, at = x[i], labels = thechr[i],
+            line = +0, tick = FALSE)
+    }
+    title(main = main)
+    invisible()
+}
+return.dropped.markers <- function(){
+  if(length(mar <- tokeep[!tokeep %in% markernames(cross.18)])>0){
+    for (i in tokeep[!tokeep %in% markernames(cross.18)]){
+      cross.18 <<- addmarker(cross.18,chr=which.max(nmar(cross.18)),pos=which(tokeep==i),
+      markername=i,genotypes=gi[,i])
+    }
+  }
+}
+plot.geno <- function(L,gen.main){
+  plot(NULL,xlim=c(min(pos),max(pos)),ylim=c(min(pval),max(pval)),main=gen.main)
+  points(as.numeric(gsub(paste(X,':',sep=''),'',rownames(L))), log10(L$P.value),pch=20)
+}
+plot.geno.2 <- function(L,gen.main,wtf=FALSE){
+  plot(NULL,xlim=c(min(pos),max(pos)),ylim=c(min(pval),max(pval)),main=gen.main)
+  points(as.numeric(gsub(paste(X,':',sep=''),'',rownames(L))), log10(L$P.value),pch=20)
+  if(wtf==TRUE){
+    ##points(as.numeric(gsub(paste(X,':',sep=''),'',par.gt)),rep(0,length=length(par.gt)), col='green',pch=20)
+    points(as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks)),log10(L[par.confirm.marks,8]), col='green',pch=20)
+  }
+}
+hist.geno <- function(gt){
+  hist(log10(gt),breaks=100,ylim=c(0,300),xlim=c(-20,0))
+}
+environment(plot.draws) <- asNamespace('qtl')
+environment(read.cross.jm) <- asNamespace('qtl')
+environment(parallel.droponemarker) <- asNamespace('qtl')
+assignInNamespace
