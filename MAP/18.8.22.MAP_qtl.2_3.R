@@ -45,4 +45,4 @@ write(line,file="/home/jmiller1/QTL_Map_Raw/popgen/rQTL/remap_out/map.txt",appen
 
 ### Write cross to file
 print('Writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_2.QTLmap',sep=''),format="csv",chr=X)

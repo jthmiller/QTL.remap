@@ -1,26 +1,8 @@
-#### dropone
-cross = cross.18
-chr =X
-prop=0.025
-map.function = "haldane"
-length.imp = 1
-LOD.imp = 0
-tile=0.975
-drop.its=3
-maxit=1
-sex.sp = F
-verbose=F
-parallel=T
-error.prob = 0.03
-cores=slurmcore
-
-
-
 ## Figure out if all AAxAB are lumped or out of order and plot errorlod
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
 pop <- 'NBH'
-X <- 18
+X <- 1
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####

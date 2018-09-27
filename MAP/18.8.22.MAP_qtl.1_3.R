@@ -15,7 +15,6 @@ test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 
 print(paste(pop,X,sep=' '))
 
-
 ### parents ###
 cross.pars <- read.cross.jm(file=file.path(indpops,paste(pop,'.parents.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)

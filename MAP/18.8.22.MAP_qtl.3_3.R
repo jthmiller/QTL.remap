@@ -6,7 +6,7 @@ source('control_file.R')
 #load(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
 cross.18 <- read.cross(format='csv',dir=popdir,
-   file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),
+   file=paste('chr',X,'_',outname,'_2.QTLmap.csv',sep=''),
    geno=c('AA','AB','BB'),alleles=c("A","B"))
 
 marker.warning()
@@ -32,7 +32,7 @@ print('Done mapping..')
 print(summary(pull.map(cross.18))[as.character(X),])
 
 print('Re-writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=''),format="csv",chr=X)
 
 print('Re-estimating error rate for QTL mapping')
 ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
@@ -52,7 +52,7 @@ no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
 write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
-system(paste('cat ',popdir,'/chr',X,'_',outname,'.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
+system(paste('cat ',popdir,'/chr',X,'_',outname,'_3.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
 
 print('saving... done with mapping ind chromosomes')
 rm(cross.18)
