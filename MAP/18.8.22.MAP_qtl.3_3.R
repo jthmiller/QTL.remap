@@ -9,13 +9,6 @@ cross.18 <- read.cross(format='csv',dir=popdir,
    file=paste('chr',X,'_',outname,'_2.QTLmap.csv',sep=''),
    geno=c('AA','AB','BB'),alleles=c("A","B"))
 
-
-cross.18 <- read.cross(format='csv',dir=popdir,
-  file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),
-  geno=c('AA','AB','BB'),alleles=c("A","B"))
-
-
-
 marker.warning()
 
 print('dropping markers by error lod')
