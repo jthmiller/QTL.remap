@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH -J "final_map"
-#SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final_map_out_%A_%a.txt
-#SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final_map_err_%A_%a.txt
+#SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/out_%x_%A_%a.txt
+#SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/err_%x_%A_%a.txt
 #SBATCH --time=24:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=6
