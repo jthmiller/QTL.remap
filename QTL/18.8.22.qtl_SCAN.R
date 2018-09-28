@@ -7,37 +7,43 @@ cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
 print('Writing the merged chromosome markers to rQTL format')
 write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
 
-### rQTL2
-cross2 <- convert2cross2(cross.18)
-map <- insert_pseudomarkers(cross2$gmap, step=1)
-pr <- calc_genoprob(cross2, map, err=ers, cores=slurmcore)
-pr <- clean_genoprob(pr)
-apr <- genoprob_to_alleleprob(pr)
-## Scan for QTLs in each pop
-pr.sub <- calc_genoprob(subset(cross2,chr=1:24[-2]), map, err=ers, cores=slurmcore)
-#perms <- scan1perm(pr.sub,cross2$pheno, model="binary", cores=slurmcore,n_perm=2000,perm_strata=cross2$pheno[,1])
-#cutoff <- summary(perms)['0.05',]
-perms.unstrat <- scan1perm(pr,cross2$pheno, model="binary", cores=12,n_perm=200)
-### Figure out why permutations is usually returning the max LOD from each Chr
-cutoff.us <- summary(perms.unstrat)['0.05',]
-out_bin <- scan1(pr,cross2$pheno[,1], model="binary", cores=slurmcore)
-out_coef <- scan1coef(pr[,2],cross2$pheno[,1],model = 'binary', maxit = 1000,
-  contrasts=cbind(mu=c(1,1,1), a=c(-1, 0, 1), d=c(0, 1, 0)))
-## uses a lod10 likelyhood function that results in a posterior dist of the QTL location
-## bayes_int(out_bin, map, lodcolumn=1, prob=0.95, threshold=cutoff)
-single <- find_peaks(out_bin, map, threshold=cutoff, peakdrop=3)
-single.us <- find_peaks(out_bin, map, threshold=cutoff.us, peakdrop=3)
-str <- as.character(unique(single$chr))
-uns <- as.character(unique(single.us$chr))
-uns <- lapply(split(single.us, single.us$chr),function(r){r[which.max(r$lod),4:5]})
-str <- lapply(split(single, single$chr),function(r){r[which.max(r$lod),4:5]})
-uns <- as.data.frame(cbind(lod=unlist(lapply(uns, "[[", 2)),pos=unlist(lapply(uns, "[[", 1))))
-str <- as.data.frame(cbind(lod=unlist(lapply(str, "[[", 2)),pos=unlist(lapply(str, "[[", 1))))
-uns <- uns[order(as.numeric(uns$lod),decreasing=T),]
-str <- str[order(as.numeric(str$lod),decreasing=T),]
 
-## Fit QTLs from rQTL2 with rQTL and genoprobs (Haley knott)
-cross <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
+## Binary phenotype scan
+
+cross.18$pheno$stata <- gsub('[0-9]','',cross.18$pheno$ID)
+cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
+perms.em <- scanone(cross.18, method="em",model='binary',maxit=4000,
+  n.perm=100,n.cluster=10,perm.strata=cross.18$pheno$stata)
+scan.em <- scanone(cross.18, method="em",model='binary',maxit=4000,n.cluster=slurmcore)
+
+
+scan.ehk <- scanone(cross.18, method="ehk",model='binary',maxit=4000,n.cluster=1,perm.strata=cross.18$pheno$stata)
+
+
+
+
+lod.05 <- summary(perms.em)['5%',]
+lod.chr <- summary(scan.em)
+Qs <- lod.chr$chr[which(lod.chr$lod > lod.05)]
+Ps <- lod.chr$pos[which(lod.chr$lod > lod.05)]
+
+qtl.em <- makeqtl(cross.18, chr=Qs, pos=Ps, what="prob")
+
+fitqtl(cross.18, pheno.col=1, qtl.em, covar=NULL, formula=y~Q1, method=("imp"),
+          model="binary", dropone=TRUE, get.ests=FALSE,
+          run.checks=TRUE, tol=1e-4, maxit=1000, forceXcovar=FALSE)
+
+scan.mr <- scanone(cross.18, method="mr",model='binary',n.cluster=slurmcore)
+perms.mr <- scanone(cross.18, method="mr",model='binary',maxit=4000,
+  n.perm=1200,n.cluster=slurmcore,perm.strata=cross.18$pheno$stata)
+
+imp.aug <- mqmaugment(cross.18, minprob=1.0,strategy="default")
+scan.mqm <- mqmscan(imp.aug,n.cluster=slurmcore)
+
+
+
+
+
 ## Take the hist two QTLs from 2 chromsomes and make QTL
 qtl.uns <- makeqtl(cross, chr=rownames(uns)[1:2], pos=uns$pos[1:2],what='prob')
 qtl.rf.uns <- refineqtl(cross, qtl=qtl.uns, formula=y~Q1+Q2,method="hk",verbose=FALSE)

@@ -3,6 +3,7 @@
 slurmcore <- 12
 popq <- 'NBH'
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
+pop <- 'NBH'
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
@@ -14,7 +15,7 @@ popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
 setwd(qtldir)
 
 ## Funtions for processing rQTL data
-source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/source_file.R'))
 
 ## Libraries
 packs <- c('qtl','foreach','doParallel')
@@ -23,7 +24,7 @@ require(qtl2,lib.loc='/share/apps/rmodules')
 
 ## QTL LGs to consider
 #X <- c(1,2,8,13,18,24) ## When only mapping qTLs
-chrms <- c(1,2,3)
+chrms <- c(1:24)
 #pops <- c('NBH','ELR')
 
 

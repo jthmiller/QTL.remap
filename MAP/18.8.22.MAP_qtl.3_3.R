@@ -9,6 +9,13 @@ cross.18 <- read.cross(format='csv',dir=popdir,
    file=paste('chr',X,'_',outname,'_2.QTLmap.csv',sep=''),
    geno=c('AA','AB','BB'),alleles=c("A","B"))
 
+
+cross.18 <- read.cross(format='csv',dir=popdir,
+  file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),
+  geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+
+
 marker.warning()
 
 print('dropping markers by error lod')
@@ -31,12 +38,12 @@ print('Done mapping..')
 
 print(summary(pull.map(cross.18))[as.character(X),])
 
-print('Re-writing the markers to rQTL format')
-write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=''),format="csv",chr=X)
-
 print('Re-estimating error rate for QTL mapping')
 ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
 print(paste(ers,' error rate'))
+
+print('Re-writing the markers to rQTL format')
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=''),format="csv",chr=X)
 
 print('Adding un-genotyped individuals for stratified analysis')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
