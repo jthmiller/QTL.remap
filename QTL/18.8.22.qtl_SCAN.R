@@ -1,11 +1,54 @@
 #!/bin/bash
-setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
-source('control_file.R')
+#setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
+#source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
-cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
-#cross.18 <- reconst(X,pop=popq, dir=qtldir)
-print('Writing the merged chromosome markers to rQTL format')
-write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
+#cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
+#print('Writing the merged chromosome markers to rQTL format')
+#write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
+
+cross.18 <- read.cross.jm(file=file.path(popdir,'tempout'),format='csv',
+  geno=c(1:3),estimate.map=FALSE)
+
+cross.18$pheno$stata <- gsub('[0-9]','',cross.18$pheno$ID)
+
+#### Nonparametric scan
+cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
+scan.np.em <- scanone(cross.18, model="np", pheno.col=2 ,method='em')
+perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=1000, method='em',perm.strata=cross.18$pheno$stata)
+summary(scan.np.em, perms=perms.np.em, alpha=0.05, pvalues=TRUE)
+
+
+### no good way to fit a model with nonparamtric/binary data with selective genotyping
+### There are ways to scan for single QTLs- but all multi models use hk (not good for Sel Gt) and imp (not coded for binary or np models)
+
+
+scan.np.hk <- scanone(cross.18, model="np",pheno.col=2, method='hk')
+
+plot(scan.np, ylab="LOD score", alternate.chrid=TRUE)
+
+pval.np <- summary(operm.np, 0.05)
+summary(out.np, perms=operm.np, alpha=0.05, pvalues=TRUE)
+
+#### Two-part model
+out.2p <- scanone(listeria, model="2part", upper=TRUE, pheno.col="logsurv")
+
+# Plot the two-part model results
+plot(out.2p, lodcolumn=1:3, ylab="LOD score", alternate.chrid=TRUE)
+
+# Permutation test for the two-part model
+operm.2p <- scanone(listeria, model="2part", upper=TRUE,pheno.col="logsurv", n.perm=1000, perm.Xsp=TRUE)
+
+# LOD thresholds by 2-part model
+summary(operm.2p, alpha=0.05)
+
+# Summary of the significant loci
+summary(out.2p, perms=operm.2p, alpha=0.05, pvalues=TRUE)
+
+# Alternate summary
+summary(out.2p, perms=operm.2p, alpha=0.05, pvalues=TRUE,
+        format="allpeaks")
+
+
 
 
 ## Binary phenotype scan
@@ -21,13 +64,21 @@ scan.ehk <- scanone(cross.18, method="ehk",model='binary',maxit=4000,n.cluster=1
 
 
 
+lod.05 <- summary(perms.em, alpha=0.05)
+binary.QTLs <- summary(out.bin, perms=operm.bin, alpha=0.05, pvalues=TRUE)
 
-lod.05 <- summary(perms.em)['5%',]
+
 lod.chr <- summary(scan.em)
 Qs <- lod.chr$chr[which(lod.chr$lod > lod.05)]
 Ps <- lod.chr$pos[which(lod.chr$lod > lod.05)]
 
 qtl.em <- makeqtl(cross.18, chr=Qs, pos=Ps, what="prob")
+
+
+
+
+
+
 
 fitqtl(cross.18, pheno.col=1, qtl.em, covar=NULL, formula=y~Q1, method=("imp"),
           model="binary", dropone=TRUE, get.ests=FALSE,

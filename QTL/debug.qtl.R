@@ -22,6 +22,8 @@ packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
 require(qtl2,lib.loc='/share/apps/rmodules')
 
+require(qtl,lib.loc='/share/apps/rmodules')
+
 ## QTL LGs to consider
 #X <- c(1,2,8,13,18,24) ## When only mapping qTLs
 chrms <- c(1:24)

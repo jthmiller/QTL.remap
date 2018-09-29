@@ -11,4 +11,4 @@ RES2=$(sbatch -J "ELR.initial" --parsable --dependency=afterany:$RES $scriptdir/
 RES3=$(sbatch -J "NBH.pardrop" --parsable --dependency=afterany:$RES2 $scriptdir/18.8.22.MAP_qtl_2.sh NBH)
 RES4=$(sbatch -J "ELR.pardrop" --parsable --dependency=afterany:$RES3 $scriptdir/18.8.22.MAP_qtl_2.sh ELR)
 RES5=$(sbatch -J "NBH.final" --parsable --dependency=afterany:$RES4 $scriptdir/18.8.22.MAP_qtl_3.sh NBH)
-sbatch -J "ELR.final" --dependency=afterok:$RES3 $scriptdir/18.8.22.MAP_qtl_3.sh ELR
+sbatch -J "ELR.final" --dependency=afterok:$RES5 $scriptdir/18.8.22.MAP_qtl_3.sh ELR

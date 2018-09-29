@@ -40,14 +40,29 @@ write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=
 
 print('Adding un-genotyped individuals for stratified analysis')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
-phen$pheno_all[which(phen$pheno_all<2)] <- 0
-phen$pheno_all[which(phen$pheno_all>1)] <- 1
+phen$Pheno_05 <- phen$pheno_all
 index <- which(phen$pop_all==pop)
-zeros <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['0'])
-ones <- as.numeric((table(phen$pheno_all[index])-table(cross.18$pheno$Pheno))['1'])
-no_genos <- data.frame(pheno=c(rep(0,times=zeros),rep(1,times=ones)),
-              sex=rep(0,times=zeros+ones),ind=paste('NG',1:as.numeric(zeros+ones),sep=''),
-              markers= matrix('-',nrow=zeros+ones,ncol=as.numeric(nmar(cross.18))))
+
+count.pheno <- sapply(0:5, function(pt){
+      A <- table(phen$Pheno_05[index])[as.character(pt)]
+      B <- table(cross.18$pheno$Pheno_05)[as.character(pt)]
+      return(as.numeric(A-B))
+
+  }
+)
+names(count.pheno) <- as.character(0:5)
+count.pheno <- count.pheno[!is.na(count.pheno)]
+count.pheno <- rep.int(names(count.pheno), times=as.numeric(count.pheno))
+
+trsl.bin <- c(0,0,0,1,1,1)
+names(trsl.bin) <- as.character(0:5)
+
+no_genos <- data.frame(Pheno=as.numeric(trsl.bin[as.character(count.pheno)]),sex=0,
+              ID=paste('NG',1:length(count.pheno),sep=''),Pheno_05=count.pheno,
+              markers= matrix('-',nrow=length(count.pheno),ncol=as.numeric(nmar(cross.18))))
+
+phenos <- data.frame(count.pheno,Pheno=as.numeric(trsl.bin[as.character(count.pheno)]))
+rownames(phenos) <- paste('NG',1:length(count.pheno),sep='')
 
 write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')

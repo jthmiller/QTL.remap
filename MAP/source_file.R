@@ -139,15 +139,16 @@ all.crossed <- function(X){
   read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
   alleles=c("A","B"))
 }
-reconst <- function(X,pop,dir){
+reconst <- function(X,pop,temp.dir){
   temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/temp.',X,sep=''))
   myfiles <- lapply(temp, function(tocross){
     all.crossed(tocross)
     }
   )
   ID <- myfiles[[1]]$pheno$ID
-  pheno <- myfiles[[1]]$pheno$Pheno
+  Pheno <- myfiles[[1]]$pheno$Pheno
   sex <- myfiles[[1]]$pheno$sex
+  pheno_05 <- myfiles[[1]]$pheno$Pheno_05
 
   map <- unlist(sapply(seq(along=myfiles),
     function(i){myfiles[[i]]$geno[[1]]$map}))
@@ -165,15 +166,15 @@ reconst <- function(X,pop,dir){
       colnames(data) <- marks
       data
   }
-  chr <- c('','','',chr)
-  map <- c('','','',map[colnames(cross)])
-  cross <- cbind(pheno,sex,ID=as.character(ID),cross)
+  chr <- c('','','','',chr)
+  map <- c('','','','',map[colnames(cross)])
+  cross <- cbind(Pheno,pheno_05,sex,ID=as.character(ID),cross)
   cross <- rbind(colnames(cross),chr,map,cross)
 
-  write.table(cross,file=file.path(dir,'tempout'),
+  write.table(cross,file=file.path(temp.dir,'tempout'),
       col.names=F,row.names=F,quote=F,sep=',')
 
-  return(read.cross.jm(file=file.path(dir,'tempout'),format='csv',
+  return(read.cross.jm(file=file.path(temp.dir,'tempout'),format='csv',
     geno=c(1:3),estimate.map=FALSE))
 }
 markersInInterval <- function(cross, chr, min, max) {

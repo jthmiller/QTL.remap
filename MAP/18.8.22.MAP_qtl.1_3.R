@@ -19,7 +19,6 @@ print(paste(pop,X,sep=' '))
 cross.pars <- read.cross.jm(file=file.path(indpops,paste(pop,'.parents.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
 
-
 allbut <- c(1:24)[-X]
 subset.qtl <- chrnames(cross.pars)[!chrnames(cross.pars) %in% allbut]
 cross.pars <- subset(cross.pars, chr=subset.qtl)
