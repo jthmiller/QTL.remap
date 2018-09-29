@@ -68,3 +68,13 @@ try(ers <- as.numeric(system(expr,intern=T)))
 if (length(ers)==0|is.null(ers)){ print('couldnt find the error. Using 0.03')
   ers <- 0.03
 } else {print(paste(ers,'genotyping error'))}
+
+
+
+
+
+ind.inx <- grep('NG',cross.18$pheno$ID)
+
+repl <- phenos[as.character(cross.18$pheno$ID[grep('NG',cross.18$pheno$ID)]),1]
+
+cross.18$pheno$pheno_05[ind.inx] <- as.character(repl)

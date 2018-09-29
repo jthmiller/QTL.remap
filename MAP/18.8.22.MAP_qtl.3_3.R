@@ -44,9 +44,10 @@ phen$Pheno_05 <- phen$pheno_all
 index <- which(phen$pop_all==pop)
 
 count.pheno <- sapply(0:5, function(pt){
-      A <- table(phen$Pheno_05[index])[as.character(pt)]
-      B <- table(cross.18$pheno$Pheno_05)[as.character(pt)]
-      return(as.numeric(A-B))
+      pt <- as.character(pt)
+      total <- sum(phen$Pheno_05[index]==pt)
+      incross <- sum(cross.18$pheno$Pheno_05==pt)
+      return(as.numeric(total-incross))
 
   }
 )
