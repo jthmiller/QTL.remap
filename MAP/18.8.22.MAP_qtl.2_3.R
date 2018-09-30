@@ -13,9 +13,9 @@ cross.18 <- replacemap(cross.18, zero.map)
 print(summary(pull.map(cross.18))[as.character(X),])
 
 marker.warning()
-print('Dropping 2.5% of markers that inflate the map. Takes a long time...')
+print('Dropping ~6 markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion of worst markers to drop
-cross.18 <- dropone.par(cross.18,X,drop.its = 3,maxit=2000, map.function = 'kosambi',
+cross.18 <- dropone.par(cross.18,X,drop.its = 3,maxit=20, map.function = 'kosambi',
    error.prob=0.03, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
 marker.warning()
 
