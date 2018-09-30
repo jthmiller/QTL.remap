@@ -13,9 +13,6 @@ marker.warning()
 
 print('dropping markers by error lod')
 
-## fix for those that do not have below thresh error
-cross.18 <- drop.errlod(cross=cross.18,cutoff=4,error.prob=ers)
-
 print('2nd time removing double cross-overs once more')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
