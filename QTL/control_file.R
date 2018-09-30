@@ -12,6 +12,7 @@ setwd(qtldir)
 
 ## Funtions for processing rQTL data
 source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/source_file.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/model_source_file.R'))
 
 ## Libraries
 packs <- c('qtl','foreach','doParallel')

@@ -17,7 +17,11 @@ scan.np.em <- scanone(cross.18, model="np", pheno.col=2 ,method='em')
 perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=1000, method='em',perm.strata=cross.18$pheno$stata)
 summary(scan.np.em, perms=perms.np.em, alpha=0.05, pvalues=TRUE)
 
+plot()
 
+cross2 <- convert2cross2(scan.np.em)
+
+save.image('~/debug.Rsave')
 ### no good way to fit a model with nonparamtric/binary data with selective genotyping
 ### There are ways to scan for single QTLs- but all multi models use hk (not good for Sel Gt) and imp (not coded for binary or np models)
 
