@@ -9,7 +9,7 @@
 #SBATCH -p high
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
-#SBATCH --array=11-24%8
+#SBATCH --array=11-24
 
 
 ####QTLs are on chrm '1 2 8 13 18 24'
