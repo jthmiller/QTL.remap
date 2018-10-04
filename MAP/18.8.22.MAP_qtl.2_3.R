@@ -15,13 +15,13 @@ print(summary(pull.map(cross.18))[as.character(X),])
 marker.warning()
 print('Dropping ~6 markers that inflate the map. Takes a long time...')
 ## Drop one marker, p is proportion of worst markers to drop
-cross.18 <- dropone.par(cross.18,X,drop.its = 3,maxit=10, map.function = 'kosambi',
+cross.18 <- dropone.par(cross.18,X,drop.its = 3,maxit=5, map.function = 'kosambi',
    error.prob=0.03, sex.sp = F, verbose=F, parallel=T, cores=slurmcore)
 marker.warning()
 
 print('Re-order markers')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-3)
+  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=3000,tol=1e-3)
 
 print('Re-estimating the map')
 POS.map.18 <- est.map(cross.18,error.prob=0.05,map.function="kosambi", chr=X,maxit=2000)

@@ -79,18 +79,9 @@ gt.cross.par <- geno.table(cross.18)
 cross.18 <- drop.markers(cross.18,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
 gt.pval <- geno.table(cross.18)
 
-
-#a <- intersect(which(gt$neglog10P > 2.5),which(gt$AA < 0.15 & gt$BB > 0.15))
-#b <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA > 0.15))
-#c <- intersect(which(gt$neglog10P > 2.5),which(gt$BB < 0.15 & gt$AA < 0.15))
-#cross.18 <- drop.markers(cross.18,rownames(gt[unique(c(a,b,c)),]))
-#gt.dis <- geno.table(cross.18)
-#print(paste('Dropping markers with segregation distortion < ',cutoff))
-#cross.18 <- distort(cross.18,cutoff)
-
 marker.warning()
 
-print('Finding markers that are near known QTLs')
+print('Finding markers that are near known QTLs and dumping to X.keepmarkers.csv')
 qtl.index <-  which(test.QTLs$chrm.n == X)
 tokeep <- unlist(sapply(qtl.index,function(Z){
     markerList <- list()
@@ -105,23 +96,24 @@ write(file=paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''),
 
 if (mapped.only==T){print('keeping only previously mapped markers')
 } else {print('Keeping markers that show even low linkage to any previously known mapped marker')}
+
 print(paste('Using an initial lod of 6 to keep markers '))
 
-cross.18.all <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
 
-keep <- sapply(chrnames(cross.18.all),function(i){
-    a <- sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i)))
-    b <- sum(tokeep %in% markernames(cross.18.all,chr=i))
+## Keeping all initial groups with a previously mapped marker or known QTL
+keep <- sapply(chrnames(cross.18),function(i){
+    a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
+    b <- sum(tokeep %in% markernames(cross.18,chr=i))
     return(a+b > 1)
   }
 )
-keep <- names(cross.18.all$geno)[keep]
-cross.18 <- subset(cross.18.all, chr=keep)
-rm(cross.18.all) ##keep memory light
+keep <- names(cross.18$geno)[keep]
+cross.18 <- subset(cross.18, chr=keep)
 
 print(paste(length(markernames(cross.18)),'markers in',nchr(cross.18),'linkage groups going into phase fix'))
 
-print('forming initial linkage groups')
+print('forming initial linkage groups to fix phase...')
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
 
 ## iteritively fix phase by inverting phase of the growing LG and re-eval linkage
@@ -143,7 +135,7 @@ if (chrom.b4 > 1){
 ## Pull genotypes for QTL markers
 gi <- pull.geno(cross.18)[,tokeep]
 
-### Keep all with linkage to marker mapped to the LG
+### Continue to keep that are linked to markers that have been previously mapped
 keep <- sapply(1:nchr(cross.18),function(i){
     a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
     b <- sum(tokeep %in% markernames(cross.18,chr=i))
@@ -156,6 +148,7 @@ cross.18 <- subset(cross.18, chr=keep)
 cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod)
 
+## Keep the group with the most mapped markers
 keep <- sapply(1:nchr(cross.18),function(i){
     b <- sum(tokeep %in% markernames(cross.18,chr=i))
     return(b > 1)
@@ -167,11 +160,6 @@ cross.18 <- subset(cross.18, chr=keep)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X
-
-marker.warning()
-
-print('second missing filter')
-cross.18 <- drop.missing.18(cross.18,missing=missing)
 
 marker.warning()
 
