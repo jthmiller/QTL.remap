@@ -6,10 +6,10 @@
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=4000
-#SBATCH -p high
+#SBATCH -p med
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
-#SBATCH --array=15-24
+#SBATCH --array=1-24
 
 
 ####QTLs are on chrm '1 2 8 13 18 24'
