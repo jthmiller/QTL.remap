@@ -1,7 +1,7 @@
 #!/bin/R
 ### Map QTLs 1 of 3
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
-source('control_file.R')
+#source('control_file.R')
 
 ## For plotting
 marker_dens <- list()
@@ -109,9 +109,9 @@ print(paste('Using an initial lod of 6 to keep markers '))
 
 cross.18.all <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
 
-keep <- sapply(1:nchr(cross.18.all),function(i){
-    a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
-    b <- sum(tokeep %in% markernames(cross.18,chr=i))
+keep <- sapply(chrnames(cross.18.all),function(i){
+    a <- sum(X==gsub('\\:.*','',markernames(cross.18.all,chr=i)))
+    b <- sum(tokeep %in% markernames(cross.18.all,chr=i))
     return(a+b > 1)
   }
 )
@@ -132,7 +132,7 @@ if (chrom.b4 > 1){
   while (chrom.b4 > chrom.after){
     chrom.b4 <- nchr(cross.18)
     cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=1))
-    cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod, reorgMarkers=TRUE)
+    cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
     chrom.after <- nchr(cross.18)
     }
   print('done fixing phase... switching phase added no new markers to the LG')
@@ -153,7 +153,7 @@ keep <- sapply(1:nchr(cross.18),function(i){
 keep <- names(cross.18$geno)[keep]
 cross.18 <- subset(cross.18, chr=keep)
 
-cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod, reorgMarkers=TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod)
 
 keep <- sapply(1:nchr(cross.18),function(i){

@@ -32,7 +32,10 @@ cov.nbh <- c(13,18)
 if (pop=='NBH'){
   inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov
   missing <- 0.9
-  if (X %in% cov.nbh){missing <- 0.8}
+  if (X %in% cov.nbh){
+    missing <- 0.8
+    finRf <- 0.20
+  }
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20

@@ -6,9 +6,25 @@
 cross.18 <- read.cross.jm(file=file.path(popdir,'tempout'),format='csv',
   geno=c(1:3),estimate.map=FALSE)
 
-## Trait values
+##n.chrom<-4
+n.chrom<-24
 
-y <- cross.18$pheno$Pheno_05
+###info.chrom<-c(11,11,11,11)
+info.chrom <- nmar(cross.18)
+
+### Convert from rQTL to data structure for Lee et al.
+data <- cross.18$geno[['1']]$'data'
+
+
+data<-vector("list",n.chrom)
+data <- lapply(1:n.chrom,function(Z){
+    return(cross.18$geno[[as.character(Z)]]$
+  )
+
+
+
+## Trait values
+y <- cross.18$pheno$pheno
 ngy.ind<-is.na(data[,ncol(data)])
 ys<-y[ngy.ind==0]
 yu<-y[ngy.ind==1]
@@ -17,14 +33,10 @@ yu<-y[ngy.ind==1]
 ## Give the chromosome number.
 # n.chrom: number of chromosomes
 
-##n.chrom<-4
-n.chrom<-24
 
 ## Give the marker number in chromosomes.
 # info.chrom: a vector of number of markers on each chromosome
 
-###info.chrom<-c(11,11,11,11)
-info.chrom <- nmar(cross.18)
 
 ## Give the length of marker intervals on each chromosome (in Morgan).
 # marker.map[[i]]: the length of marker intervals in the ith chromosome

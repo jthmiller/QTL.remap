@@ -2,7 +2,7 @@
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
 pop <- 'NBH'
-X <- 1
+X <- 18
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
@@ -69,7 +69,7 @@ if (length(ers)==0|is.null(ers)){ print('couldnt find the error. Using 0.03')
   ers <- 0.03
 } else {print(paste(ers,'genotyping error'))}
 
-
+#Used to update phenotypes
 ##ind.inx <- grep('NG',cross.18$pheno$ID)
 ##repl <- phenos[as.character(cross.18$pheno$ID[grep('NG',cross.18$pheno$ID)]),1]
 #cross.18$pheno$pheno_05[ind.inx] <- as.character(repl)
