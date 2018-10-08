@@ -181,7 +181,7 @@ QTL.estim.p<-function(nQTL, posi, ys, yu, D.matrix, marker.map, marker.gty, EM=1
    n.para<-ncol(D.matrix)
    if(EM==1)
      {L0<-sum(log(dnorm(Y,mean=mean(Y),sd=var(Y)^0.5)))
-      mut<-mean(Y)
+      mut<-as.vector(mean(Y))
       Et<-rep(0,n.para)
       sigt<-var(Y)
       MUt<-c(rep(mut,3^nQTL))+D.matrix%*%matrix(Et,n.para,1)

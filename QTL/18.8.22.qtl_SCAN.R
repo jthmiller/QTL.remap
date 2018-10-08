@@ -9,6 +9,11 @@
 cross.18 <- read.cross.jm(file=file.path(popdir,'tempout'),format='csv',
   geno=c(1:3),estimate.map=FALSE)
 
+dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
+### remove markers that are exactly the same.
+cross.18 <- drop.markers(cross.18,unlist(dups))
+
+### Ids for strata permutations
 cross.18$pheno$stata <- gsub('[0-9]','',cross.18$pheno$ID)
 
 #### Nonparametric scan
