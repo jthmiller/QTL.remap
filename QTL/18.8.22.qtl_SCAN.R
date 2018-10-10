@@ -1,125 +1,82 @@
 #!/bin/bash
-#setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
-#source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
-#cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
-#print('Writing the merged chromosome markers to rQTL format')
-#write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
-
-cross.18 <- read.cross.jm(file=file.path(popdir,'tempout'),format='csv',
-  geno=c(1:3),estimate.map=FALSE)
-
-dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
-### remove markers that are exactly the same.
-cross.18 <- drop.markers(cross.18,unlist(dups))
+cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
+print('Writing the merged chromosome markers to rQTL format')
+write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
 
 ### Ids for strata permutations
 cross.18$pheno$stata <- gsub('[0-9]','',cross.18$pheno$ID)
 
+### Error rate and genoprobs
+ers <- 0.002
+cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
+
+### Cross object with only genotyped individuals for model comp
+indy <- Z$pheno$ID[grep('ind',Z$pheno$ID)]
+cross.gt <- subset(Z,ind=as.character(indy))
+
+#### Transform the phenotype for model flexibility. Imputations are better for selective genotyping than HK
+Z <- transformPheno(cross.18, pheno.col=2, transf=nqrank)
+Z <- sim.geno(Z,error.prob=0.002)
+
+
+
+
+
 #### Nonparametric scan
-cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
-scan.np.em <- scanone(cross.18, model="np", pheno.col=2 ,method='em')
-perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=1000, method='em',perm.strata=cross.18$pheno$stata)
-summary(scan.np.em, perms=perms.np.em, alpha=0.05, pvalues=TRUE)
-
-plot()
-
-cross2 <- convert2cross2(scan.np.em)
-
-save.image('~/debug.Rsave')
-### no good way to fit a model with nonparamtric/binary data with selective genotyping
-### There are ways to scan for single QTLs- but all multi models use hk (not good for Sel Gt) and imp (not coded for binary or np models)
-
-
-scan.np.hk <- scanone(cross.18, model="np",pheno.col=2, method='hk')
-
-plot(scan.np, ylab="LOD score", alternate.chrid=TRUE)
-
-pval.np <- summary(operm.np, 0.05)
-summary(out.np, perms=operm.np, alpha=0.05, pvalues=TRUE)
-
-#### Two-part model
-out.2p <- scanone(listeria, model="2part", upper=TRUE, pheno.col="logsurv")
-
-# Plot the two-part model results
-plot(out.2p, lodcolumn=1:3, ylab="LOD score", alternate.chrid=TRUE)
-
-# Permutation test for the two-part model
-operm.2p <- scanone(listeria, model="2part", upper=TRUE,pheno.col="logsurv", n.perm=1000, perm.Xsp=TRUE)
-
-# LOD thresholds by 2-part model
-summary(operm.2p, alpha=0.05)
-
-# Summary of the significant loci
-summary(out.2p, perms=operm.2p, alpha=0.05, pvalues=TRUE)
-
-# Alternate summary
-summary(out.2p, perms=operm.2p, alpha=0.05, pvalues=TRUE,
-        format="allpeaks")
+scan.np.em <- scanone(cross.18, method='em', model="np", pheno.col=2, maxit=5000)
+### 2 part model
+scan.2p.em <- scanone(cross.18, method='em', model="2part", pheno.col=1, maxit=5000)
+### Binary model with EM
+scan.bin.em <- scanone(cross.18, method="em",model='binary', pheno.col=1, maxit=5000)
+### Binary model with marker regression
+scan.bin.mr <- scanone(cross.18, method="mr",model='binary',pheno.col=1)
+### Binary model with haley knott (heavy inflation of LOD)
+scan.bin.hk <- scanone(cross.18, method="hk",model='binary',pheno.col=1)
+### Normal scan on transformed phenotype
+scan.norm.em <- scanone(Z, method="em",model='normal',maxit=500, pheno.col=2)
+### Normal scan on transformed phenotype w/Extended haley knott (better for selective/missing genos at non-gt'ed ind)
+scan.norm.ehk <- scanone(Z, method="ehk",model='normal',maxit=500, pheno.col=2)
+### Normal scan on transformed phenotype fast haley knott (not robust to missing data. LOD inflation)
+scan.norm.hk <- scanone(Z, method="hk",model='normal',maxit=500, pheno.col=2)
+### Imputation on transformed phenotype
+scan.norm.imp <- scanone(Z, method="imp",model='normal',maxit=500, pheno.col=2)
+### Imputation on transformed phenotype
+scan.norm.imp.gt <- scanone(cross.gt, method="imp",model='normal',maxit=500, pheno.col=2)
+### Imputation on un-transformed scores
+scan.norm.imp.05 <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2)
+### EM scan without ungenotyped
+scan.norm.em.gt <- scanone(cross.gt, method="em",model='normal',maxit=500, pheno.col=2)
 
 
 
+## Find LOD thresholds to get a null dist. of
+### remove markers that are exactly the same to speed up (same results)
+dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
+cross.18 <- drop.markers(cross.18,unlist(dups))
 
-## Binary phenotype scan
+perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=24)
+perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
+perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=24)
+perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
+perms.norm.em <- scanone(Z, method="em",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.norm.ehk <- scanone(Z, method="ehk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.norm.hk <- scanone(Z, method="hk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.norm.imp <- scanone(Z, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.norm.imp.2 <- scanone(Z, method="imp",model='normal',chr=-2,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2,n.cluster=24)
 
-cross.18$pheno$stata <- gsub('[0-9]','',cross.18$pheno$ID)
-cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
-perms.em <- scanone(cross.18, method="em",model='binary',maxit=4000,
-  n.perm=100,n.cluster=10,perm.strata=cross.18$pheno$stata)
-scan.em <- scanone(cross.18, method="em",model='binary',maxit=4000,n.cluster=slurmcore)
-
-
-scan.ehk <- scanone(cross.18, method="ehk",model='binary',maxit=4000,n.cluster=1,perm.strata=cross.18$pheno$stata)
-
-
-
-lod.05 <- summary(perms.em, alpha=0.05)
-binary.QTLs <- summary(out.bin, perms=operm.bin, alpha=0.05, pvalues=TRUE)
-
-
-lod.chr <- summary(scan.em)
-Qs <- lod.chr$chr[which(lod.chr$lod > lod.05)]
-Ps <- lod.chr$pos[which(lod.chr$lod > lod.05)]
-
-qtl.em <- makeqtl(cross.18, chr=Qs, pos=Ps, what="prob")
+### Multi-QTL models
+th <- summary(perms.norm.imp)[1,]
+norm.qtl <- summary(scan.norm.imp, perms=perms.norm.imp, alpha=0.05)
+qtl.uns <- makeqtl(Z, chr=norm.qtl$chr, pos=norm.qtl$pos)
+full <- stepwiseqtl(Z, additive.only=T, method="imp", pheno.col=2, scan.pairs=T)
 
 
 
 
 
-
-
-fitqtl(cross.18, pheno.col=1, qtl.em, covar=NULL, formula=y~Q1, method=("imp"),
-          model="binary", dropone=TRUE, get.ests=FALSE,
-          run.checks=TRUE, tol=1e-4, maxit=1000, forceXcovar=FALSE)
-
-scan.mr <- scanone(cross.18, method="mr",model='binary',n.cluster=slurmcore)
-perms.mr <- scanone(cross.18, method="mr",model='binary',maxit=4000,
-  n.perm=1200,n.cluster=slurmcore,perm.strata=cross.18$pheno$stata)
-
-imp.aug <- mqmaugment(cross.18, minprob=1.0,strategy="default")
-scan.mqm <- mqmscan(imp.aug,n.cluster=slurmcore)
-
-
-
-
-
-## Take the hist two QTLs from 2 chromsomes and make QTL
-qtl.uns <- makeqtl(cross, chr=rownames(uns)[1:2], pos=uns$pos[1:2],what='prob')
-qtl.rf.uns <- refineqtl(cross, qtl=qtl.uns, formula=y~Q1+Q2,method="hk",verbose=FALSE)
-out.fit.uns <- fitqtl(cross, qtl=qtl.rf.uns, formula=y~Q1+Q2,method="hk",get.ests=T)
-
-qtl<- makeqtl(cross, chr=rownames(str)[1:2], pos=str$pos[1:2],what='prob')
-qtl.rf <- refineqtl(cross, qtl=qtl, formula=y~Q1+Q2,method="hk",verbose=FALSE)
-out.fit <- fitqtl(cross, qtl=qtl.rf, formula=y~Q1+Q2,method="hk",get.ests=T)
-
-
-### After fitting single addative QTLs, search model space for addition addative
-stepout1.uns <- stepwiseqtl(cross,qtl=qtl.rf.uns,pheno.col=1,model="binary",
-  additive.only=TRUE, max.qtl=7, verbose=FALSE)
-
-stepout1 <- stepwiseqtl(cross,qtl=qtl.rf,pheno.col=1,model="binary",
-  additive.only=TRUE, max.qtl=7, verbose=FALSE)
 
 save.image(paste('QTLmap.Rsave',sep=''))
 

@@ -82,7 +82,7 @@ scan.norm.hk <- scanone(Z, method="hk",model='normal',maxit=500, pheno.col=2)
 #perms.norm.hk <- scanone(Z, method="hk",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=2)
 
 ### Imputation on transformed phenotype
-scan.norm.imp <- scanone(Z, method="imp",model='normal',maxit=500, pheno.col=2)
+rorororororororororororororororo <- scanone(Z, method="imp",model='normal',maxit=500, pheno.col=2)
 perms.norm.imp <- scanone(Z, method="imp",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=2)
 
 
