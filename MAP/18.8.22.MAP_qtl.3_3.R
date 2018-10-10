@@ -70,3 +70,7 @@ system(paste('cat ',popdir,'/chr',X,'_',outname,'_3.QTLmap.csv ',popdir,'/no_gen
 print('saving... done with mapping ind chromosomes')
 rm(cross.18)
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
+
+png(file.path(popdir,paste(X,'_RF.png',sep='')))
+plotRF(cross.18)
+dev.off()
