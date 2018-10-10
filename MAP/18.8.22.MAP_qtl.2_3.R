@@ -1,7 +1,6 @@
 #!/bin/R
 ### Map QTLs 2 of 3
-setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
-source('control_file.R')
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
 cross.18 <- read.cross(format='csv',dir=popdir,
    file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),

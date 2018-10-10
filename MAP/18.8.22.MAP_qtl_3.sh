@@ -6,7 +6,6 @@
 #SBATCH --mem-per-cpu=2000
 #SBATCH -p med
 #SBATCH --array=1-24
-#SBATCH --quiet
 #SBATCH --mail-type=ALL
 #SBATCH --mail-user=jthmiller@ucdavis.edu
 
