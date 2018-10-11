@@ -2,8 +2,8 @@
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
 pop <- 'NBH'
-X <- 8
-slurmcore <- 12
+X <- 1
+slurmcore <- 6
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
 

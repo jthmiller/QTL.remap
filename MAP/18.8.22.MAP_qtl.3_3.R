@@ -71,5 +71,5 @@ plotRF(cross.18)
 dev.off()
 
 print('saving... done with mapping ind chromosomes')
-rm(cross.18)
+
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
