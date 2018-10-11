@@ -1,7 +1,6 @@
 #!/bin/R
 ### Map QTLs 3 of 3
-setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
-source('control_file.R')
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
 #load(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
@@ -67,10 +66,10 @@ write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
 
 system(paste('cat ',popdir,'/chr',X,'_',outname,'_3.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
 
-print('saving... done with mapping ind chromosomes')
-rm(cross.18)
-save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
-
 png(file.path(popdir,paste(X,'_RF.png',sep='')))
 plotRF(cross.18)
 dev.off()
+
+print('saving... done with mapping ind chromosomes')
+rm(cross.18)
+save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
