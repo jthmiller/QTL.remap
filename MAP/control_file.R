@@ -52,12 +52,22 @@ if (pop=='NBH'){
   missing <- 0.8
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
-  grpRf <- 0.20
-  finRf <- 0.10
+  grpRf <- 0.25
+  finRf <- 0.15
   cutoff <- 1.0e-08
-  miss <- 12
+  miss <- 10
   if (X %in% dis.elr){cutoff <- 1.0e-10}
+} else if ( pop=='NEW'){
+  inds <- c(NA) # determined to be dropped low cov
+  missing <- 0.8
+  grpLod <- 10 ## Standard LG form LOD
+  finLod <- 12 ## Higher final ELR LOD
+  grpRf <- 0.25
+  finRf <- 0.15
+  cutoff <- 1.0e-08
+  miss <- 10
 }
+
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $5}\'',sep='')
 try(ers <- as.numeric(system(expr,intern=T)))
