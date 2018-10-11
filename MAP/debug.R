@@ -1,9 +1,9 @@
 ## Figure out if all AAxAB are lumped or out of order and plot errorlod
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
-pop <- 'NBH'
+pop <- 'ELR'
 X <- 1
-slurmcore <- 6
+slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
 
@@ -49,16 +49,16 @@ if (pop=='NBH'){
 }
 if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.8
-  grpLod <- 10 ## Standard LG form LOD
-  finLod <- 12 ## Higher final ELR LOD
+  missing <- 0.75
+  grpLod <- 8 ## Standard LG form LOD
+  finLod <- 10 ## Higher final ELR LOD
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-08
   if (X %in% dis.elr){
     cutoff <- 1.0e-08
-    grpLod <- 8 ## Standard LG form LOD
-    finLod <- 10 ## Higher final ELR LOD
+    grpLod <- 6 ## Standard LG form LOD
+    finLod <- 8 ## Higher final ELR LOD
   }
 }
 ## Try to get error exported by map
