@@ -4,8 +4,9 @@
 #SBATCH -t 12:00:00
 #SBATCH --cpus-per-task=6
 #SBATCH --mem-per-cpu=2000
-#SBATCH -p med
-#SBATCH --array=1-24%12
+#SBATCH -p high
+##########SBATCH --array=1-24%12
+#SBATCH --array=3,4,17,21
 ####SBATCH --mail-type=ALL
 ####SBATCH --mail-user=jthmiller@ucdavis.edu
 

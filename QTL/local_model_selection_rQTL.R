@@ -209,7 +209,7 @@ plot(scan.norm.imp.gt, chr=qs, lty=1,col="black")
 plot(scan.norm.imp,chr=qs, lty=1,col="purple", add=TRUE)
 
 ## Imp with un-transformed and transformed
-plot(scan.norm.imp.05,chr=qs, lty=1,col="black")
+plot(scan.norm_05.imp,chr=qs, lty=1,col="black")
 plot(scan.norm.imp,chr=qs, lty=1,col="purple", add=TRUE)
 ## Seems that I have more power at minor QTL- bu otherwise similar
 
