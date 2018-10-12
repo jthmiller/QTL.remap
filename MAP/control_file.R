@@ -5,9 +5,9 @@ X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
 slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 
 ## Only use previously mapped markers?
-mapped.only=FALSE
+mapped.only=TRUE
 
-if (mapped.only==FALSE) {
+if (mapped.only==TRUE) {
   outname <- 'NW_dropped'
 } else { outname <- 'NW' }
 
@@ -50,8 +50,8 @@ if (pop=='NBH'){
 } else if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.8
-  grpLod <- 10 ## Standard LG form LOD
-  finLod <- 12 ## Higher final ELR LOD
+  grpLod <- 8 ## Standard LG form LOD
+  finLod <- 10 ## Higher final ELR LOD
   grpRf <- 0.25
   finRf <- 0.15
   cutoff <- 1.0e-08

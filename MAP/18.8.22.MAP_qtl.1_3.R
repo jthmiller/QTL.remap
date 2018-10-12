@@ -179,8 +179,8 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
-cross.18 <- sim.geno(cross.18,step=5,error.prob=0.1,map.function='kosambi')
-cross.18 <- calc.genoprob(cross.18,step=5,error.prob=0.1,map.function='kosambi')
+cross.18 <- sim.geno(cross.18,step=5,error.prob=0.02,map.function='kosambi')
+cross.18 <- calc.genoprob(cross.18,step=5,error.prob=0.02,map.function='kosambi')
 
 print('removing double cross-over genotypes')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
