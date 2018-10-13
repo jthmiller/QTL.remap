@@ -33,7 +33,7 @@ cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cr
 
 #### Filter Conservative
 print('Dropping markers with more than 5 genotypes missing')
-cross.18 <- drop.missing(cross.18,5)
+cross.18 <- drop.missing(cross.18,7)
 gt.missing <- geno.table(cross.18)
 
 ### invariants
@@ -42,7 +42,7 @@ cross.18 <- drop.markers(cross.18,rownames(gt.cross.par[gt.cross.par$P.value<cut
 gt.pval <- geno.table(cross.18)
 
 cross.18 <- formLinkageGroups(cross.18, max.rf=0.1, reorgMarkers=TRUE)
-cross.18 <- subset(cross.18, chr=c(1:20))
+cross.18 <- subset(cross.18, chr=c(1:10))
 
 
 cross2 <- convert2cross2(cross.18)
@@ -52,16 +52,75 @@ pr <- clean_genoprob(pr)
 apr <- genoprob_to_alleleprob(pr)
 
 rela <- calc_kinship(pr, type = "overall", omit_x = FALSE,
-  use_allele_probs = TRUE, quiet = TRUE, cores = 12)
+  use_allele_probs = F, quiet = TRUE, cores = 12)
 
 save.image('kinship.rsave')
 
 ############
 
-packs <- c('qtl','foreach','doParallel')
+packs <- c('qtl','foreach','doParallel','gplots')
 lapply(packs, require, character.only = TRUE)
 require(qtl2,lib.loc='/share/apps/rmodules')
+#load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/kinship.rsave')
+load('~/Dropbox/QTL_Paper/Kinship.analysis.Rsave')
+load('~/Dropbox/QTL_Paper/plink.NBH.Rsave')
+NBH.kinship.Rsave
+plot(1,1)
+#heatmap(rela,Rowv = NA,Colv = NA)
 
-heatmap(rela)
+M <- rela$"24"
+#M[lower.tri(M)] <- NA
+#heatmap.2(M,scale="row", dendrogram="row",symm = T)
+heatmap(M,symm = T,Rowv=NULL,scale="row")
 
-load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/kinship.rsave')
+hilo <- lapply(rela,function(M){
+a <- names(table(which(M == min(M), arr.ind = TRUE)))
+#b <- table(which(M == max(M), arr.ind = TRUE))
+#return(list(a,b))
+return(a)
+}
+)
+
+
+hilo <- lapply(rela,function(M){
+return(min(M))
+}
+)
+
+hilo <- lapply(rela,function(M){
+return(table(which(M == min(M), arr.ind = TRUE)))
+}
+)
+
+
+
+
+
+#heatmap(M,Rowv = NA,Colv = NA)
+
+## indv 28,47,84 look odd
+## which are the least related among fak linkage groups?  Should be parents
+table(unlist(lapply(rela,function(mm){
+  names(table(rownames(which(mm == min(mm), arr.ind = TRUE))))
+  })))
+
+
+chr5; 25 max, 25x49 min
+chr6; 25X88 max ,min 25,88,91
+chr7; 3 15 71 , min 3 15 71 72
+chr
+
+
+
+rela <- calc_kinship(pr, type = "chr", omit_x = FALSE,
+  use_allele_probs = T, quiet = TRUE, cores = 12)
+
+
+use plink (captured NBH parents ok)
+ids <- read.table('ELR.rel.id')
+dis <- readBin('ELR.rel.bin',what='numeric',n=9216)
+dis <- matrix(dis, nrow=89,ncol=89)
+colnames(dis) <- ids$V2
+rownames(dis) <- ids$V2
+
+dis[dis==NaN] <- 0

@@ -4,8 +4,8 @@
 #SBATCH -t 12:00:00
 #SBATCH --cpus-per-task=6
 #SBATCH --mem-per-cpu=2000
-#SBATCH -p high
-#SBATCH --array=1-24%12
+#SBATCH -p low
+#SBATCH --array=1-24
 
 ####QTLs are on chrm '1 2 8 13 18 24'
 
