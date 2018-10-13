@@ -15,6 +15,7 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/source_file.R'))
 source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/model_source_file.R'))
 
 ## Libraries
+.libPaths(c( .libPaths(), "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"))
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
 require(qtl2,lib.loc='/share/apps/rmodules')

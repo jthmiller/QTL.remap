@@ -1,9 +1,10 @@
 ### Debug QTL
 ## rQTL2
 #slurmcore <- 12
-popq <- 'NBH'
+popq <- 'ELR'
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
-pop <- 'NBH'
+pop <- 'ELR'
+slurmcore <- 12
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
