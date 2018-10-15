@@ -103,24 +103,106 @@ return(table(which(M == min(M), arr.ind = TRUE)))
 table(unlist(lapply(rela,function(mm){
   names(table(rownames(which(mm == min(mm), arr.ind = TRUE))))
   })))
-
-
-chr5; 25 max, 25x49 min
-chr6; 25X88 max ,min 25,88,91
-chr7; 3 15 71 , min 3 15 71 72
-chr
-
-
-
-rela <- calc_kinship(pr, type = "chr", omit_x = FALSE,
+ela <- calc_kinship(pr, type = "chr", omit_x = FALSE,
   use_allele_probs = T, quiet = TRUE, cores = 12)
 
 
-use plink (captured NBH parents ok)
-ids <- read.table('ELR.rel.id')
-dis <- readBin('ELR.rel.bin',what='numeric',n=9216)
-dis <- matrix(dis, nrow=89,ncol=89)
+####use plink (captured NBH parents ok)
+ids <- read.table('~/Dropbox/QTL_Paper/NBH.rel.id')
+n.len <- file.info('~/Dropbox/QTL_Paper/NBH.rel.bin')$size
+dis <- readBin('~/Dropbox/QTL_Paper/NBH.rel.bin',what='double',n=n.len)
+
+### ELR dis[c('ER1124F','BI1124M'),] dis['ER1124F','BI1124M']
+packs <- c('qtl','foreach','doParallel','gplots','RColorBrewer','qtl2')
+lapply(packs, require, character.only = TRUE)
+ids <- read.table('~/Dropbox/QTL_Paper/ELR.rel.id')
+n.len <- file.info('~/Dropbox/QTL_Paper/ELR.rel.bin')$size
+dis <- readBin('~/Dropbox/QTL_Paper/ELR.rel.bin',what='double',n=n.len)
+dis <- as.numeric(dis)
+dis <- matrix(dis, nrow=length(ids$V1),ncol=length(ids$V1))
 colnames(dis) <- ids$V2
 rownames(dis) <- ids$V2
+dis[dis==NaN] <- NA
+diag(dis) <- NA
+dis[lower.tri(dis)] <- NA
+my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
+my_palette <- colorRampPalette(c("red","green","red"))(n = 299)
 
-dis[dis==NaN] <- 0
+col_breaks = c(seq(-0.5,0.0,length=100),seq(0.01,0.5,length=100),seq(0.51,2,length=100))
+
+my_palette <- colorRampPalette(c("green","red"))(n = 299)
+col_breaks = c(seq(-0.5,0.5,length=150),seq(0.51,1,length=150))
+
+
+heatmap(dis,Colv=NA,Rowv=NA,col=my_palette,scale='none',symm =T,breaks=col_breaks)
+
+
+
+ord <- names(sort(dis['BI1124M',],decreasing = T))
+heatmap(dis,Colv=ord,col=hmcol,Rowv=NA)
+
+
+
+heatmap(dis,symm = T,Rowv=NULL,scale="row",col=hmcol)
+heatmap(lower.tri(dis))
+
+ord <- names(sort(dis['NBH1M',],decreasing = T))
+
+
+ord <- order(dis['BI1124M',],decreasing = F)
+heatmap(dis,symm = F,Colv=ord,Rowv=NA,scale="row",col=hmcol)
+
+plot(na.omit(dis))
+
+dis.dist <- dist(dis)
+try <- isoMDS(dis.dist,eig=TRUE, k=2)
+x <- try$points[,1]
+y <- try$points[,2]
+plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
+  main="Metric	MDS",	type="n")
+text(x, y, labels = rownames(try$points), cex=.7)
+
+which(dis==max(dis,na.rm =T),arr.ind = TRUE)
+which(dis==min(dis,na.rm =T),arr.ind = TRUE)
+
+hist(dis)
+
+
+
+
+sort(table(which(rela>.8,arr.ind = TRUE)))
+
+hist.data = hist(dis[which(dis>0.4)], plot=F)
+hist.data = hist(dis)
+#hist.data$counts = log(hist.data$counts, 10)
+#hist.data$counts[hist.data$counts==-Inf] <- 0
+plot(hist.data)
+
+plot(mydata_hist$count, log="y", type='h', lwd=10, lend=2)
+table(rownames(which(dis>0.5,arr.ind = TRUE)))
+sort(colSums(abs(dis)))
+
+ord <- order(dis['ER1124F',])
+plot(dis['ER1124F',ord])
+points(dis['BI1124M',ord],col='red')
+
+
+dis[c('ER1124F','BI1124M'),]
+
+##In ELR, IND10869 is more distant from parents than they are from one another
+
+
+
+
+
+allbut <- rownames(dis)[-(which(rownames(dis)=='5528'))]
+dis <- dis[allbut,allbut]
+
+diag(dis) <- rowMeans(dis)
+
+
+
+#####3 In RQTL #####
+rela <- comparegeno(cross.18)
+
+save.image('kinship.rsave')

@@ -26,6 +26,8 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
 ## Load a couple fixed rQTL functions
+require(qtl2,lib.loc='/share/apps/rmodules')
+
 
 dis.nbh <- c(2,13,20)
 dis.elr <- c(18)

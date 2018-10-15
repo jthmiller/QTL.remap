@@ -37,25 +37,26 @@ par.confirm.marks <- rownames(gt.par[which(gt.par$AA==1 & gt.par$BB==1),])
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
 
-
 ## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
 cross.18 <- fix.pheno(cross.18)
 
 ## Remove problematic individuals
 subset.ind <- cross.18$pheno$ID[!cross.18$pheno$ID %in% inds]
+cross.2 <- subset(cross.18, ind=inds)
 cross.18 <- subset(cross.18, ind=subset.ind)
 
 ## Map each QTL chro independently
 allbut <- c(1:24)[-X]
 subset.qtl <- chrnames(cross.18)[!chrnames(cross.18) %in% allbut]
 cross.18 <- subset(cross.18, chr=subset.qtl)
-
+cross.2 <- subset(cross.2, chr=subset.qtl)
+cross.pars <- subset(cross.pars, chr=subset.qtl)
 ## Starting marker number
 marker.warning()
 
 ## Specific to 'outname'
 if(mapped.only==T){
-cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cross.18))])
+  cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cross.18))])
 }
 
 ### Table before missing filter
@@ -70,12 +71,22 @@ gt.missing <- geno.table(cross.18)
 marker.warning()
 
 ### grandparent confirmed markers
-marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
-cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
-par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
-gt.cross.par <- geno.table(cross.18)
+if(pop=='ELR'){
+  print('cant use confirmed markers')
+  dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
+  ### remove markers that are exactly the same.
+  cross.18 <- drop.markers(cross.18, unlist(dups))
+  #coms <- markernames(cross.2)[markernames(cross.2) %in% markernames(cross.pars)]
+  #cross.2 <- c(cross.2,cross.pars)
+  #gt.pars <- geno.table(cross.2)
+} else {
+  marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
+  cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
+  par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
+}
 
 ### invariants
+gt.cross.par <- geno.table(cross.18)
 cross.18 <- drop.markers(cross.18,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
 gt.pval <- geno.table(cross.18)
 
