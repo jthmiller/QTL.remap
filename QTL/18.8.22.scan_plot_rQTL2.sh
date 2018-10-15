@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH -J array_job
-#SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/%j_out_%A_%a.txt
-#SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/%j_err_%A_%a.txt
+#SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/scan/%j_out_%A_%a.txt
+#SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/scan/%j_err_%A_%a.txt
 #SBATCH --time=48:00:00
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
@@ -15,15 +15,6 @@
 
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL'
 
-pop='NBH'
-#pop='ELR'
+pop=$1
 
-### This requires 2 cpu with 3G memory each, but takes awhile
-Rscript $scriptdir/18.8.22.scan_plot_rQTL2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
-
-wait
-
-pop='ELR'
-
-### This requires 2 cpu with 3G memory each, but takes awhile
-Rscript $scriptdir/18.8.22.scan_plot_rQTL2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+Rscript $scriptdir/18.8.22.qtl_SCAN.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

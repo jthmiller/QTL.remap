@@ -146,7 +146,7 @@ reconst <- function(X,pop,temp.dir){
     }
   )
   ID <- myfiles[[1]]$pheno$ID
-  Pheno <- myfiles[[1]]$pheno$Pheno
+  pheno <- myfiles[[1]]$pheno$Pheno
   sex <- myfiles[[1]]$pheno$sex
   pheno_05 <- myfiles[[1]]$pheno$Pheno_05
 
@@ -168,7 +168,7 @@ reconst <- function(X,pop,temp.dir){
   }
   chr <- c('','','','',chr)
   map <- c('','','','',map[colnames(cross)])
-  cross <- cbind(Pheno,pheno_05,sex,ID=as.character(ID),cross)
+  cross <- cbind(pheno,pheno_05,sex,ID=as.character(ID),cross)
   cross <- rbind(colnames(cross),chr,map,cross)
 
   write.table(cross,file=file.path(temp.dir,'tempout'),

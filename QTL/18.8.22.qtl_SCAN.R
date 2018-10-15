@@ -96,4 +96,4 @@ scan.norm.imp.2in <- scanone(Z.sg, method="imp",model='normal',maxit=500, pheno.
 out.cim.40 <- cim(hyper, n.marcovar=3, window=40,pheno.col=2,method="imp", error.prob=0.002)
 out.cim.inf <- cim(Z.sg, n.marcovar=3, window=Inf,pheno.col=2,method="imp", error.prob=0.002)
 
-save.image(paste('QTLmap.Rsave',sep=''))
+save.image(file.path(popdir,'QTLmap.Rsave'))
