@@ -62,7 +62,7 @@ scan.np.em <- scanone(cross.18, method='em', model="np", pheno.col=2, maxit=5000
 ### 2 part model
 scan.2p.em <- scanone(cross.18, method='em', model="2part", pheno.col=1, maxit=5000)
 ### Imputation on score
-scan.norm_05.imp <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2)
+scan.norm_05.imp <- scanone(cross.18, method="imp",model='normal',maxit=5000, pheno.col=2)
 
 ### Binary model with EM
 scan.bin.em <- scanone(cross.18, method="em",model='binary', pheno.col=1, maxit=5000)
@@ -74,33 +74,33 @@ scan.bin.hk <- scanone(cross.18, method="hk",model='binary',pheno.col=1)
 scan.bin.em.gt <- scanone(cross.18, method="em",model='binary', pheno.col=7, maxit=5000)
 
 ### Normal scan on transformed phenotype
-scan.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500, pheno.col=6)
+scan.norm.em <- scanone(cross.18, method="em",model='normal',maxit=5000, pheno.col=6)
 ### Normal scan on transformed phenotype w/Extended haley knott (better for selective/missing genos at non-gt'ed ind)
-scan.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500, pheno.col=6)
+scan.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=5000, pheno.col=6)
 ### Normal scan on transformed phenotype fast haley knott (not robust to missing data. LOD inflation)
-scan.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500, pheno.col=6)
+scan.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=5000, pheno.col=6)
 ### Imputation on transformed phenotype
 scan.norm.imp <- scanone(cross.18, method="imp",model='normal',pheno.col=6)
 ### Imputation on transformed phenotype with missing ind removed
 scan.norm.imp.gt <- scanone(cross.18, method="imp",model='normal',pheno.col=8)
 ### EM scan without ungenotyped
-scan.norm.em.gt <- scanone(cross.18, method="em",model='normal',maxit=500, pheno.col=8)
+scan.norm.em.gt <- scanone(cross.18, method="em",model='normal',maxit=5000, pheno.col=8)
 
 ## Find LOD thresholds to get a null dist. of
 ### remove markers that are exactly the same to speed up (same results)
 
-perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=24)
-perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=12)
+perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=12)
 
-perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
-perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=24)
-perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
+perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=12)
+perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=12)
+perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=12)
 
-perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6,n.cluster=24)
+perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
+perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
+perms.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
+perms.norm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
+perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6,n.cluster=12)
 
 ### Multi-QTL models
 th <- summary(perms.norm.imp)[1,]
