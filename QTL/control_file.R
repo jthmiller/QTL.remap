@@ -8,6 +8,7 @@ plotdir <- file.path(basedir,'rQTL/plots')
 indpops <- file.path(basedir,'plinkfiles/ind.pops')
 qtldir <- file.path(basedir,'rQTL/remap_out')
 errfile <- file.path(qtldir,'genotyping_error_rate.txt')
+popdir <- file.path(basedir,'rQTL',popq,'REMAPS')
 setwd(qtldir)
 
 ## Funtions for processing rQTL data

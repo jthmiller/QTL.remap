@@ -4,7 +4,31 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
 
 print('Writing the merged chromosome markers to rQTL format')
-write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
+
+pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
+phen$Pheno_05 <- phen$pheno_all
+index <- which(phen$pop_all==popq)
+count.pheno <- sapply(0:5, function(pt){
+      pt <- as.character(pt)
+      total <- sum(phen$Pheno_05[index]==pt)
+      incross <- sum(cross.18$pheno$Pheno_05==pt)
+      return(as.numeric(total-incross))
+  }
+)
+names(count.pheno) <- as.character(0:5)
+count.pheno <- count.pheno[!is.na(count.pheno)]
+count.pheno <- rep.int(names(count.pheno), times=as.numeric(count.pheno))
+trsl.bin <- c(0,0,0,1,1,1)
+names(trsl.bin) <- as.character(0:5)
+phenos <- data.frame(count.pheno,Pheno=as.numeric(trsl.bin[as.character(count.pheno)]))
+rownames(phenos) <- paste('NG',1:length(count.pheno),sep='')
+
+ind.inx <- grep('NG',cross.18$pheno$ID)
+repl <- phenos[as.character(cross.18$pheno$ID[grep('NG',cross.18$pheno$ID)]),1]
+cross.18$pheno$pheno_05[ind.inx] <- as.character(repl)
+cross.18$pheno$pheno_05 <- as.numeric(cross.18$pheno$pheno_05)
+cross.18$pheno$pheno <- as.numeric(cross.18$pheno$pheno_05 >= 3) ### Split pheotypes
 
 ### Ids for strata permutations
 cross.18$pheno$stata <- gsub('[0-9]','',cross.18$pheno$ID)
