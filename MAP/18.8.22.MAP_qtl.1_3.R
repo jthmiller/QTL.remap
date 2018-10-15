@@ -185,7 +185,7 @@ names(cross.18$geno) <- X
 ##return.dropped.markers()
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=0.5, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
+  error.prob=0.05, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
 
 ## rename to the correct LG
 names(cross.18$geno) <- X
