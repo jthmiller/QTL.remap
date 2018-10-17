@@ -1,7 +1,7 @@
 #!/bin/bash
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
-cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir)
+cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 
 print('Writing the merged chromosome markers to rQTL format')
 write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
@@ -43,7 +43,7 @@ cross.18$pheno$pheno_miss05[indy] <- NA
 ### Error rate and genoprobs
 ers <- 0.002
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
-cross.18 <- sim.geno(cross.18,error.prob=0.01)
+cross.18 <- sim.geno(cross.18,error.prob=ers)
 
 ### Remove Duplicate markers,re-stimate map, scan
 ### Use QTLs to look back at original map for markers that fall under peak (QTL map order may differ from Meiotic map)
@@ -51,11 +51,11 @@ cross.18 <- sim.geno(cross.18,error.prob=0.01)
 dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
 ### remove markers that are exactly the same.
 cross.18 <- drop.markers(cross.18, unlist(dups))
-POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=5000, n.cluster=12)
+POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=5000, n.cluster=24)
 cross.18 <- replace.map(cross.18, POS.map.18)
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers, map.function='kosambi')
 cross.18 <- sim.geno(cross.18, error.prob=ers, n.draws=50,step=1,off.end=1)
-write.cross(cross.18,filestem=paste(qtldir,'NO_DUP_MARKERS.QTLmap',sep=''),format="csv",chr=X)
+write.cross(cross.18,filestem=paste(qtldir,'NO_DUP_MARKERS.QTLmap',sep=''),format="csv")
 
 #### Nonparametric scan
 scan.np.em <- scanone(cross.18, method='em', model="np", pheno.col=2, maxit=5000)
@@ -89,18 +89,18 @@ scan.norm.em.gt <- scanone(cross.18, method="em",model='normal',maxit=5000, phen
 ## Find LOD thresholds to get a null dist. of
 ### remove markers that are exactly the same to speed up (same results)
 
-perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=12)
-perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=12)
+perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=24)
+perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
 
-perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=12)
-perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=12)
-perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=12)
+perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
+perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=24)
+perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
 
-perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
-perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
-perms.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
-perms.norm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=12)
-perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6,n.cluster=12)
+perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
+perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
+perms.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
+perms.norm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
+perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6,n.cluster=24)
 
 ### Multi-QTL models
 th <- summary(perms.norm.imp)[1,]
