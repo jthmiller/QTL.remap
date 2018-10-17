@@ -5,6 +5,10 @@ popq <- 'NBH'
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
 pop <- 'NBH'
 slurmcore <- 12
+## QTL LGs to consider
+#X <- c(1,2,8,13,18,24) ## When only mapping qTLs
+chrms <- c(1:24)
+#pops <- c('NBH','ELR')
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
@@ -22,13 +26,6 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/source_file.R'))
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
 require(qtl2,lib.loc='/share/apps/rmodules')
-
-
-## QTL LGs to consider
-#X <- c(1,2,8,13,18,24) ## When only mapping qTLs
-chrms <- c(1:24)
-#pops <- c('NBH','ELR')
-
 
 ## Try to get chromosome avg error exported by map
 ers <- mean(sapply(chrms,function(Z,pop='NBH'){

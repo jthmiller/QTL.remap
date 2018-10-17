@@ -206,3 +206,27 @@ diag(dis) <- rowMeans(dis)
 rela <- comparegeno(cross.18)
 
 save.image('kinship.rsave')
+
+wh <- which(rela < 0.15, arr=TRUE)
+wh <- wh[wh[,1] < wh[,2],]
+
+g <- pull.geno(cross)
+
+table(g[wh[,1],], g[wh[,2],])
+
+
+table(g[214,], g[216,])
+table(g[238,], g[288,])
+
+
+> for(i in 1:nrow(wh)) {
++ tozero <- !is.na(g[wh[i,1],]) & !is.na(g[wh[i,2],]) & g[wh[i,1],] != g[wh[i,2],]
++ mapthis$geno[[1]]$data[wh[i,1],tozero] <- NA +}
+mapthis <- subset(mapthis, ind=-wh[,2])
+
+
+
+
+rf <- pull.rf(cross.18)
+lod <- pull.rf(cross.18, what="lod")
+plot(as.numeric(rf), as.numeric(lod), xlab="Recombination fraction", ylab="LOD score")

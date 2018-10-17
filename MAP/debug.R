@@ -2,7 +2,7 @@
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
 pop <- 'ELR'
-X <- 1
+X <- 2
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
@@ -49,6 +49,7 @@ if (pop=='NBH'){
 } else if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.75
+  miss <- 5
   grpLod <- 8 ## Standard LG form LOD
   finLod <- 10 ## Higher final ELR LOD
   grpRf <- 0.20

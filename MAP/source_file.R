@@ -135,23 +135,36 @@ drop.errlod <- function(cross,cutoff,error.prob){
   print(paste('done...dropped',dropped,'genotypes'))
   return(cross)
 }
-all.crossed <- function(X){
-  read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
-  alleles=c("A","B"))
+all.crossed <- function(X,a){
+    read.cross(format='csv',file=X,geno=c('AA','AB','BB'),
+    alleles=c("A","B"))
 }
-reconst <- function(X,pop,temp.dir){
+reconst <- function(X,pop,temp.dir,a, ... ){
   temp <- file.path(basedir,'rQTL',pop,paste('REMAPS/temp.',X,sep=''))
-  myfiles <- lapply(temp, function(tocross){
-    all.crossed(tocross)
-    }
-  )
-  ID <- myfiles[[1]]$pheno$ID
-  pheno <- myfiles[[1]]$pheno$Pheno
-  sex <- myfiles[[1]]$pheno$sex
-  pheno_05 <- myfiles[[1]]$pheno$Pheno_05
+  if (a==1){
+    myfiles <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
+                format='csvr', geno=c(1:3),estimate.map=FALSE)
+    gt.cross.par <- geno.table(myfiles)
+    myfiles <- drop.markers(myfiles,rownames(gt.cross.par[gt.cross.par$missing<=miss,]))
+    myfiles <- drop.markers(myfiles,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
+    pheno <- myfiles[[1]]$pheno$Pheno
+    sex <- myfiles[[1]]$pheno$sex
+    ID <- myfiles[[1]]$pheno$ID
+    pheno_05 <- myfiles[[1]]$pheno$Pheno
+
+  } else if (!a==1) {
+    myfiles <- lapply(temp, function(tocross){
+      all.crossed(tocross,a=2)
+      }
+    )
+    ID <- myfiles[[1]]$pheno$ID
+    pheno <- myfiles[[1]]$pheno$Pheno
+    sex <- myfiles[[1]]$pheno$sex
+    pheno_05 <- myfiles[[1]]$pheno$Pheno_05
+  }
 
   map <- unlist(sapply(seq(along=myfiles),
-    function(i){myfiles[[i]]$geno[[1]]$map}))
+  function(i){myfiles[[i]]$geno[[1]]$map}))
 
   chr <-  unlist(sapply(seq(along=myfiles),
     function(i){sapply(1:nmar(myfiles[[i]]),

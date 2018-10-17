@@ -5,8 +5,9 @@ X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
 slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 
+## QTL Scans 
 chrms <- c(1:24)
-pops <- c('NBH','ELR')
+pops <- c('NBH','NEW')
 
 ## Only use previously mapped markers?
 mapped.only=TRUE
@@ -54,13 +55,14 @@ if (pop=='NBH'){
   if (X %in% dis.nbh){cutoff <- 1.0e-10}
 
 } else if (pop=='ELR'){
+  ### ELR parents are incorrectly ID'd
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.8
   grpLod <- 8 ## Standard LG form LOD
   finLod <- 10 ## Higher final ELR LOD
-  grpRf <- 0.25
-  finRf <- 0.15
-  cutoff <- 1.0e-08
+  grpRf <- 0.2
+  finRf <- 0.1
+  cutoff <- 1.0e-4
   miss <- 10
   if (X %in% dis.elr){cutoff <- 1.0e-10}
 } else if ( pop=='NEW'){

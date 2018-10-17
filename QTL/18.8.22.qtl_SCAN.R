@@ -51,7 +51,7 @@ cross.18 <- sim.geno(cross.18,error.prob=0.01)
 dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
 ### remove markers that are exactly the same.
 cross.18 <- drop.markers(cross.18, unlist(dups))
-POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=3000, n.cluster=12)
+POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=5000, n.cluster=12)
 cross.18 <- replace.map(cross.18, POS.map.18)
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers, map.function='kosambi')
 cross.18 <- sim.geno(cross.18, error.prob=ers, n.draws=50,step=1,off.end=1)
@@ -105,16 +105,16 @@ perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=
 ### Multi-QTL models
 th <- summary(perms.norm.imp)[1,]
 norm.qtl <- summary(scan.norm.imp, perms=perms.norm.imp, alpha=0.05)
-qtl.uns <- makeqtl(Z, chr=norm.qtl$chr, pos=norm.qtl$pos)
-full <- stepwiseqtl(Z, additive.only=T, method="imp", pheno.col=2, scan.pairs=T)
+qtl.uns <- makeqtl(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
+full <- stepwiseqtl(cross.18, additive.only=T, method="imp", pheno.col=2, scan.pairs=T)
 
 
 ### Re-scan with covariates on chr2
 mar <- find.marker(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
 g <- pull.geno(cross.18)[,mar]
 #### Scanone
-scan.norm.imp.2ad <- scanone(Z.sg, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g)
-scan.norm.imp.2in <- scanone(Z.sg, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g,intcovar=g)
+scan.norm.imp.2ad <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g)
+scan.norm.imp.2in <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g,intcovar=g)
 
 ### CIM
 out.cim.40 <- cim(hyper, n.marcovar=3, window=40,pheno.col=2,method="imp", error.prob=0.002)

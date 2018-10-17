@@ -11,6 +11,9 @@
 ####QTLs are on chrm '1 2 8 13 18 24'
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
-pop=$1
+pop1=$1
+pop1=${1:-foo}
+ARG2=${2:-bar}
+
 
 Rscript $scriptdir/18.8.22.MAP_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
