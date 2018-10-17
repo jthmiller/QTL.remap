@@ -117,7 +117,9 @@ scan.norm.imp.2ad <- scanone(cross.18, method="imp",model='normal',maxit=500, ph
 scan.norm.imp.2in <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g,intcovar=g)
 
 ### CIM
-out.cim.40 <- cim(hyper, n.marcovar=3, window=40,pheno.col=2,method="imp", error.prob=0.002)
-out.cim.inf <- cim(Z.sg, n.marcovar=3, window=Inf,pheno.col=2,method="imp", error.prob=0.002)
+out.cim.40 <- cim(cross.18, n.marcovar=3, window=40,pheno.col=2,method="imp", error.prob=0.002)
+out.cim.inf <- cim(cross.18, n.marcovar=3, window=Inf,pheno.col=2,method="imp", error.prob=0.002)
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
+
+reduce2grid Reduce to a grid of pseudomarkers.

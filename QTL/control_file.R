@@ -1,6 +1,9 @@
 ## rQTL2
 slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
+if (popq>1){
+
+}
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
