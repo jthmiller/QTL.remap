@@ -14,7 +14,7 @@ RES3=$(sbatch -J "NBH.final" --parsable --dependency=afterany:$RES2 $scriptdir/M
 ### RES4=$(sbatch -J "ELR.initial" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_1.sh ELR)
 RES4=$(sbatch -J "ELR.initial" --parsable --dependency=afterany:$RES3 $scriptdir/MAP/18.8.22.MAP_qtl_1.sh ELR)
 RES5=$(sbatch -J "ELR.pardrop"  --parsable --dependency=afterany:$RES4 $scriptdir/MAP/18.8.22.MAP_qtl_2.sh ELR)
-RES6=$(sbatch -J "ELR.final"  --parsable --dependency=afterok:$RES5 $scriptdir/MAP/18.8.22.MAP_qtl_3.sh ELR
+RES6=$(sbatch -J "ELR.final"  --parsable --dependency=afterok:$RES5 $scriptdir/MAP/18.8.22.MAP_qtl_3.sh ELR)
 
 #Newark
 ### RES7=$(sbatch -J "NEW.initial" --parsable $scriptdir/18.8.22.MAP_qtl_1.sh NEW)
