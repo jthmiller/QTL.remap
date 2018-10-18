@@ -54,7 +54,7 @@ if (pop=='NBH'){
   finLod <- 10 ## Higher final ELR LOD
   grpRf <- 0.20
   finRf <- 0.10
-  cutoff <- 1.0e-08
+  cutoff <- 1.0e-06
   if (X %in% dis.elr){
     cutoff <- 1.0e-08
     grpLod <- 6 ## Standard LG form LOD

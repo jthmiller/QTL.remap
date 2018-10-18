@@ -49,14 +49,15 @@ if(pop=='ELR'){
   cross$pheno$ID <- paste("ind", 1:nind(cross), sep="")
   #cross <- subset(cross,ind=!cross$pheno$ID %in% indsa.ELR)
   gt.cross.par <- geno.table(cross)
+  miss <- 8
+  cutoff <- 1.0e-06
   cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$missing>miss,]))
   cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
 
   drop <- markernames(cross.pars)[!markernames(cross.pars) %in% markernames(cross)]
   cross.pars  <- drop.markers(cross.pars,drop)
-  cross.pars1  <- drop.markers(cross.pars1,drop)
 
-  cross <- c(cross.pars,cross,cross.pars1)
+  cross.b <- c(cross.pars,cross)
 
   rela <- comparegeno(cross)
   colnames(rela) <- cross$pheno$ID
@@ -76,14 +77,31 @@ if(pop=='ELR'){
     return(names(c(wh[X],wh2[X]))[gdn])
     }
   )
-  cross <- subset(cross, ind=!cross$pheno$ID %in% in.drop)
+  ###cross <- subset(cross, ind=!cross$pheno$ID %in% in.drop)
 
   save.image('~/ELR.kinship.Rsave')
-}
+
 
 #load('NBH.kinship.Rsave')
 load('ELR.kinship.Rsave')
 library(qtl)
+
+rela <- comparegeno(cross.b)
+colnames(rela) <- cross.b$pheno$ID
+rownames(rela) <- cross.b$pheno$ID
+rela[rela==NaN] <- NA
+diag(rela) <- NA
+
+hist(rela)
+##resize
+heatmap(rela,symm=T)
+
+
+gt.cross.par <- geno.table(cross)
+miss <- 5
+cutoff <- 1.0e-02
+cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$missing>miss,]))
+cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
 
 rela <- comparegeno(cross)
 colnames(rela) <- cross$pheno$ID
@@ -91,6 +109,7 @@ rownames(rela) <- cross$pheno$ID
 rela[rela==NaN] <- NA
 diag(rela) <- NA
 
-hist(rela)
-##resize
-heatmap(rela,symm=T)
+dups <- findDupMarkers(cross, exact.only=FALSE, adjacent.only=FALSE)
+### remove markers that are exactly the same.
+cross <- drop.markers(cross, unlist(dups))
+write.cross(cross,filestem=paste(popdir,'/ERL_prefilter.QTLmap',sep=''),format="csv")
