@@ -108,7 +108,6 @@ norm.qtl <- summary(scan.norm.imp, perms=perms.norm.imp, alpha=0.05)
 qtl.uns <- makeqtl(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
 full <- stepwiseqtl(cross.18, additive.only=T, method="imp", pheno.col=2, scan.pairs=T)
 
-
 ### Re-scan with covariates on chr2
 mar <- find.marker(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
 g <- pull.geno(cross.18)[,mar]
@@ -122,4 +121,4 @@ out.cim.inf <- cim(cross.18, n.marcovar=3, window=Inf,pheno.col=2,method="imp", 
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
 
-reduce2grid Reduce to a grid of pseudomarkers.
+###reduce2grid Reduce to a grid of pseudomarkers.
