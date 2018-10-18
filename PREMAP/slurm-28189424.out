@@ -1,0 +1,28 @@
+==========================================
+SLURM_JOB_ID = 28189424
+SLURM_NODELIST = c11-91
+==========================================
+/var/spool/slurmd/job28189424/slurm_script: line 3: syntax error near unexpected token `qtl'
+/var/spool/slurmd/job28189424/slurm_script: line 3: `library(qtl)'
+
+===========================================================================
+Job Finished
+
+Name                : convert_plink_rQTL.R
+User                : jmiller1
+Partition           : high
+Nodes               : c11-91
+Cores               : 6
+State               : FAILED
+Submit              : 2018-09-26T20:56:38
+Start               : 2018-09-26T21:10:12
+End                 : 2018-09-26T21:10:12
+Reserved walltime   : 03:00:00
+Used walltime       : --
+Used CPU time       : --
+% User (Computation): 100.00%
+% System (I/O)      :  0.00%
+Mem reserved        : 2600M/core
+Max Mem used        : 0.00  (c11-91)
+Max Disk Write      : 0.00  (c11-91)
+Max Disk Read       : 0.00  (c11-91)

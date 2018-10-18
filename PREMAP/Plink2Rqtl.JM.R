@@ -2,7 +2,7 @@
 
 library(qtl)
 
-source('~/QTL_Map_Raw/popgen/scripts/PLINK2RQTL.f2.R')
+source('~/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/PREMAP/PLINK2RQTL.f2.R')
 setwd("/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops")
 dir<-'/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/'
 
