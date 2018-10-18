@@ -5,9 +5,11 @@
 #slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 #popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 
-pop <- 'NEW'
-slurmcore <- 24
+pop <- 'ELR'
+slurmcore <- 12
 popq <- 'NEW'
+X <- 1
+
 
 ## QTL Scans
 chrms <- c(1:24)
