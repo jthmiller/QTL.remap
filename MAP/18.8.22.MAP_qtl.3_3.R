@@ -16,12 +16,16 @@ print('2nd time removing double cross-overs once more')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
+dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
+### remove markers that are exactly the same.
+cross.18 <- drop.markers(cross.18, unlist(dups))
+
 print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=5000,tol=1e-3)
+  error.prob=ers, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-3)
 
 print('Re-estimating the final map with many iterations...')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=5000)
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=10000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 print('Done mapping..')
 
