@@ -108,7 +108,7 @@ perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=
 th <- summary(perms.norm.imp)[1,]
 norm.qtl <- summary(scan.norm.imp, perms=perms.norm.imp, alpha=0.05)
 qtl.uns <- makeqtl(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
-full <- stepwiseqtl(cross.18, additive.only=T, method="imp", pheno.col=2, scan.pairs=T)
+full <- stepwiseqtl(cross.18, additive.only=T, method="imp", pheno.col=6, scan.pairs=T)
 
 ### Re-scan with covariates on chr2
 mar <- find.marker(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
@@ -120,7 +120,7 @@ scan.norm.imp.2in <- scanone(cross.18, method="imp",model='normal',maxit=5000, p
 ### CIM
 out.cim.40 <- cim(cross.18, n.marcovar=3, window=40,pheno.col=6,method="imp", error.prob=0.002)
 out.cim.inf <- cim(cross.18, n.marcovar=3, window=Inf,pheno.col=6,method="imp", error.prob=0.002)
-add.cim.covar(out.cim, chr=c(1,4,6,15))
+#add.cim.covar(out.cim.inf, chr=c(1,4,6,15))
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
 
