@@ -57,7 +57,7 @@ if (pop=='NBH'){
 } else if (pop=='ELR'){
   ### ELR parents are incorrectly ID'd
   inds <- c('ind2') # determined to be dropped low cov
-  missing <- 0.8
+  missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.2
