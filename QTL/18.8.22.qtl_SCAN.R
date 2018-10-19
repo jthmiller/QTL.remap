@@ -124,10 +124,17 @@ add.cim.covar(out.cim, chr=c(1,4,6,15))
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
 
+gt <- geno.table(cross.18)
+barks <- rownames(gt[which(gt$missing > 4),])
+cross.18 <- drop.markers(cross.18,markers=barks)
+full <- stepwiseqtl(cross.18, qtl=qtl.uns, additive.only=F, method="imp", pheno.col=6, scan.pairs=T,keeptrace=FALSE)
+
+save.image(file.path(popdir,'QTLmap.Rsave'))
+
 cross.18 <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
 gt <- geno.table(cross.18)
 barks <- rownames(gt[which(gt$missing > 2),])
-cross <- drop.markers(cross.18,markers=barks)
+cross.18 <- drop.markers(cross.18,markers=barks)
 Impute <- mqmaugment(cross.18, minprob=0.001, strategy="impute",verbose=TRUE)
 mqm <- mqmscan(Impute,pheno.col = 6,model="additive",forceML=F,outputmarkers=F)
 autocofactors <- mqmautocofactors(Impute, 20)
@@ -135,7 +142,5 @@ mqm_auto <- mqmscan(Impute, autocofactors)
 mqm.d <- mqmscan(Impute,pheno.col = 6,model="dominance",forceML=F,outputmarkers=F)
 results <- mqmpermutation(Impute, scanfunction=mqmscan,pheno.col = 6, cofactors=autocofactors,n.cluster=25, n.perm=25, batchsize=25)
 resultsrqtl <- mqmprocesspermutation(results)
-
-full <- stepwiseqtl(cross.18, qtl=qtl.uns, additive.only=F, method="imp", pheno.col=6, scan.pairs=T,keeptrace=FALSE)
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
