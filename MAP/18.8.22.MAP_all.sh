@@ -24,5 +24,5 @@ RES9=$(sbatch -J "NEW.final" --parsable --dependency=afterany:$RES8 $scriptdir/M
 
 ## Scan Models
 RES10=$(sbatch -J "NBH.scan" --parsable --dependency=afterany:$RES9 $scriptdir/QTL/18.8.22.SCAN.sh NBH)
-RES11=$(sbatch -J "ELR.scan" --parsable --dependency=afterany:$RES10 $scriptdir/QTL/18.8.22.SCAN.sh ELR)
-RES12=$(sbatch -J "NEW.scan" --parsable --dependency=afterany:$RES11 $scriptdir/QTL/18.8.22.SCAN.sh NEW)
+RES11=$(sbatch -J "NEW.scan" --parsable --dependency=afterany:$RES10 $scriptdir/QTL/18.8.22.SCAN.sh NEW)
+RES12=$(sbatch -J "ELR.scan" --parsable --dependency=afterany:$RES11 $scriptdir/QTL/18.8.22.SCAN.sh ELR)
