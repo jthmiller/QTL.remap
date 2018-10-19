@@ -241,14 +241,20 @@ abline(h=summary(perms.bin.mr)[1,],col="purple")
 
 
 
-## test
-maug <- fill.geno(cross.18,error.prob=0.001)
-dups <- findDupMarkers(maug, exact.only=FALSE, adjacent.only=FALSE)
-### remove markers that are exactly the same.
-maug <- drop.markers(maug,unlist(dups))
-scan.mqm <- scanone(maug, method='em', model="np", pheno.col=2, maxit=500)
-#maug <- mqmaugment(cross.18, minprob=1.0)
-mqm <- mqmscan(maug)
+
+
+cross <- subset(NBH$cross.18,ind=NBH$cross.18$pheno$stata=='ind')
+gt <- geno.table(cross)
+barks <- rownames(gt[which(gt$missing > 2),])
+cross <- drop.markers(cross,markers=barks)
+Impute <- mqmaugment(cross, minprob=0.001, strategy="impute",verbose=TRUE)
+mqm <- mqmscan(Impute,pheno.col = 7,model="additive",forceML=F,outputmarkers=F)
+autocofactors <- mqmautocofactors(Impute, 20)
+mqm_auto <- mqmscan(maug, autocofactors)
+results <- mqmpermutation(maug, scanfunction=mqmscan, cofactors=autocofactors,n.cluster=2, n.perm=25, batchsize=25)
+resultsrqtl <- mqmprocesspermutation(results)
+
+
 max(mqm)
 ## add that marker to the model
 multitoset <- find.marker(maug, chr=2, pos=106.95)

@@ -5,7 +5,7 @@
 #slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 #popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 
-pop <- 'ELR'
+pop <- 'NBH'
 slurmcore <- 12
 popq <- 'NEW'
 X <- 1
@@ -37,7 +37,8 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 packs <- c('qtl','foreach','doParallel')
 lapply(packs, require, character.only = TRUE)
 ## Load a couple fixed rQTL functions
-#require(qtl2,lib.loc='/share/apps/rmodules')
+#install.packages("qtl2", repos="http://rqtl.org/qtl2cran",dest="/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5")
+require(qtl2,lib.loc="/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5")
 
 
 dis.nbh <- c(2,13,20)

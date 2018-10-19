@@ -4,7 +4,7 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 
 print('Writing the merged chromosome markers to rQTL format')
-write.cross(cross.18,filestem=paste(qtldir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
+write.cross(cross.18,filestem=paste(popdir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
 
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
 phen$Pheno_05 <- phen$pheno_all
@@ -51,6 +51,8 @@ cross.18 <- sim.geno(cross.18,error.prob=ers)
 dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
 ### remove markers that are exactly the same.
 cross.18 <- drop.markers(cross.18, unlist(dups))
+
+
 POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=5000, n.cluster=24)
 cross.18 <- replace.map(cross.18, POS.map.18)
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers, map.function='kosambi')
@@ -112,13 +114,26 @@ full <- stepwiseqtl(cross.18, additive.only=T, method="imp", pheno.col=2, scan.p
 mar <- find.marker(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
 g <- pull.geno(cross.18)[,mar]
 #### Scanone
-scan.norm.imp.2ad <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g)
-scan.norm.imp.2in <- scanone(cross.18, method="imp",model='normal',maxit=500, pheno.col=2,addcovar=g,intcovar=g)
+scan.norm.imp.2ad <- scanone(cross.18, method="imp",model='normal',maxit=5000, pheno.col=6,addcovar=g)
+scan.norm.imp.2in <- scanone(cross.18, method="imp",model='normal',maxit=5000, pheno.col=6,addcovar=g,intcovar=g)
 
 ### CIM
-out.cim.40 <- cim(cross.18, n.marcovar=3, window=40,pheno.col=2,method="imp", error.prob=0.002)
-out.cim.inf <- cim(cross.18, n.marcovar=3, window=Inf,pheno.col=2,method="imp", error.prob=0.002)
+out.cim.40 <- cim(cross.18, n.marcovar=3, window=40,pheno.col=6,method="imp", error.prob=0.002)
+out.cim.inf <- cim(cross.18, n.marcovar=3, window=Inf,pheno.col=6,method="imp", error.prob=0.002)
+add.cim.covar(out.cim, chr=c(1,4,6,15))
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
 
-###reduce2grid Reduce to a grid of pseudomarkers.
+cross.18 <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
+gt <- geno.table(cross.18)
+barks <- rownames(gt[which(gt$missing > 2),])
+cross <- drop.markers(cross.18,markers=barks)
+Impute <- mqmaugment(cross.18, minprob=0.001, strategy="impute",verbose=TRUE)
+mqm <- mqmscan(Impute,pheno.col = 7,model="additive",forceML=F,outputmarkers=F)
+autocofactors <- mqmautocofactors(Impute, 20)
+mqm_auto <- mqmscan(Impute, autocofactors)
+mqm.d <- mqmscan(Impute,pheno.col = 7,model="dominance",forceML=F,outputmarkers=F)
+results <- mqmpermutation(Impute, scanfunction=mqmscan,pheno.col = 7, cofactors=autocofactors,n.cluster=25, n.perm=25, batchsize=25)
+resultsrqtl <- mqmprocesspermutation(results)
+
+save.image(file.path(popdir,'QTLmap.Rsave'))
