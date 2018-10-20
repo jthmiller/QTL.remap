@@ -129,6 +129,9 @@ barks <- rownames(gt[which(gt$missing > 4),])
 cross.18 <- drop.markers(cross.18,markers=barks)
 full <- stepwiseqtl(cross.18, qtl=qtl.uns, additive.only=F, method="imp", pheno.col=6, scan.pairs=T,keeptrace=FALSE)
 
+hyper <- sim.geno(cross.18, step=1, n.draws=256, err=0.001)
+
+
 save.image(file.path(popdir,'QTLmap.Rsave'))
 
 cross.18 <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
