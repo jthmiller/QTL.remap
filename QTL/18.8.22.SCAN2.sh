@@ -16,4 +16,4 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL'
 
 pop=$1
 
-Rscript $scriptdir/18.8.22.qtl_SCAN2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+Rscript $scriptdir/QTL/18.8.22.qtl_SCAN2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
