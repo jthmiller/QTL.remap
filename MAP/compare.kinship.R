@@ -67,7 +67,7 @@ rela <- rela[rowSums(is.na(rela)) < nind(cross),colSums(is.na(rela)) < nind(cros
 main = paste(pop,'kinship before mapping (proportion of shared genotypes, 0-1)')
 
 png(file.path(popdir,paste(pop,'_kinship_histogram_to.map.png',sep='')))
-hist(rela,main=main,sub=sum(nmar(cross.18)))
+hist(rela,main=main,sub=sum(nmar(cross)))
 dev.off()
 
 png(file.path(popdir,paste(pop,'_kinship_heatmap_to.map.png',sep='')))
