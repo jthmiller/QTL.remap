@@ -29,7 +29,6 @@ if(pop=='NBH'){
   drop <- markernames(cross.pars)[!markernames(cross.pars) %in% markernames(cross)]
   cross.pars  <- drop.markers(cross.pars,drop)
   cross <- c(cross.pars,cross)
-  cross <- c(cross.pars,cross)
   rela <- comparegeno(cross)
   colnames(rela) <- cross$pheno$ID
   rownames(rela) <- cross$pheno$ID

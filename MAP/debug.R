@@ -2,7 +2,7 @@
 ## ers in controlfil still giving ers. get rid of it
 ####### DEBUG ONLY ####
 pop <- 'ELR'
-X <- 2
+X <- 1
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
@@ -23,10 +23,17 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 
 ## Libraries
-packs <- c('qtl','foreach','doParallel')
-lapply(packs, require, character.only = TRUE)
-## Load a couple fixed rQTL functions
+mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
+flib <- '/share/apps/rmodules'
 
+fpacks <- c('devtools','httr')
+lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
+
+mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools')
+lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
+
+
+### Parameters are different for some chromosomes
 dis.nbh <- c(2,13,20)
 dis.elr <- c(18)
 cov.nbh <- c(13,18)

@@ -35,6 +35,10 @@ print('Re-estimating error rate for QTL mapping')
 ers <- er.rate(cross=cross.18,cpus=slurmcore,maxit=1000)
 print(paste(ers,' error rate'))
 
+### Add phenotype
+cross.18$pheno$Pheno_05 <- cross.18$pheno$Pheno
+cross.18$pheno$Pheno <- trsl.bin[as.character(cross.18$pheno$Pheno_05)]
+
 print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=''),format="csv",chr=X)
 
@@ -54,9 +58,6 @@ count.pheno <- sapply(0:5, function(pt){
 names(count.pheno) <- as.character(0:5)
 count.pheno <- count.pheno[!is.na(count.pheno)]
 count.pheno <- rep.int(names(count.pheno), times=as.numeric(count.pheno))
-
-trsl.bin <- c(0,0,0,1,1,1)
-names(trsl.bin) <- as.character(0:5)
 
 no_genos <- data.frame(Pheno=as.numeric(trsl.bin[as.character(count.pheno)]),sex=0,
               ID=paste('NG',1:length(count.pheno),sep=''),Pheno_05=count.pheno,

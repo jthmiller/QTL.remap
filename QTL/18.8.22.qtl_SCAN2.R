@@ -1,5 +1,7 @@
-
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NEW/REMAPS/QTLmap.Rsave', envir=NEW)
+
+install_github("jtlovell/qtlTools")
 
 NBH <- dropSimilarMarkers(NBH$cross.18, rf.threshold = 0.02)
 NBH <- repRipple(NBH, error.prob=0.01, map.function="kosambi",window = 6)

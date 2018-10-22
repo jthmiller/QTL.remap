@@ -28,15 +28,23 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 
 ## Libraries
-packs <- c('qtl','foreach','doParallel')
-lapply(packs, require, character.only = TRUE)
-## Load a couple fixed rQTL functions
-#require(qtl2,lib.loc='/share/apps/rmodules')
+flib <- '/share/apps/rmodules'
+fpacks <- c('devtools','httr')
+lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
+
+mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
+mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools')
+lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 
 
 dis.nbh <- c(2,13,20)
 dis.elr <- c(18)
 cov.nbh <- c(13,18)
+
+
+### Phenotype translation
+trsl.bin <- c(0,0,0,1,1,1)
+names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
