@@ -14,31 +14,11 @@ test.QTLs <- read.table(file.path(basedir,'rQTL/metadata/QTLs.txt'),
 test.QTLs$chrm.n <- gsub('chr','',test.QTLs$chrom)
 
 print(paste(pop,X,sep=' '))
-
-### parents ###
-cross.pars <- read.cross.jm(file=file.path(indpops,paste(pop,'.parents.csvr',sep='')),
-                format='csvr', geno=c(1:3),estimate.map=FALSE)
-
-allbut <- c(1:24)[-X]
-subset.qtl <- chrnames(cross.pars)[!chrnames(cross.pars) %in% allbut]
-cross.pars <- subset(cross.pars, chr=subset.qtl)
-
-if(mapped.only==T){
-cross.pars <- drop.markers(cross.pars,markernames(cross.pars)[grep('NW',markernames(cross.pars))])
-}
-
-gt.par <- geno.table(cross.pars)
-
-par.confirm.marks <- rownames(gt.par[which(gt.par$AA==1 & gt.par$BB==1),])
-
 ############
 
 ## read in the QTL cross
 cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
-
-## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
-#cross.18 <- fix.pheno(cross.18)
 
 ### Pull names from plinkfile
 path <- file.path(indpops,paste(pop,'.ped',sep=''))
@@ -46,28 +26,25 @@ popname <- system(paste('cut -f1 -d\' \'',path),intern = TRUE)
 indname <- system(paste('cut -f2 -d\' \'',path),intern = TRUE)
 cross.18$pheno$ID <- paste(popname,indname,sep='_')
 
-
-
-
+## Subset and drop parents
+cross.pars <- subset(cross.18,ind=is.na(cross.18$pheno$Phen))
 
 ## Remove problematic individuals (found by kinship analysis)
-subset.ind <- cross.18$pheno$ID[!cross.18$pheno$ID %in% inds]
-cross.2 <- subset(cross.18, ind=inds)
-cross.18 <- subset(cross.18, ind=subset.ind)
+con <- file(file.path(popdir,'kinship.keep.ind.txt'), open='r')
+keepers <- readLines(con)
+close(con)
+
+cross.18 <- subset(cross.18,ind=cross.18$pheno$ID %in% keepers)
+cross.18 <- subset(cross.18,ind=!is.na(cross.18$pheno$Phen))
 
 ## Map each QTL chro independently
 allbut <- c(1:24)[-X]
 subset.qtl <- chrnames(cross.18)[!chrnames(cross.18) %in% allbut]
 cross.18 <- subset(cross.18, chr=subset.qtl)
-cross.2 <- subset(cross.2, chr=subset.qtl)
+#cross.2 <- subset(cross.2, chr=subset.qtl)
 cross.pars <- subset(cross.pars, chr=subset.qtl)
 ## Starting marker number
 marker.warning()
-
-## Specific to 'outname'
-if(mapped.only==T){
-  cross.18 <- drop.markers(cross.18,markernames(cross.18)[grep('NW',markernames(cross.18))])
-}
 
 ### Table before missing filter
 gt <- geno.table(cross.18)
@@ -81,15 +58,12 @@ gt.missing <- geno.table(cross.18)
 marker.warning()
 
 ### grandparent confirmed markers
-if(pop=='ELR'){
-  print('cant use confirmed markers')
+if(confirmed==F){
+  print('Not using GP genos for filtering')
   dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
-  ### remove markers that are exactly the same.
   cross.18 <- drop.markers(cross.18, unlist(dups))
-  #coms <- markernames(cross.2)[markernames(cross.2) %in% markernames(cross.pars)]
-  #cross.2 <- c(cross.2,cross.pars)
-  #gt.pars <- geno.table(cross.2)
 } else {
+  print('Dropped markers that do not follow expectations from GP genotypes')
   marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
   cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
@@ -115,25 +89,6 @@ tokeep <- unlist(sapply(qtl.index,function(Z){
 write(file=paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''),
   tokeep,sep = ",")
 
-if (mapped.only==T){print('keeping only previously mapped markers')
-} else {print('Keeping markers that show even low linkage to any previously known mapped marker')}
-
-print(paste('Using an initial lod of 6 to keep markers '))
-
-cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf,min.lod=grpLod, reorgMarkers=TRUE)
-
-## Keeping all initial groups with a previously mapped marker or known QTL
-keep <- sapply(chrnames(cross.18),function(i){
-    a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
-    b <- sum(tokeep %in% markernames(cross.18,chr=i))
-    return(a+b > 1)
-  }
-)
-keep <- names(cross.18$geno)[keep]
-cross.18 <- subset(cross.18, chr=keep)
-
-print(paste(length(markernames(cross.18)),'markers in',nchr(cross.18),'linkage groups going into phase fix'))
-
 print('forming initial linkage groups to fix phase...')
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
 
@@ -154,45 +109,29 @@ if (chrom.b4 > 1){
 }
 
 ## Pull genotypes for QTL markers
-gi <- pull.geno(cross.18)[,tokeep]
+#gi <- pull.geno(cross.18)[,tokeep]
 
 ### Continue to keep that are linked to markers that have been previously mapped
 keep <- sapply(1:nchr(cross.18),function(i){
     a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
     b <- sum(tokeep %in% markernames(cross.18,chr=i))
-    return(a+b > 1)
+    return(a+b > 2)
   }
 )
 keep <- names(cross.18$geno)[keep]
 cross.18 <- subset(cross.18, chr=keep)
 
-cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
-LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=grpLod)
-
-## Keep the group with the most mapped markers
-keep <- sapply(1:nchr(cross.18),function(i){
-    b <- sum(tokeep %in% markernames(cross.18,chr=i))
-    return(b > 1)
-  }
-)
+cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
+LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
 keep <- which.max(table(LGtable$LG))
 ## form linkage groups on phase-fixed data
 cross.18 <- subset(cross.18, chr=keep)
-
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
 marker.warning()
 
-print('initial order filtered markers with 0.1 errorprob. Takes awhile...')  ###
-
-cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod,reorgMarkers=TRUE)
-LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
-cross.18 <- subset(cross.18, chr=which.max(table(LGtable$LG)))
-names(cross.18$geno) <- X
-
-### add QTL markers to cross that may have been removed
-##return.dropped.markers()
+print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
 
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=0.05, map.function='kosambi',sex.sp=F,maxit=2000,tol=1e-2)
@@ -200,17 +139,14 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 ## rename to the correct LG
 names(cross.18$geno) <- X
 
-cross.18 <- sim.geno(cross.18,step=5,error.prob=0.02,map.function='kosambi')
-cross.18 <- calc.genoprob(cross.18,step=5,error.prob=0.02,map.function='kosambi')
-
 print('removing double cross-over genotypes')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
 print('Estimating the initial map with high errorprob')
-POS.map.18 <- est.map(cross.18,error.prob=0.1,map.function="kosambi", chr=X,maxit=100)
+POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=100)
 cross.18 <- replace.map(cross.18, POS.map.18)
-names(cross.18$geno) <- X
+
 print(summary(pull.map(cross.18))[as.character(X),])
 
 gt.fin <- geno.table(cross.18)

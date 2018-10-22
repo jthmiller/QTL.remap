@@ -77,7 +77,3 @@ dev.off()
 fileConn <- file(file.path(popdir,'kinship.keep.ind.txt'))
 writeLines(cross$pheno$ID, fileConn)
 close(fileConn)
-
-con <- file(file.path(popdir,'kinship.keep.ind.txt'), open='r')
-keepers <- readLines(con)
-close(con)

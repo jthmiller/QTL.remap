@@ -11,6 +11,8 @@ pops <- c('NBH','NEW')
 
 ## Only use previously mapped markers?
 mapped.only=TRUE
+## Only use granparent confirmed markers?
+confirmed=FALSE
 
 if (mapped.only==TRUE) {
   outname <- 'NW_dropped'
@@ -52,12 +54,12 @@ if (pop=='NBH'){
   missing <- 0.9
   if (X %in% cov.nbh){
     missing <- 0.8
-    finRf <- 0.20
+    finRf <- 0.10
   }
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
-  finRf <- 0.10
+  finRf <- 0.05
   cutoff <- 1.0e-10
   miss <- 5
   if (X %in% dis.nbh){cutoff <- 1.0e-10}
@@ -69,7 +71,7 @@ if (pop=='NBH'){
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.2
-  finRf <- 0.1
+  finRf <- 0.05
   cutoff <- 1.0e-4
   miss <- 2
   if (X %in% dis.elr){cutoff <- 1.0e-10}
