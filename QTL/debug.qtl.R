@@ -5,7 +5,7 @@
 #slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 #popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 
-pop <- 'NBH'
+pop <- 'ELR'
 slurmcore <- 12
 popq <- 'NEW'
 X <- 1
@@ -33,12 +33,16 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 ## Funtions for processing rQTL map data
 source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 
-## Libraries
-packs <- c('qtl','foreach','doParallel')
-lapply(packs, require, character.only = TRUE)
-## Load a couple fixed rQTL functions
-#install.packages("qtl2", repos="http://rqtl.org/qtl2cran",dest="/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5")
-require(qtl2,lib.loc="/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5")
+## Packages
+mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
+flib <- '/share/apps/rmodules'
+
+fpacks <- c('devtools','httr')
+lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
+
+mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools')
+lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
+
 
 
 dis.nbh <- c(2,13,20)

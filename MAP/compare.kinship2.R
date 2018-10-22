@@ -1,7 +1,10 @@
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
+
 load(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/QTLmap.Rsave',sep=''))
 
-cross <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
 
+
+cross <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
 cross <- dropSimilarMarkers(cross, rf.threshold = 0.002)
 cross <- est.rf(cross)
 Also make sure to run est.rf first and use re.est.map = FALSE**
