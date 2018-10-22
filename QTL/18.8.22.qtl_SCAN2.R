@@ -46,10 +46,4 @@ summary(DS.scan2.imp, perms=operm, alpha=rep(0.05, 5))
 ## Similar, but also getting genome-scan-adjusted p-values
 summary(DS.scan2.imp, perms=operm, alpha=c(0.05, 0.05, 0, 0.05, 0.05),pvalues=TRUE)
 
-
-
-
-
-
-
-save.image(paste('~/QTLmap.Rsave',sep=''))
+save.image(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/QTLmap.Rsave',sep=''))

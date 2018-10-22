@@ -5,9 +5,9 @@
 #slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 #popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 
-pop <- 'ELR'
+pop <- 'NBH'
 slurmcore <- 12
-popq <- 'NEW'
+popq <- 'NBH'
 X <- 1
 
 
