@@ -38,9 +38,19 @@ cross.18 <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',s
                 format='csvr', geno=c(1:3),estimate.map=FALSE)
 
 ## Pheno (Dev Score 0,1) -> 0 and (Dev Score 3,4,5) -> 1
-cross.18 <- fix.pheno(cross.18)
+#cross.18 <- fix.pheno(cross.18)
 
-## Remove problematic individuals
+### Pull names from plinkfile
+path <- file.path(indpops,paste(pop,'.ped',sep=''))
+popname <- system(paste('cut -f1 -d\' \'',path),intern = TRUE)
+indname <- system(paste('cut -f2 -d\' \'',path),intern = TRUE)
+cross.18$pheno$ID <- paste(popname,indname,sep='_')
+
+
+
+
+
+## Remove problematic individuals (found by kinship analysis)
 subset.ind <- cross.18$pheno$ID[!cross.18$pheno$ID %in% inds]
 cross.2 <- subset(cross.18, ind=inds)
 cross.18 <- subset(cross.18, ind=subset.ind)
