@@ -52,7 +52,6 @@ dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
 ### remove markers that are exactly the same.
 cross.18 <- drop.markers(cross.18, unlist(dups))
 
-
 POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=5000, n.cluster=24)
 cross.18 <- replace.map(cross.18, POS.map.18)
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers, map.function='kosambi')

@@ -1,7 +1,6 @@
 #!/bin/bash
 #source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
-
 NBH <- new.env()
 load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NBH/REMAPS/QTLmap.Rsave', envir=NBH)
 ELR <- new.env()
