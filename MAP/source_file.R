@@ -666,6 +666,43 @@ plot.geno.2 <- function(L,gen.main,wtf=FALSE){
 hist.geno <- function(gt){
   hist(log10(gt),breaks=100,ylim=c(0,300),xlim=c(-20,0))
 }
+feet <- function(X,Y,Z){
+  pdf(file.path(popdir,Y),width = 26, height = 21)
+  heatmap.2(X,symm=T,main=NA,notecol="black",labRow=NULL,na.rm=T,cexRow=2,labCol=NULL,key.title=NA,key.xlab=NA,key.ylab=NA,
+  cellnote = round(rela,digits=2),notecex=1.2,srtCol=45,cexCol=2,dendrogram="row", margins = c(15,10),trace="none",keysize=.5,col=my_palette,breaks=col_breaks)
+  title(Z,cex.main=3, line = -1)
+  dev.off()
+}
+feet2 <- function(X,Y,Z,dir){
+  pdf(file.path(dir,Y),width = 30, height = 25)
+  heatmap.2(X,symm=T,main=NA,notecol="black",labRow=NULL,na.rm=T,cexRow=1,labCol=NULL,key.title=NA,key.xlab=NA,key.ylab=NA,
+  cellnote = round(rela,digits=2),notecex=0.75,srtCol=45,cexCol=1,dendrogram="row", margins = c(15,10),trace="none",keysize=.5,col=my_palette,breaks=col_breaks)
+  title(Z,cex.main=3, line = -1)
+  dev.off()
+}
+rels <- function(X){
+  bela <- comparegeno(X,proportion=F)
+  colnames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
+  rownames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
+  bela[bela==NaN] <- NA
+  diag(bela) <- NA
+  bela <- bela[rowSums(is.na(bela)) < nind(X),colSums(is.na(bela)) < nind(X)]
+  return(bela)
+}
+mega.cross <- function(pope){
+  pop <- pope
+  basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
+  indpops <- file.path(basedir,'plinkfiles/ind.pops')
+
+  cross <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
+    format='csvr', geno=c(1:3),estimate.map=FALSE)
+  path <- file.path(indpops,paste(pop,'.ped',sep=''))
+  popname <- system(paste('cut -f1 -d\' \'',path),intern = TRUE)
+  indname <- system(paste('cut -f2 -d\' \'',path),intern = TRUE)
+  cross$pheno$ID <- paste(popname,indname,sep='_')
+  cross <- subset(cross, ind=nmissing(cross)<nmissing(cross)[1:(round(sum(nind(cross))/2,digits=0))] | is.na(cross$pheno$Pheno))
+  return(cross)
+}
 environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')

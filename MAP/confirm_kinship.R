@@ -124,7 +124,8 @@ colnames(dis) <- ids$V2
 rownames(dis) <- ids$V2
 dis[dis==NaN] <- NA
 diag(dis) <- NA
-dis[lower.tri(dis)] <- NA
+
+#dis[lower.tri(dis)] <- NA
 my_palette <- colorRampPalette(c("red", "yellow", "green"))(n = 299)
 my_palette <- colorRampPalette(c("red","green","red"))(n = 299)
 

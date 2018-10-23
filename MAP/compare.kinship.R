@@ -5,6 +5,10 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 cross <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
   format='csvr', geno=c(1:3),estimate.map=FALSE)
 
+# Colors for the heat map
+my_palette <- colorRampPalette(c("white", "blue", "white"))(n = 74)
+col_breaks = c(seq(0,0.3,length=30),seq(0.31,0.41,length=5),seq(0.42,1,length=40))
+
 ## Pull names from plinkfile
 path <- file.path(indpops,paste(pop,'.ped',sep=''))
 popname <- system(paste('cut -f1 -d\' \'',path),intern = TRUE)
@@ -20,24 +24,19 @@ miss <- 8
 cutoff <- 1.0e-06
 cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$missing>miss,]))
 cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
+cross.max <- subset(cross, ind=nmissing(cross)<median(nmissing(cross)))
 
 ### Drop
 drop <- markernames(cross.pars)[!markernames(cross.pars) %in% markernames(cross)]
 cross.pars  <- drop.markers(cross.pars,drop)
+cross.max <- c(cross.pars,cross.max)
 cross <- c(cross.pars,cross)
 
 ## Calculate matrix
-rela <- comparegeno(cross)
-colnames(rela) <- cross$pheno$ID
-rownames(rela) <- cross$pheno$ID
-rela[rela==NaN] <- NA
-diag(rela) <- NA
-rela <- rela[rowSums(is.na(rela)) < nind(cross),colSums(is.na(rela)) < nind(cross)]
-
-main = paste(pop,'kinship before filter (proportion of shared genotypes, 0-1)')
-png(file.path(popdir,paste(pop,'_kinship_heatmap_before_filter.png',sep='')))
-heatmap(rela,symm=T,main=main,sub="red 0 to 1.0 yellow/white" )
-dev.off()
+rela <- rels(cross.max)
+name <- paste(pop,'_kinship_heatmap_before_filter.pdf',sep='')
+main <- paste(pop,'kinship before filter (proportion of shared genotypes, 0-1)')
+feet(rela,name,main)
 
 #Drop dup inds
 wh <- which(rela > 0.75, arr=TRUE)
@@ -51,28 +50,26 @@ in.drop <- sapply(1:length(wh),function(X){
   return(names(c(wh[X],wh2[X]))[gdn])
   }
 )
+
+### Lowdata
+cross.min <- subset(cross, ind=nmissing(cross)>median(nmissing(cross)) | is.na(cross$pheno$Pheno))
 ### Drop Simiar ind
 cross <- subset(cross, ind=!cross$pheno$ID %in% in.drop)
 ### Drop ind with greater than 50% missing data
-cross <- subset(cross, ind=nmissing(cross)/sum(nmar(cross)) < 0.50)
+cross <- subset(cross, ind=nmissing(cross)/sum(nmar(cross)) < 0.50 | is.na(cross$pheno$Pheno))
+cross.max <- subset(cross, ind=nmissing(cross)<median(nmissing(cross)) | is.na(cross$pheno$Pheno))
 
 ## Calculate matrix
-rela <- comparegeno(cross)
-colnames(rela) <- cross$pheno$ID
-rownames(rela) <- cross$pheno$ID
-rela[rela==NaN] <- NA
-diag(rela) <- NA
-rela <- rela[rowSums(is.na(rela)) < nind(cross),colSums(is.na(rela)) < nind(cross)]
+rela <- rels(cross.max)
+name <- paste(pop,'_kinship_histogram_to.map.pdf',sep='')
+main <- paste(pop,'kinship before mapping (proportion of shared genotypes, 0-1)')
+feet(rela,name,main)
 
-main = paste(pop,'kinship before mapping (proportion of shared genotypes, 0-1)')
-
-png(file.path(popdir,paste(pop,'_kinship_histogram_to.map.png',sep='')))
-hist(rela,main=main,sub=sum(nmar(cross)))
-dev.off()
-
-png(file.path(popdir,paste(pop,'_kinship_heatmap_to.map.png',sep='')))
-heatmap(rela,symm=T,main=main,sub="red 0 to 1.0 yellow/white" )
-dev.off()
+## Lowdata
+rela <- rels(cross.min)
+name <- paste(pop,'_kinship_histogram_low_data.map.pdf',sep='')
+main <- paste(pop,'kinship low data (proportion of shared genotypes, 0-1)')
+feet(rela,name,main)
 
 fileConn <- file(file.path(popdir,'kinship.keep.ind.txt'))
 writeLines(cross$pheno$ID, fileConn)

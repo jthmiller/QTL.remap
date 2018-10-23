@@ -31,11 +31,11 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 
 ## Libraries
 flib <- '/share/apps/rmodules'
-fpacks <- c('devtools','httr')
+fpacks <- c('devtools','httr','ggplot2','reshape','pheatmap','RColorBrewer')
 lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
 
 mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
-mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools')
+mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools','gplots')
 lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 
 
@@ -61,7 +61,7 @@ if (pop=='NBH'){
   grpRf <- 0.20
   finRf <- 0.05
   cutoff <- 1.0e-10
-  miss <- 5
+  miss <- 2
   if (X %in% dis.nbh){cutoff <- 1.0e-10}
 
 } else if (pop=='ELR'){
@@ -83,7 +83,7 @@ if (pop=='NBH'){
   grpRf <- 0.25
   finRf <- 0.15
   cutoff <- 1.0e-08
-  miss <- 10
+  miss <- 2
 }
 
 ## Try to get error exported by map
