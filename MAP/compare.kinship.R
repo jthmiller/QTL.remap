@@ -54,7 +54,7 @@ in.drop <- sapply(1:length(wh),function(X){
 ### Lowdata
 cross.min <- subset(cross, ind=nmissing(cross)>median(nmissing(cross)) | is.na(cross$pheno$Pheno))
 ### Drop Simiar ind
-cross <- subset(cross, ind=!cross$pheno$ID %in% in.drop)
+cross <- subset(cross, ind=(!gsub(paste(pop,'_',sep=''),'',cross$pheno$ID) %in% in.drop) | is.na(cross$pheno$Pheno))
 ### Drop ind with greater than 50% missing data
 cross <- subset(cross, ind=nmissing(cross)/sum(nmar(cross)) < 0.50 | is.na(cross$pheno$Pheno))
 cross.max <- subset(cross, ind=nmissing(cross)<median(nmissing(cross)) | is.na(cross$pheno$Pheno))

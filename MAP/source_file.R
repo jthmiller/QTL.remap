@@ -680,8 +680,41 @@ feet2 <- function(X,Y,Z,dir){
   title(Z,cex.main=3, line = -1)
   dev.off()
 }
+mdees <- function(X,Y,Z,dirp){
+  diag(X) <- 1
+  nam <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
+  fit <- cmdscale(as.dist(1-X),eig=TRUE, k=2)
+  x <- fit$points[,1]
+  y <- fit$points[,2]
+  pdf(file.path(dirp,Y),width = 20, height = 20)
+    plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
+    main="Metric	MDS",	type="n")
+  text(x, y, labels = row.names(X),col=cols, cex=2)
+  dev.off()
+}
+mdees.single <- function(X,Y,Z,dirp){
+  diag(X) <- 1
+  cols <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
+  cols <- as.numeric(rownames(X))
+  cols[!is.na(cols)] <- 'green'
+  cols[is.na(cols)] <- 'red'
+  names(cols) <- rownames(X)
+  fit <- cmdscale(as.dist(1-X),eig=TRUE, k=2)
+  x <- fit$points[,1]
+  y <- fit$points[,2]
+  pdf(file.path(dirp,Y),width = 20, height = 20)
+    plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
+    main="Metric	MDS",	type="n")
+  text(x, y, labels = row.names(X),col=cols, cex=2)
+  dev.off()
+}
+newt <- function(X,Y,Z,dir){
+  pdf(file.path(dir,Y),width = 30, height = 30)
+  qgraph(rela, layout='spring', vsize=3.5)
+  dev.off()
+}
 rels <- function(X){
-  bela <- comparegeno(X,proportion=F)
+  bela <- comparegeno(X)
   colnames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
   rownames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
   bela[bela==NaN] <- NA

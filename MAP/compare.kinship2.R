@@ -50,6 +50,8 @@ feet(rela,name,main)
 
 save.image(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/kinship_QTLmap.Rsave',sep=''))
 
+#### All pops ####
+
 cross.elr <- mega.cross('ELR')
 cross.nbh <- mega.cross('NBH')
 cross.new <- mega.cross('NEW')
@@ -66,6 +68,43 @@ rela <- rels(mega.cross)
 name <- 'multipop.pdf',sep='')
 main <- 'ELR,NEW,NBH w/parents (proportion of shared genotypes, 0-1)'
 feet2(rela,name,main,'~/')
+
+mega.cross <- c(cross.new,cross.elr)
+pop <- NA
+rela <- rels(mega.cross)
+name <- 'ELR_NEW_forcedir.pdf'
+main <- 'ELR,NEW w/parents (proportion of shared genotypes, 0-1)'
+newt(rela,name,main,'~/')
+name <- 'elr_new_mds.pdf'
+mdees(rela,name,main,'~/')
+
+mega.cross <- c(cross.nbh,cross.elr)
+pop <- NA
+rela <- rels(mega.cross)
+name <- 'ELR_NBH_forcedir.pdf'
+main <- 'ELR,NBH w/parents (proportion of shared genotypes, 0-1)'
+newt(rela,name,main,'~/')
+name <- 'ELR_NBH_mds.pdf'
+mdees(rela,name,main,'~/')
+
+
+rela <- rels(cross.elr)
+name <- 'ELR_force_directed.pdf'
+main <- 'ELR,w/parents (proportion of shared genotypes, 0-1)'
+newt(rela,name,main,'~/')
+name <- 'ELR_mds.pdf'
+mdees.single(rela,name,main,'~/')
+
+
+mega.cross <- c(cross.nbh,cross.new)
+pop <- NA
+rela <- rels(mega.cross)
+name <- 'NEW_NBH_forcedir.pdf'
+main <- 'NEW,NBH w/parents (proportion of shared genotypes, 0-1)'
+newt(rela,name,main,'~/')
+name <- 'NEW_NBH_mds.pdf'
+mdees(rela,name,main,'~/')
+
 
 
 ## Only use genotyped individuals to select markers
