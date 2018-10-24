@@ -682,14 +682,16 @@ feet2 <- function(X,Y,Z,dir){
 }
 mdees <- function(X,Y,Z,dirp){
   diag(X) <- 1
-  nam <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
+  cols <- unlist(sapply(strsplit(rownames(X),'_'),'[[',1))
+  labs <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
+
   fit <- cmdscale(as.dist(1-X),eig=TRUE, k=2)
   x <- fit$points[,1]
   y <- fit$points[,2]
   pdf(file.path(dirp,Y),width = 20, height = 20)
     plot(x, y, xlab="Coordinate 1", ylab="Coordinate 2",
     main="Metric	MDS",	type="n")
-  text(x, y, labels = row.names(X),col=cols, cex=2)
+  text(x, y, labels = labs,col=brewer.pal(11,"Spectral")[as.factor(cols)], cex=2)
   dev.off()
 }
 mdees.single <- function(X,Y,Z,dirp){
@@ -709,14 +711,20 @@ mdees.single <- function(X,Y,Z,dirp){
   dev.off()
 }
 newt <- function(X,Y,Z,dir){
-  pdf(file.path(dir,Y),width = 30, height = 30)
-  qgraph(rela, layout='spring', vsize=3.5)
+  cols <- unlist(sapply(strsplit(rownames(X),'_'),'[[',1))
+  labs <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
+  names(cols) <- rownames(X)
+  pdf(file.path(dir,Y),width = 20, height = 20)
+  qgraph(X, layout='spring', vsize=3,label.cex=1,groups=cols,labels=labs)
   dev.off()
 }
 rels <- function(X){
   bela <- comparegeno(X)
-  colnames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
-  rownames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
+  #colnames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
+  #rownames(bela) <- gsub(paste(pop,'_',sep=''),'',X$pheno$ID)
+  colnames(bela) <- X$pheno$ID
+  rownames(bela) <- X$pheno$ID
+
   bela[bela==NaN] <- NA
   diag(bela) <- NA
   bela <- bela[rowSums(is.na(bela)) < nind(X),colSums(is.na(bela)) < nind(X)]

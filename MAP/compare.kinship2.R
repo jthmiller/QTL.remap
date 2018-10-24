@@ -65,9 +65,11 @@ cross.nbh <- drop.markers(cross.nbh,markernames(cross.nbh)[markernames(cross.nbh
 mega.cross <- c(cross.new,cross.elr,cross.nbh)
 pop <- NA
 rela <- rels(mega.cross)
-name <- 'multipop.pdf',sep='')
+name <- 'multipop.pdf'
 main <- 'ELR,NEW,NBH w/parents (proportion of shared genotypes, 0-1)'
-feet2(rela,name,main,'~/')
+newt(rela,name,main,'~/')
+name <- 'multipop_mds.pdf'
+mdees(rela,name,main,'~/')
 
 mega.cross <- c(cross.new,cross.elr)
 pop <- NA
@@ -87,7 +89,15 @@ newt(rela,name,main,'~/')
 name <- 'ELR_NBH_mds.pdf'
 mdees(rela,name,main,'~/')
 
+pop <- 'NEW'
+rela <- rels(cross.new)
+name <- 'NEW_force_directed.pdf'
+main <- 'NEW,w/parents (proportion of shared genotypes, 0-1)'
+newt(rela,name,main,'~/')
+name <- 'NEW_mds.pdf'
+mdees.single(rela,name,main,'~/')
 
+pop <- 'ELR'
 rela <- rels(cross.elr)
 name <- 'ELR_force_directed.pdf'
 main <- 'ELR,w/parents (proportion of shared genotypes, 0-1)'
@@ -95,14 +105,12 @@ newt(rela,name,main,'~/')
 name <- 'ELR_mds.pdf'
 mdees.single(rela,name,main,'~/')
 
-
-mega.cross <- c(cross.nbh,cross.new)
-pop <- NA
-rela <- rels(mega.cross)
-name <- 'NEW_NBH_forcedir.pdf'
-main <- 'NEW,NBH w/parents (proportion of shared genotypes, 0-1)'
+pop <- 'NBH'
+rela <- rels(cross.nbh)
+name <- 'NBH_forcedir.pdf'
+main <- 'NBH w/parents (proportion of shared genotypes, 0-1)'
 newt(rela,name,main,'~/')
-name <- 'NEW_NBH_mds.pdf'
+name <- 'NBH_mds.pdf'
 mdees(rela,name,main,'~/')
 
 

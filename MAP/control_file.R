@@ -60,7 +60,7 @@ if (pop=='NBH'){
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
   finRf <- 0.05
-  cutoff <- 1.0e-10
+  cutoff <- 1.0e-06
   miss <- 2
   if (X %in% dis.nbh){cutoff <- 1.0e-10}
 
@@ -78,11 +78,11 @@ if (pop=='NBH'){
 } else if ( pop=='NEW'){
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
-  grpLod <- 10 ## Standard LG form LOD
-  finLod <- 12 ## Higher final ELR LOD
-  grpRf <- 0.25
-  finRf <- 0.15
-  cutoff <- 1.0e-08
+  grpLod <- 12 ## Standard LG form LOD
+  finLod <- 14 ## Higher final ELR LOD
+  grpRf <- 0.20
+  finRf <- 0.05
+  cutoff <- 1.0e-06
   miss <- 2
 }
 
