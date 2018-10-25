@@ -2,7 +2,7 @@
 ### Map QTLs 1 of 3
 
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
-
+#Run('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 ## For plotting
 marker_dens <- list()
 

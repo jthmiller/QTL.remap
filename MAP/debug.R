@@ -5,13 +5,16 @@ slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
 ### Prompt
-pop <- c('NBH','NEW','ELR','NEW')[menu(c('NBH','NEW','ELR','NEW'), title="Which pop")]
-X <- c(1:24)[menu(chrms, title="Which Chromosome")]
-## QTL Scans
+pop <- function()c('NBH','NEW','ELR','NEW')[menu(c('NBH','NEW','ELR','NEW'), title="Which pop")]
+pop <- pop()
+X <- function()c(1:24)[menu(chrms, title="Which Chromosome")]
+X <- X()
 ## Only use previously mapped markers?
-mapped.only <- c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Mapped markers only?")]
+mapped.only <- function()c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Mapped markers only?")]
+mapped.only <- mapped.only()
 ## Only use granparent confirmed markers?
-confirmed <- c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Only use granparent confirmed markers?")]
+confirmed <- function()c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Only use granparent confirmed markers?")]
+confirmed <- confirmed()
 
 if (mapped.only==TRUE) {
   outname <- 'NW_dropped'
