@@ -9,7 +9,7 @@ pheno=$infiles/SOMM.FAM.2.txt
 init_flagset='--make-bed  --allow-extra-chr --autosome-num 24 --allow-no-sex --family'
 flagset='--set-missing-var-ids @:#  --allow-extra-chr --autosome-num 24 --allow-no-sex --family --chr 1-24'
 geno='--geno .4'
-maf='--mac 1'
+maf='--mac 5'
 
 
 module load vcftools
@@ -34,3 +34,33 @@ $plink --vcf $vcfdir/$X.vcf.gz --out $indpops/$X  $init_flagset --pheno $pheno -
 $plink --bfile $indpops/$X --out $indpops/$X $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names ELR BLI --make-founders
 
 $plink --bfile $indpops/$X --out $indpops/$X $flagset --pheno $pheno --all-pheno --keep-cluster-names ELR BLI $geno $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders
+
+
+$plink --bfile $indpops/$X --out $indpops/$X.prune $flagset --pheno $pheno --all-pheno --make-bed --keep-cluster-names ELR BLI --geno 0.9 $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders --indep 50 5 2
+
+
+$plink --bfile $indpops/$X.prune --out $indpops/$X --extract $indpops/$X.prune.in $flagset --pheno $pheno --all-pheno --keep-cluster-names ELR BLI $geno $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders --genome gz unbounded --cluster
+
+$plink --bfile $indpops/$X.prune --out $indpops/$X --extract $indpops/$X.prune.in $flagset --pheno $pheno --all-pheno --keep-cluster-names ELR BLI $geno $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs
+
+##### ELR NBH1
+
+$plink --vcf $vcfdir/SOMM.vcf.gz --out $indpops/NBH_ELR_NEW  $init_flagset --pheno $pheno --all-pheno --update-ids $infiles/SOMM.txt
+
+$plink --bfile $indpops/NBH_ELR_NEW --out $indpops/NBH_ELR_NEW $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI --make-founders --geno 0.9 --recode --biallelic-only strict --snps-only just-acgt --nonfounders
+
+$plink --bfile $indpops/NBH_ELR_NEW --out $indpops/NBH_ELR_NEW $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI --geno 0.9 --recode --biallelic-only strict --snps-only just-acgt --nonfounders --indep 50 5 2
+
+$plink --bfile $indpops/NBH_ELR_NEW --out $indpops/NBH_ELR_NEW --extract $indpops/NBH_ELR_NEW.prune.in $flagset --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI --geno 0.9 --mind .9 --recode --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs
+
+
+
+#$plink --bfile $indpops/$X --out $indpops/$X $flagset --pheno $pheno --all-pheno --keep-cluster-names $X $geno $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders
+
+$plink --vcf $vcfdir/SOMM.vcf.gz --out $indpops/ALL  $init_flagset --pheno $pheno --all-pheno --update-ids $infiles/SOMM.txt
+
+$plink --bfile $indpops/ALL --out $indpops/ALL $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI BRP --make-founders --geno 0.75 --recode --biallelic-only strict --snps-only just-acgt --nonfounders
+
+$plink --bfile $indpops/ALL --out $indpops/ALL $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI BRP --geno 0.75 --recode --biallelic-only strict --snps-only just-acgt --nonfounders --indep 50 5 2
+
+$plink --bfile $indpops/ALL --out $indpops/ALL --extract $indpops/ALL.prune.in $flagset --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI BRP --geno 0.3 --mind .9 --recode --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs flat-missing

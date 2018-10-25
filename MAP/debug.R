@@ -26,12 +26,13 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
 mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
 flib <- '/share/apps/rmodules'
 
-fpacks <- c('devtools','httr')
+flib <- '/share/apps/rmodules'
+fpacks <- c('devtools','httr','ggplot2','reshape','pheatmap','RColorBrewer')
 lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
 
-mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools')
+mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
+mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools','gplots','qgraph')
 lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
-
 
 ### Parameters are different for some chromosomes
 dis.nbh <- c(2,13,20)

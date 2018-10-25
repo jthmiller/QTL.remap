@@ -113,6 +113,52 @@ newt(rela,name,main,'~/')
 name <- 'NBH_mds.pdf'
 mdees(rela,name,main,'~/')
 
+### IBD calculations https://www.cog-genomics.org/plink/1.9/ibd
+ids <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ELR.mdist.id')
+n.len <- file.info('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ELR.mdist.bin')$size
+dis <- readBin('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ELR.mdist.bin',what='double',n=n.len)
+#con <- file(file.path('~/Dropbox/QTL_Paper/Rough Figures/Kinship Analysis/NBH.kinship.keep.ind.txt'), open='r')
+
+### Sim
+ids <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/NEW.mibs.id')
+n.len <- file.info('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/NEW.mibs.bin')$size
+dis <- readBin('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/NEW.mibs.bin',what='double',n=n.len)
+
+dis <- as.numeric(dis)
+dis <- matrix(dis, nrow=length(ids$V1),ncol=length(ids$V1))
+colnames(dis) <- paste(ids$V1,ids$V2,sep="_")
+rownames(dis) <- paste(ids$V1,ids$V2,sep="_")
+
+d <- as.dist(dis)
+#fit <- cmdscale(dis,eig=TRUE, k=2)
+
+
+name <- 'NBH_force_directed_plink.pdf'
+main <- 'NBH,w/parents (proportion of shared genotypes, 0-1)'
+newt(dis,name,main,'~/')
+name <- 'NBH_mds_plink.pdf'
+mdees.single.IBS(dis,name,main,'~/',dist=F)
+
+ids <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ALL.mibs.id')
+n.len <- file.info('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ALL.mibs.bin')$size
+dis <- readBin('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ALL.mibs.bin',what='double',n=n.len)
+dis <- as.numeric(dis)
+dis <- matrix(dis, nrow=length(ids$V1),ncol=length(ids$V1))
+colnames(dis) <- paste(ids$V1,ids$V2,sep="_")
+rownames(dis) <- paste(ids$V1,ids$V2,sep="_")
+
+dis <- dis[rowSums(is.na(dis)) != (ncol(dis)-1),colSums(is.na(dis)) != (nrow(dis)-1) ]
+
+pop <- 'ELR'
+name <- 'ALL_force_directed_plink2.pdf'
+main <- 'All Offspring ,w/parents'
+newt(dis,name,main,'~/')
+name <- 'ALLPOP_mds_plink.pdf'
+mdees.single.IBS(dis,name,main,'~/')
+
+
+
+
 
 
 ## Only use genotyped individuals to select markers

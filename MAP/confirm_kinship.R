@@ -16,6 +16,7 @@ dis <- readBin('~/Dropbox/QTL_Paper/NEW.rel.bin',what='double',n=n.len)
 con <- file(file.path('~/Dropbox/QTL_Paper/Rough Figures/Kinship Analysis/NEW.kinship.keep.ind.txt'), open='r')
 #######
 
+
 keepers <- readLines(con)
 close(con)
 

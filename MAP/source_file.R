@@ -710,6 +710,37 @@ mdees.single <- function(X,Y,Z,dirp){
   text(x, y, labels = row.names(X),col=cols, cex=2)
   dev.off()
 }
+mdees.single.IBS <- function(X,Y,Z,dirp,dist=T){
+  diag(X) <- 1
+  pop <- unlist(sapply(strsplit(rownames(X),'_'),'[[',1))
+  popcol <- as.numeric(as.factor(pop))
+  samp <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
+  cols <- as.numeric(samp)
+  index <- is.na(cols)
+
+  cols <- brewer.pal(8,"Dark2")[popcol]
+  names(cols) <- rownames(X)
+  ofs <- rownames(X)[!index]
+  parso <- rownames(X)[index]
+  if (dist==F){
+  fit <- cmdscale(as.dist(1-X),eig=TRUE, k=2)
+  } else { fit <- cmdscale(as.dist(X),eig=TRUE, k=2)}
+  x <- fit$points[ofs,1]
+  y <- fit$points[ofs,2]
+  A <- fit$points[parso,1]
+  B <- fit$points[parso,2]
+  raw <- range(fit$points)
+  pdf(file.path(dirp,Y),width = 20, height = 20)
+
+    plot(raw, raw, xlab="Coordinate 1", ylab="Coordinate 2",
+    main="Metric	MDS",type="n" )
+
+  points(x, y,pch=19,col=cols[names(x)],cex=3)
+  text(A, B, labels = names(A),col=cols[names(A)], cex=2)
+  legend(0.06, 0.04, legend=unique(pop),pch=19,
+       col=brewer.pal(8,"Dark2")[unique(popcol)],cex=2)
+  dev.off()
+}
 newt <- function(X,Y,Z,dir){
   cols <- unlist(sapply(strsplit(rownames(X),'_'),'[[',1))
   labs <- unlist(sapply(strsplit(rownames(X),'_'),'[[',2))
