@@ -7,12 +7,12 @@ popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 
 ## QTL Scans
 chrms <- c(1:24)
-pops <- c('NBH','NEW')
+pops <- c('NBH','NEW','ELR')
 
 ## Only use previously mapped markers?
 mapped.only=TRUE
 ## Only use granparent confirmed markers?
-confirmed=FALSE
+confirmed=TRUE
 
 if (mapped.only==TRUE) {
   outname <- 'NW_dropped'
@@ -38,34 +38,20 @@ mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
 mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools','gplots','qgraph')
 lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 
-
-dis.nbh <- c(2,13,20)
-dis.elr <- c(18)
-cov.nbh <- c(13,18)
-
-
 ### Phenotype translation
 trsl.bin <- c(0,0,0,1,1,1)
 names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
-  inds <- c('ind15','ind89','ind88','ind14','ind20') # determined to be dropped low cov
-  missing <- 0.9
-  if (X %in% cov.nbh){
-    missing <- 0.8
-    finRf <- 0.10
-  }
+
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
   finRf <- 0.05
-  cutoff <- 1.0e-06
+  cutoff <- 1.0e-10
   miss <- 2
-  if (X %in% dis.nbh){cutoff <- 1.0e-10}
-
 } else if (pop=='ELR'){
-  ### ELR parents are incorrectly ID'd
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
