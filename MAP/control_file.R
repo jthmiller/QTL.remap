@@ -12,7 +12,11 @@ pops <- c('NBH','NEW','ELR')
 ## Only use previously mapped markers?
 mapped.only=TRUE
 ## Only use granparent confirmed markers?
-confirmed=TRUE
+if(pop=='ELR'){
+  confirmed=FALSE
+} else {
+  confirmed=TRUE
+}
 
 if (mapped.only==TRUE) {
   outname <- 'NW_dropped'
@@ -60,7 +64,6 @@ if (pop=='NBH'){
   finRf <- 0.1
   cutoff <- 1.0e-4
   miss <- 10
-  if (X %in% dis.elr){cutoff <- 1.0e-10}
 } else if ( pop=='NEW'){
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
@@ -68,7 +71,7 @@ if (pop=='NBH'){
   finLod <- 14 ## Higher final ELR LOD
   grpRf <- 0.20
   finRf <- 0.1
-  cutoff <- 1.0e-06
+  cutoff <- 1.0e-8
   miss <- 10
 }
 
