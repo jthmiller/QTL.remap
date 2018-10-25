@@ -2,7 +2,7 @@
 ### Map QTLs 1 of 3
 
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
-#Run('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
+#source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 ## For plotting
 marker_dens <- list()
 
@@ -37,14 +37,44 @@ close(con)
 cross.18 <- subset(cross.18,ind=cross.18$pheno$ID %in% keepers)
 cross.18 <- subset(cross.18,ind=!is.na(cross.18$pheno$Phen))
 
+sapply(1:24,function(X){
+  which(gt.pars$AA==1 & gt.pars$BB==1)
+}
+
+)
+
 ## Map each QTL chro independently
-allbut <- c(1:24)[-X]
-subset.qtl <- chrnames(cross.18)[!chrnames(cross.18) %in% allbut]
-cross.18 <- subset(cross.18, chr=subset.qtl)
-#cross.2 <- subset(cross.2, chr=subset.qtl)
-cross.pars <- subset(cross.pars, chr=subset.qtl)
-## Starting marker number
-marker.warning()
+if (mapped.only==T){
+  allbut <- c(1:24)[-X]
+  subset.qtl <- chrnames(cross.18)[!chrnames(cross.18) %in% allbut]
+  cross.18 <- subset(cross.18, chr=subset.qtl)
+  cross.pars <- subset(cross.pars, chr=subset.qtl)
+  marker.warning()
+}
+### grandparent confirmed markers
+if(confirmed==F){
+  print('Not using GP genos for filtering')
+  dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
+  cross.18 <- drop.markers(cross.18, unlist(dups))
+} else {
+  gt.pars <- geno.table(cross.pars)
+  gt.pars <- rownames(gt.pars)[which(gt.pars$AA==1 & gt.pars$BB==1)]
+  print('Dropped markers that do not follow expectations from GP genotypes')
+
+  marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
+  cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
+  par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
+}
+
+
+
+
+
+
+
+
+
+
 
 ### Table before missing filter
 gt <- geno.table(cross.18)
@@ -54,20 +84,10 @@ pval <- log10(gt$P.value)
 #### Filter Conservative
 print('Dropping markers with more than 5 genotypes missing')
 cross.18 <- drop.missing(cross.18,miss)
+cross.pars <- subset(cross.pars, chr=subset.qtl)
 gt.missing <- geno.table(cross.18)
 marker.warning()
 
-### grandparent confirmed markers
-if(confirmed==F){
-  print('Not using GP genos for filtering')
-  dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
-  cross.18 <- drop.markers(cross.18, unlist(dups))
-} else {
-  print('Dropped markers that do not follow expectations from GP genotypes')
-  marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
-  cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
-  par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
-}
 
 ### invariants
 gt.cross.par <- geno.table(cross.18)

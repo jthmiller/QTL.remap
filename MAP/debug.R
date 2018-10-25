@@ -83,5 +83,3 @@ try(ers <- as.numeric(system(expr,intern=T)))
 if (length(ers)==0|is.null(ers)){ print('couldnt find the error. Using 0.03')
   ers <- 0.03
 } else {print(paste(ers,'genotyping error'))}
-
-print('set pop and chromosome (X)')
