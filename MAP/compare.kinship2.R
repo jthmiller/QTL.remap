@@ -139,9 +139,13 @@ newt(dis,name,main,'~/')
 name <- 'NBH_mds_plink.pdf'
 mdees.single.IBS(dis,name,main,'~/',dist=F)
 
-ids <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ALL.mibs.id')
-n.len <- file.info('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ALL.mibs.bin')$size
-dis <- readBin('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/ALL.mibs.bin',what='double',n=n.len)
+
+
+for (i in 1:24){
+
+ids <- read.table(paste('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/',i,'.parents.mibs.id',sep=''))
+n.len <- file.info(paste('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/',i,'.parents.mibs.id',sep=''))$size
+dis <- readBin(paste('/home/jmiller1/QTL_Map_Raw/popgen/plinkfiles/ind.pops/',i,'.parents.mibs.bin',sep=''),what='double',n=n.len)
 dis <- as.numeric(dis)
 dis <- matrix(dis, nrow=length(ids$V1),ncol=length(ids$V1))
 colnames(dis) <- paste(ids$V1,ids$V2,sep="_")
@@ -149,12 +153,13 @@ rownames(dis) <- paste(ids$V1,ids$V2,sep="_")
 
 dis <- dis[rowSums(is.na(dis)) != (ncol(dis)-1),colSums(is.na(dis)) != (nrow(dis)-1) ]
 
-pop <- 'ELR'
-name <- 'ALL_force_directed_plink2.pdf'
-main <- 'All Offspring ,w/parents'
-newt(dis,name,main,'~/')
-name <- 'ALLPOP_mds_plink.pdf'
-mdees.single.IBS(dis,name,main,'~/')
+#name <- paste(i,'_founders_force_directed_plink2.pdf',sep='')
+main <- paste('founders chr',i)
+#newt(dis,name,main,'~/')#
+name <- paste(i,'_founders_mds.pdf',sep='')
+mdees.single.IBS(dis,name,main,'~/',dist=F)
+
+}
 
 
 

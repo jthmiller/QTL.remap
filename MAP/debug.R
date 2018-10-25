@@ -7,7 +7,7 @@ setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ### Prompt
 pop <- function()c('NBH','NEW','ELR','NEW')[menu(c('NBH','NEW','ELR','NEW'), title="Which pop")]
 pop <- pop()
-X <- function()c(1:24)[menu(chrms, title="Which Chromosome")]
+X <- function()c(1:24)[menu(1:24, title="Which Chromosome")]
 X <- X()
 ## Only use previously mapped markers?
 mapped.only <- function()c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Mapped markers only?")]

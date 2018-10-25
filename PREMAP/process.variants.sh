@@ -64,3 +64,11 @@ $plink --bfile $indpops/ALL --out $indpops/ALL $flagset --make-bed --pheno $phen
 $plink --bfile $indpops/ALL --out $indpops/ALL $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI BRP --geno 0.75 --recode --biallelic-only strict --snps-only just-acgt --nonfounders --indep 50 5 2
 
 $plink --bfile $indpops/ALL --out $indpops/ALL --extract $indpops/ALL.prune.in $flagset --pheno $pheno --all-pheno --keep-cluster-names NEW NBH ELR BLI BRP --geno 0.3 --mind .9 --recode --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs flat-missing
+
+
+
+### Parents
+for i in {1..24}
+do
+$plink --bfile $indpops/ALL --out $indpops/$i.parents --make-bed --chr $i --set-missing-var-ids @:# --allow-extra-chr --autosome-num 24 --allow-no-sex --pheno $pheno --all-pheno --keep $infiles/parents.txt --keep-cluster-names NEW NBH ELR BLI --recode --family --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs flat-missing
+done
