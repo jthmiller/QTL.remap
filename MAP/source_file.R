@@ -775,6 +775,12 @@ mega.cross <- function(pope){
   cross <- subset(cross, ind=nmissing(cross)<nmissing(cross)[1:(round(sum(nind(cross))/2,digits=0))] | is.na(cross$pheno$Pheno))
   return(cross)
 }
+get.par.snp.number <- function(X){
+  sapply(1:24,function(X){
+    length(which(gt.pars$chr==X & gt.pars$AA==1 & gt.pars$BB==1))/length(which(gt.pars$chr==X & gt.pars$missing==0 & gt.pars$AA<2 & gt.pars$BB<2))
+    }
+  )
+}
 environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')

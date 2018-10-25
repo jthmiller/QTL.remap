@@ -48,18 +48,18 @@ if (pop=='NBH'){
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
-  finRf <- 0.05
-  cutoff <- 1.0e-10
-  miss <- 2
+  finRf <- 0.1
+  cutoff <- 1.0e-8
+  miss <- 10
 } else if (pop=='ELR'){
   inds <- c('ind2') # determined to be dropped low cov
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.2
-  finRf <- 0.05
+  finRf <- 0.1
   cutoff <- 1.0e-4
-  miss <- 2
+  miss <- 10
   if (X %in% dis.elr){cutoff <- 1.0e-10}
 } else if ( pop=='NEW'){
   inds <- c(NA) # determined to be dropped low cov
@@ -67,9 +67,9 @@ if (pop=='NBH'){
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final ELR LOD
   grpRf <- 0.20
-  finRf <- 0.05
+  finRf <- 0.1
   cutoff <- 1.0e-06
-  miss <- 2
+  miss <- 10
 }
 
 ## Try to get error exported by map

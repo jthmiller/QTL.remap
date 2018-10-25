@@ -3,7 +3,7 @@
 ### SAMPLE 10869 in ELR is really odd
 
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
-source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
+#source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 ## For plotting
 marker_dens <- list()
 
@@ -38,12 +38,6 @@ close(con)
 cross.18 <- subset(cross.18,ind=cross.18$pheno$ID %in% keepers)
 cross.18 <- subset(cross.18,ind=!is.na(cross.18$pheno$Phen))
 
-sapply(1:24,function(X){
-  which(gt.pars$AA==1 & gt.pars$BB==1)
-}
-
-)
-
 ## Map each QTL chro independently
 if (mapped.only==T){
   allbut <- c(1:24)[-X]
@@ -59,23 +53,15 @@ if(confirmed==F){
   cross.18 <- drop.markers(cross.18, unlist(dups))
 } else {
   gt.pars <- geno.table(cross.pars)
+  gt.pars.set2 <- gt.pars[which(gt.pars$missing==1),]
+  gt.pars.set2 <- rownames(gt.pars.set2)[which(gt.pars.set2$AA==1 | gt.pars.set2$BB==1)]
   gt.pars <- rownames(gt.pars)[which(gt.pars$AA==1 & gt.pars$BB==1)]
   print('Dropped markers that do not follow expectations from GP genotypes')
-
-  marks.confirm <- !rownames(gt.missing) %in% par.confirm.marks
-  cross.18 <- drop.markers(cross.18,rownames(gt.missing)[marks.confirm])
-  par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',par.confirm.marks))
+  gt.pars <- c(gt.pars,gt.pars.set2)
+  marks.drop <- markernames(cross.18)[!markernames(cross.18) %in% gt.pars]
+  cross.18 <- drop.markers(cross.18,marks.drop)
+  par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 }
-
-
-
-
-
-
-
-
-
-
 
 ### Table before missing filter
 gt <- geno.table(cross.18)
@@ -83,16 +69,14 @@ pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt)))
 pval <- log10(gt$P.value)
 
 #### Filter Conservative
-print('Dropping markers with more than 5 genotypes missing')
+print('Dropping markers with more than 10 genotypes missing')
 cross.18 <- drop.missing(cross.18,miss)
-cross.pars <- subset(cross.pars, chr=subset.qtl)
 gt.missing <- geno.table(cross.18)
 marker.warning()
 
-
 ### invariants
-gt.cross.par <- geno.table(cross.18)
-cross.18 <- drop.markers(cross.18,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
+gt.cross.par <- NA
+cross.18 <- drop.markers(cross.18,rownames(gt.missing[gt.missing$P.value<cutoff,]))
 gt.pval <- geno.table(cross.18)
 
 marker.warning()
@@ -120,7 +104,7 @@ if (chrom.b4 > 1){
   chrom.after <- 0
   while (chrom.b4 > chrom.after){
     chrom.b4 <- nchr(cross.18)
-    cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=1))
+    cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=chrnames(cross.18)[1]))
     cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
     chrom.after <- nchr(cross.18)
     }
