@@ -1,6 +1,9 @@
 ## Determine which individuals to keep
+### SAMPLE 10869 in ELR is really odd
+
 
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
+#source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 
 cross <- read.cross.jm(file=file.path(indpops,paste(pop,'.unphased.f2.csvr',sep='')),
   format='csvr', geno=c(1:3),estimate.map=FALSE)
@@ -20,7 +23,7 @@ cross.pars <- subset(cross,ind=is.na(cross$pheno$Pheno))
 ### Drop parents before filter
 cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
 gt.cross.par <- geno.table(cross)
-miss <- 8
+miss <- 10
 cutoff <- 1.0e-06
 cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$missing>miss,]))
 cross <- drop.markers(cross,rownames(gt.cross.par[gt.cross.par$P.value<cutoff,]))
@@ -32,6 +35,7 @@ cross.pars  <- drop.markers(cross.pars,drop)
 cross.max <- c(cross.pars,cross.max)
 cross <- c(cross.pars,cross)
 
+rela <- rels(cross)
 ## Calculate matrix
 rela <- rels(cross.max)
 name <- paste(pop,'_kinship_heatmap_before_filter.pdf',sep='')
@@ -40,7 +44,7 @@ feet(rela,name,main)
 
 #Drop dup inds
 wh <- which(rela > 0.75, arr=TRUE)
-wh <- wh[wh[,1] < wh[,2],]
+wh <- wh[wh[,1] < wh[,2],] ## just take larger index of all
 wh2 <- wh[,2]
 names(wh2) <- rownames(rela)[wh2]
 wh <- wh[,1]

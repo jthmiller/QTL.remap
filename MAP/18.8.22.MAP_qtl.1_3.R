@@ -1,6 +1,6 @@
 #!/bin/R
 ### Map QTLs 1 of 3
-### SAMPLE 10869 in ELR is really odd
+
 
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 #source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')

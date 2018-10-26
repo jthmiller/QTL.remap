@@ -10,7 +10,7 @@ chrms <- c(1:24)
 pops <- c('NBH','NEW','ELR')
 
 ## Only use previously mapped markers?
-mapped.only=TRUE
+
 ## Only use granparent confirmed markers?
 if(pop=='ELR'){
   confirmed=FALSE
@@ -48,7 +48,7 @@ names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
-
+  mapped.only=TRUE
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
   grpRf <- 0.20
@@ -56,15 +56,17 @@ if (pop=='NBH'){
   cutoff <- 1.0e-8
   miss <- 10
 } else if (pop=='ELR'){
-  inds <- c('ind2') # determined to be dropped low cov
+  mapped.only=TRUE
+  confirmed <- FALSE
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.2
   finRf <- 0.1
   cutoff <- 1.0e-4
-  miss <- 10
+  miss <- 5
 } else if ( pop=='NEW'){
+  mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
   grpLod <- 12 ## Standard LG form LOD
