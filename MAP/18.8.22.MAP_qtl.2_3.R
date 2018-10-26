@@ -23,9 +23,11 @@ print('Re-order markers')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=3000,tol=1e-3)
 } else {
-  ripple(cross, X, window=7, method="likelihood",
-       error.prob=ers, map.function="kosambi",
-       maxit=2000, tol=1e-6, sex.sp=F, verbose=TRUE, n.cluster=12)
+    ripVanWink <- ripple(cross.18, X, window=7, method="likelihood",
+       error.prob=ers, map.function="kosambi",maxit=1000, tol=1e-6,
+       sex.sp=F, verbose=TRUE, n.cluster=12)
+    cross.18 <- switch.order(cross.18, X, ripVanWink[1,])
+
 }
 
 print('Re-estimating the map')

@@ -9,18 +9,6 @@ popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
 chrms <- c(1:24)
 pops <- c('NBH','NEW','ELR')
 
-## Only use previously mapped markers?
-
-## Only use granparent confirmed markers?
-if(pop=='ELR'){
-  confirmed=FALSE
-} else {
-  confirmed=TRUE
-}
-
-## Map or use physical location
-reorder <- F
-
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
 plotdir <- file.path(basedir,'rQTL/plots')
@@ -47,6 +35,7 @@ names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
+  reorder==F
   mapped.only=TRUE
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
@@ -55,6 +44,7 @@ if (pop=='NBH'){
   cutoff <- 1.0e-8
   miss <- 10
 } else if (pop=='ELR'){
+  confirmed=FALSE
   mapped.only=TRUE
   confirmed <- FALSE
   missing <- 0.9
@@ -63,20 +53,20 @@ if (pop=='NBH'){
   grpRf <- 0.2
   finRf <- 0.1
   cutoff <- 1.0e-4
-  miss <- 2
+  miss <- 2 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
+  confirmed=T
+  reorder==F
   mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final ELR LOD
   grpRf <- 0.20
-  finRf <- 0.1
+  finRf <- 0.10
   cutoff <- 1.0e-8
   miss <- 10
 }
-
-
 
 if (mapped.only==TRUE & reorder==F) {
   outname <- 'NW_dropped_physical'

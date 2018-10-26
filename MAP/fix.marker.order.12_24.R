@@ -18,7 +18,3 @@ mapthis <- switch.order(mapthis, chr=i, c(1:79,99:134,80:98), error.prob=0.02,
   map.function="kosambi",maxit=1000, tol=1e-6, sex.sp=F)
 
 plotRF(mapthis,chr=i)
-
-try <- ripple(cross, chr, window=10, method="likelihood",
-    error.prob=0.01, map.function="kosambi",maxit=1,
-    tol=1e-6, sex.sp=TRUE, verbose=TRUE, n.cluster=1)
