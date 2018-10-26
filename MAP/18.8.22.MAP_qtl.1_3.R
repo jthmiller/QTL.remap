@@ -135,8 +135,19 @@ marker.warning()
 
 print('initial order filtered markers with 0.1 errorprob. Takes awhile...')
 
-cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
-  error.prob=0.05, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
+if (reorder==T){
+  cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
+    error.prob=0.05, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
+  print('Estimating the initial map with high errorprob')
+  POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=100)
+  cross.18 <- replace.map(cross.18, POS.map.18)
+} else {
+  ord <- order(as.numeric(gsub(paste(i,":",sep=''),'',markernames(cross.18,chr=X))))
+  cross.18 <- switch.order(cross.18, chr=X,ord , error.prob=0.01,
+    map.function="kosambi",maxit=3000, tol=1e-6, sex.sp=F)
+  POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=10000)
+  cross.18 <- replace.map(cross.18, POS.map.18)
+}
 
 ## rename to the correct LG
 names(cross.18$geno) <- X
@@ -145,9 +156,6 @@ print('removing double cross-over genotypes')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
-print('Estimating the initial map with high errorprob')
-POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=100)
-cross.18 <- replace.map(cross.18, POS.map.18)
 
 print(summary(pull.map(cross.18))[as.character(X),])
 

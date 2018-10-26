@@ -66,3 +66,18 @@ save.image('kinship.rsave')
 #cross <- est.rf(cross)
 #cross.2 <- repRipple(cross, error.prob=ers, map.function="kosambi",window = 6)
 #cross.18 <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
+
+
+
+
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('chr',X,'_',outname,'.QTLmap.csv',sep=''),
+   geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+cross <- dropSimilarMarkers(cross.18,chr=chrnames(cross)[1],rf.threshold = 0.002,byChr = TRUE,re.est.map = FALSE)
+Z <- repRipple(cross.18, error.prob=ers, map.function="kosambi",window = 4)
+
+
+pdf('~/rep_rip_8.pdf')
+plot.rf(cross0, chr = 1, main = "recombination fractions before ripple")
+dev.off()

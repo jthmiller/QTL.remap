@@ -18,6 +18,8 @@ if(pop=='ELR'){
   confirmed=TRUE
 }
 
+## Map or use physical location
+reorder <- F
 
 ## Directories
 basedir <- '/home/jmiller1/QTL_Map_Raw/popgen'
@@ -74,9 +76,15 @@ if (pop=='NBH'){
   miss <- 10
 }
 
-if (mapped.only==TRUE) {
-  outname <- 'NW_dropped'
-} else { outname <- 'NW' }
+
+
+if (mapped.only==TRUE & reorder==F) {
+  outname <- 'NW_dropped_physical'
+} else if (mapped.only==TRUE & reorder==T ){
+   outname <- 'NW_Mapped'
+} else {
+   outname <- 'NW_ReMapped'
+}
 
 ## Try to get error exported by map
 expr <- paste('tac ',errfile,' | grep -m 1 \'',pop,' ',X,'\' | awk \'{print $5}\'',sep='')

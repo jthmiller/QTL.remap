@@ -27,10 +27,6 @@ save.image('~/Dropbox/QTL_Paper/Rough Figures/LOD/profiles/MAP/NEW.1_24.Rsave')
 
 
 i <- 8
-ord <- order(as.numeric(gsub(paste(i,":",sep=''),'',markernames(mapthis,chr=i))))
-
-pos <- switch.order(mapthis, chr=i,ord , error.prob=0.02,
-  map.function="kosambi",maxit=1000, tol=1e-6, sex.sp=F)
 
 
 plotRF(pos,chr=i)
