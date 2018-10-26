@@ -142,7 +142,7 @@ if (reorder==T){
   POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=100)
   cross.18 <- replace.map(cross.18, POS.map.18)
 } else {
-  ord <- order(as.numeric(gsub(paste(i,":",sep=''),'',markernames(cross.18,chr=X))))
+  ord <- order(as.numeric(gsub(paste(X,":",sep=''),'',markernames(cross.18,chr=X))))
   cross.18 <- switch.order(cross.18, chr=X,ord , error.prob=0.01,
     map.function="kosambi",maxit=3000, tol=1e-6, sex.sp=F)
   POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=10000)
