@@ -12,7 +12,7 @@
 
 ####QTLs are on chrm '1 2 8 13 18 24'
 
-scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL'
+scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap'
 
 pop=$1
 
