@@ -56,3 +56,13 @@ rela <- calc_kinship(pr, type = "overall", omit_x = FALSE,
 save.image('kinship.rsave')
 
 ############
+## Only use genotyped individuals to select markers
+#cross <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
+#cross <- dropSimilarMarkers(cross,chr=X,rf.threshold = 0.002,byChr = TRUE,re.est.map = FALSE)
+#cross <- repRipple(cross, error.prob=ers, map.function="kosambi",window = 6)
+#cross <- removeDoubleXO(cross, verbose=T)
+#cross.map <- est.map(cross,error.prob=ers,map.function="kosambi",maxit=1000)
+#cross <- replace.map(cross, cross.map)
+#cross <- est.rf(cross)
+#cross.2 <- repRipple(cross, error.prob=ers, map.function="kosambi",window = 6)
+#cross.18 <- subset(cross.18,ind=cross.18$pheno$stata=='ind')

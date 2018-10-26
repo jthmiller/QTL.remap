@@ -1,6 +1,6 @@
 ## Figure out if all AAxAB are lumped or out of order and plot errorlod
 ## ers in controlfil still giving ers. get rid of it
-source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
+####source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 
 ####### DEBUG ONLY ####
 slurmcore <- 12
