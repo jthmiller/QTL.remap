@@ -1,12 +1,14 @@
 ## Figure out if all AAxAB are lumped or out of order and plot errorlod
 ## ers in controlfil still giving ers. get rid of it
+source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
+
 ####### DEBUG ONLY ####
 slurmcore <- 12
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
 ####### DEBUG ONLY ####
 ### Prompt
 pop <- function()c('NBH','NEW','ELR','NEW')[menu(c('NBH','NEW','ELR','NEW'), title="Which pop")]
-pop <- pop()
+pop <- popq <- pop()
 X <- function()c(1:24)[menu(1:24, title="Which Chromosome")]
 X <- X()
 ## Only use previously mapped markers?
@@ -46,6 +48,9 @@ lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 ### Phenotype translation
 trsl.bin <- c(0,0,0,1,1,1)
 names(trsl.bin) <- as.character(0:5)
+
+chrms <- 1:24
+
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){

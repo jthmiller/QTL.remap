@@ -61,7 +61,7 @@ if (pop=='NBH'){
   grpRf <- 0.2
   finRf <- 0.1
   cutoff <- 1.0e-4
-  miss <- 5
+  miss <- 2
 } else if ( pop=='NEW'){
   mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
