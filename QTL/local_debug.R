@@ -4,8 +4,8 @@
 #slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
 slurmcore <- 1
 #popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
-popq <- 'NBH'
-pop <- 'NBH'
+popq <- 'NEW'
+pop <- 'NEW'
 
 ## Directories
 basedir <- '~/Dropbox/QTL_Paper/CODE/QTL'
