@@ -35,7 +35,7 @@ names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
-  reorder==F
+  reorder<-F
   mapped.only=TRUE
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
@@ -56,7 +56,7 @@ if (pop=='NBH'){
   miss <- 2 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
   confirmed=T
-  reorder==F
+  reorder<-F
   mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
