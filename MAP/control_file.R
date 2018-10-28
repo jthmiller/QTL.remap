@@ -45,7 +45,7 @@ if (pop=='NBH'){
   cutoff <- 1.0e-8
   miss <- 8
 } else if (pop=='ELR'){
-  mapped.only=TRUE
+  mapped.only <- TRUE
   confirmed <- FALSE
   reorder<-F
   missing <- 0.9
