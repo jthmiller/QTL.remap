@@ -39,12 +39,12 @@ if (pop=='NBH'){
   confirmed=T
   reorder.marks<-F
   mapped.only=TRUE
-  grpLod <- 12 ## Standard LG form LOD
-  finLod <- 14 ## Higher final NBH LOD
-  grpRf <- 0.20
-  finRf <- 0.1
+  grpLod <- 10 ## Standard LG form LOD
+  finLod <- 12 ## Higher final NBH LOD
+  grpRf <- 0.25
+  finRf <- 0.15
   cutoff <- 1.0e-8
-  miss <- 8
+  miss <- 5
 } else if (pop=='ELR'){
   mapped.only <- TRUE
   confirmed <- FALSE
@@ -62,12 +62,12 @@ if (pop=='NBH'){
   mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
-  grpLod <- 12 ## Standard LG form LOD
-  finLod <- 14 ## Higher final ELR LOD
-  grpRf <- 0.20
-  finRf <- 0.10
+  grpLod <- 10 ## Standard LG form LOD
+  finLod <- 12 ## Higher final ELR LOD
+  grpRf <- 0.25
+  finRf <- 0.15
   cutoff <- 1.0e-8
-  miss <- 8
+  miss <- 5
 }
 
 if (mapped.only==TRUE & reorder.marks==F) {
