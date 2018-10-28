@@ -1,4 +1,5 @@
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
+
 load(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/QTLmap.Rsave',sep=''))
 
 cross.18 <- dropSimilarMarkers(cross.18, rf.threshold = 0.02)

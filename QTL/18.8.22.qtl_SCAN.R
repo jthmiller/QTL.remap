@@ -4,7 +4,7 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 
 print('Writing the merged chromosome markers to rQTL format')
-write.cross(cross.18,filestem=paste(popdir,'BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
+write.cross(cross.18,filestem=paste(popdir,outname,'.BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
 
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
 phen$Pheno_05 <- phen$pheno_all
