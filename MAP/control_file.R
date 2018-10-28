@@ -19,6 +19,7 @@ errfile <- file.path(qtldir,'genotyping_error_rate.txt')
 
 ## Funtions for processing rQTL map data
 source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
+source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/model_source_file.R'))
 
 ## Libraries
 flib <- '/share/apps/rmodules'
@@ -36,7 +37,7 @@ names(trsl.bin) <- as.character(0:5)
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   confirmed=T
-  reorder<-F
+  reorder.marks<-F
   mapped.only=TRUE
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
@@ -47,7 +48,7 @@ if (pop=='NBH'){
 } else if (pop=='ELR'){
   mapped.only <- TRUE
   confirmed <- FALSE
-  reorder<-F
+  reorder.marks<-F
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
@@ -57,7 +58,7 @@ if (pop=='NBH'){
   miss <- 2 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
   confirmed=T
-  reorder<-F
+  reorder.marks<-F
   mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
@@ -69,9 +70,9 @@ if (pop=='NBH'){
   miss <- 8
 }
 
-if (mapped.only==TRUE & reorder==F) {
+if (mapped.only==TRUE & reorder.marks==F) {
   outname <- 'NW_dropped_physical'
-} else if (mapped.only==TRUE & reorder==T ){
+} else if (mapped.only==TRUE & reorder.marks==T ){
    outname <- 'NW_Mapped'
 } else {
    outname <- 'NW_ReMapped'

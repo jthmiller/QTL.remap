@@ -12,7 +12,7 @@ marker.warning()
 
 print('dropping markers by error lod')
 
-print('2nd time removing double cross-overs once more')
+print('2nd time removing double cross-overs')
   cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
@@ -20,7 +20,7 @@ dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
 ### remove markers that are exactly the same.
 cross.18 <- drop.markers(cross.18, unlist(dups))
 
-if (reorder==T){
+if (reorder.marks==T){
 print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-3)

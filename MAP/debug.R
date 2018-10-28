@@ -1,6 +1,6 @@
 ## Figure out if all AAxAB are lumped or out of order and plot errorlod
 ## ers in controlfil still giving ers. get rid of it
-####source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
+##source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 
 ####### DEBUG ONLY ####
 slurmcore <- 12
@@ -55,7 +55,7 @@ chrms <- 1:24
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   confirmed=T
-  reorder<-F
+  reorder.marks<-F
   mapped.only=TRUE
   grpLod <- 12 ## Standard LG form LOD
   finLod <- 14 ## Higher final NBH LOD
@@ -66,7 +66,7 @@ if (pop=='NBH'){
 } else if (pop=='ELR'){
   mapped.only <- TRUE
   confirmed <- FALSE
-  reorder<-F
+  reorder.marks<-F
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
@@ -76,7 +76,7 @@ if (pop=='NBH'){
   miss <- 2 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
   confirmed=T
-  reorder<-F
+  reorder.marks<-F
   mapped.only=TRUE
   inds <- c(NA) # determined to be dropped low cov
   missing <- 0.8
@@ -88,9 +88,9 @@ if (pop=='NBH'){
   miss <- 8
 }
 
-if (mapped.only==TRUE & reorder==F) {
+if (mapped.only==TRUE & reorder.marks==F) {
   outname <- 'NW_dropped_physical'
-} else if (mapped.only==TRUE & reorder==T ){
+} else if (mapped.only==TRUE & reorder.marks==T ){
    outname <- 'NW_Mapped'
 } else {
    outname <- 'NW_ReMapped'

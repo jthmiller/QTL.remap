@@ -66,7 +66,7 @@ pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt)))
 pval <- log10(gt$P.value)
 
 #### Filter Conservative
-print('Dropping markers with more than 10 genotypes missing')
+print('Dropping markers with genotypes missing')
 cross.18 <- drop.missing(cross.18,miss)
 gt.missing <- geno.table(cross.18)
 marker.warning()
@@ -135,7 +135,7 @@ marker.warning()
 
 print('initial order filtered markers with 0.01 errorprob. Takes awhile...')
 
-if (reorder==T){
+if (reorder.marks==T){
   cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
     error.prob=0.05, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
   print('Estimating the initial map with high errorprob')
