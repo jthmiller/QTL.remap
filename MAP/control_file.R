@@ -35,6 +35,7 @@ names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
+  confirmed=T
   reorder<-F
   mapped.only=TRUE
   grpLod <- 12 ## Standard LG form LOD
@@ -44,9 +45,9 @@ if (pop=='NBH'){
   cutoff <- 1.0e-8
   miss <- 10
 } else if (pop=='ELR'){
-  confirmed=FALSE
   mapped.only=TRUE
   confirmed <- FALSE
+  reorder<-F
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
