@@ -79,8 +79,8 @@ write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
 
 system(paste('cat ',popdir,'/chr',X,'_',outname,'_3.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
 
-png(file.path(popdir,paste(X,'_RF.png',sep='')))
-plotRF(cross.18)
+png(file.path(popdir,paste(X,'_RF_FINAL.png',sep='')))
+plotRF(cross.18,chr=chrnames(cross.18)[1],what='both',mark.diagonal=T,col.scheme="redblue")
 dev.off()
 
 print('saving... done with mapping ind chromosomes')

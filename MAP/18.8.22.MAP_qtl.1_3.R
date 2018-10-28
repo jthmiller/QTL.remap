@@ -156,7 +156,6 @@ print('removing double cross-over genotypes')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
-
 print(summary(pull.map(cross.18))[as.character(X),])
 
 gt.fin <- geno.table(cross.18)
