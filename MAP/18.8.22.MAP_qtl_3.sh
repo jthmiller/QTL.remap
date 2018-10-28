@@ -2,8 +2,8 @@
 #SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final/out_%x_%A_%a.txt
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final/err_%x_%A_%a.txt
 #SBATCH -t 12:00:00
-#SBATCH --cpus-per-task=6
-#SBATCH --mem-per-cpu=2000
+#SBATCH --cpus-per-task=12
+#SBATCH --mem-per-cpu=1500
 #SBATCH -p med
 #SBATCH --array=1-24
 
