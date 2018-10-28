@@ -32,6 +32,12 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
     cross.18 <- switch.order(cross.18, X, ripVanWink[1,])
 }
 
+
+print('plotting LOD matrix')
+png(file.path(popdir,paste(X,'_RF_FINAL.png',sep='')))
+plotRF(cross.18,chr=chrnames(cross.18)[1],what='both',mark.diagonal=T,col.scheme="redblue")
+dev.off()
+
 print('Re-estimating the final map with many iterations...')
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=10000)
 cross.18 <- replace.map(cross.18, POS.map.18)
@@ -78,10 +84,6 @@ write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
 system(paste('cat ',popdir,'/chr',X,'_',outname,'_3.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
-
-png(file.path(popdir,paste(X,'_RF_FINAL.png',sep='')))
-plotRF(cross.18,chr=chrnames(cross.18)[1],what='both',mark.diagonal=T,col.scheme="redblue")
-dev.off()
 
 print('saving... done with mapping ind chromosomes')
 

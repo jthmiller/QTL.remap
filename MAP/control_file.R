@@ -43,7 +43,7 @@ if (pop=='NBH'){
   grpRf <- 0.20
   finRf <- 0.1
   cutoff <- 1.0e-8
-  miss <- 10
+  miss <- 8
 } else if (pop=='ELR'){
   mapped.only=TRUE
   confirmed <- FALSE
@@ -66,7 +66,7 @@ if (pop=='NBH'){
   grpRf <- 0.20
   finRf <- 0.10
   cutoff <- 1.0e-8
-  miss <- 10
+  miss <- 8
 }
 
 if (mapped.only==TRUE & reorder==F) {
