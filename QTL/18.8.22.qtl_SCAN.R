@@ -44,18 +44,6 @@ cross.18$pheno$pheno_miss05[indy] <- NA
 ers <- 0.002
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
 cross.18 <- sim.geno(cross.18,error.prob=ers)
-
-### Remove Duplicate markers,re-stimate map, scan
-### Use QTLs to look back at original map for markers that fall under peak (QTL map order may differ from Meiotic map)
-
-dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
-### remove markers that are exactly the same.
-cross.18 <- drop.markers(cross.18, unlist(dups))
-
-POS.map.18 <- est.map(cross.18, error.prob=ers, map.function="kosambi", maxit=5000, n.cluster=24)
-cross.18 <- replace.map(cross.18, POS.map.18)
-cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers, map.function='kosambi')
-cross.18 <- sim.geno(cross.18, error.prob=ers, n.draws=50,step=1,off.end=1)
 write.cross(cross.18,filestem=paste(qtldir,'NO_DUP_MARKERS.QTLmap',sep=''),format="csv")
 
 #### Nonparametric scan
