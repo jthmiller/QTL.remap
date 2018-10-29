@@ -47,15 +47,15 @@ if (pop=='NBH'){
   miss <- 5
 } else if (pop=='ELR'){
   mapped.only <- TRUE
-  confirmed <- FALSE
+  confirmed <- TRUE
   reorder.marks<-F
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.25
   finRf <- 0.15
-  cutoff <- 1.0e-4
-  miss <- 2 ## Higher, need more power to detect seg distortion
+  cutoff <- 1.0e-5
+  miss <- 4 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
   confirmed=T
   reorder.marks<-F

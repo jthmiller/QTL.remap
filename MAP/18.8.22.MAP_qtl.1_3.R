@@ -48,6 +48,13 @@ if(confirmed==F){
   print('Not using GP genos for filtering')
   dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
   cross.18 <- drop.markers(cross.18, unlist(dups))
+} else if (confirmed==T & pop=='ELR'){
+  cross.bli <- subset(cross.pars, ind='ELR_ER1124F')
+  gt.bli <- geno.table(cross.bli)
+  gt.bli <- rownames(gt.bli)[which(gt.bli$AA==1 | gt.bli$BB==1)]
+  marks.drop <- markernames(cross.18)[!markernames(cross.18) %in% gt.bli]
+  cross.18 <- drop.markers(cross.18,marks.drop)
+  par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 } else {
   gt.pars <- geno.table(cross.pars)
   gt.pars.set2 <- gt.pars[which(gt.pars$missing==1),]
@@ -59,10 +66,6 @@ if(confirmed==F){
   cross.18 <- drop.markers(cross.18,marks.drop)
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 }
-
-print('Removing double cross-overs')
-  cross.18 <- removeDoubleXO(cross.18, verbose=T)
-print('Done removing dxo..')
 
 print('Removing duplicates')
 dups <- findDupMarkers(cross.18, exact.only=T, adjacent.only=T)
@@ -131,15 +134,16 @@ names(cross.18$geno) <- X
 
 marker.warning()
 
-print('initial order filtered markers with 0.01 errorprob. Takes awhile...')
 
 if (reorder.marks==T){
+  print('initial order filtered markers with 0.01 errorprob. Takes awhile...')
   cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
     error.prob=0.05, map.function='kosambi',sex.sp=F,maxit=1000,tol=1e-2)
   print('Estimating the initial map with high errorprob')
   POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=100)
   cross.18 <- replace.map(cross.18, POS.map.18)
 } else {
+  print('estimating map with markers at physical positions')
   ord <- order(as.numeric(gsub(paste(X,":",sep=''),'',markernames(cross.18,chr=X))))
   cross.18 <- switch.order(cross.18, chr=X,ord , error.prob=0.01,
     map.function="kosambi",maxit=1000, tol=1e-6, sex.sp=F)
