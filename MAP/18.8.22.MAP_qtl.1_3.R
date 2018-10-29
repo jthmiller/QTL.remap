@@ -49,6 +49,7 @@ if(confirmed==F){
   dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
   cross.18 <- drop.markers(cross.18, unlist(dups))
 } else if (confirmed==T & pop=='ELR'){
+  print('Filtering with one parent')
   cross.bli <- subset(cross.pars, ind='ELR_ER1124F')
   gt.bli <- geno.table(cross.bli)
   gt.bli <- rownames(gt.bli)[which(gt.bli$AA==1 | gt.bli$BB==1)]
@@ -68,7 +69,7 @@ if(confirmed==F){
 }
 
 print('Removing duplicates')
-dups <- findDupMarkers(cross.18, exact.only=T, adjacent.only=T)
+dups <- findDupMarkers(cross.18, exact.only=F, adjacent.only=T)
 cross.18 <- drop.markers(cross.18, unlist(dups))
 
 ### Table before missing filter
@@ -93,7 +94,7 @@ marker.warning()
 #  tokeep,sep = ",")
 
 print('forming initial linkage groups to fix phase...')
-cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
 
 ## iteritively fix phase by inverting phase of the growing LG and re-eval linkage
 chrom.b4 <- nchr(cross.18)
@@ -103,7 +104,7 @@ if (chrom.b4 > 1){
   while (chrom.b4 > chrom.after){
     chrom.b4 <- nchr(cross.18)
     cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=chrnames(cross.18)[1]))
-    cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
+    cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
     chrom.after <- nchr(cross.18)
     }
   print('done fixing phase... switching phase added no new markers to the LG')
@@ -124,7 +125,7 @@ if (chrom.b4 > 1){
 #keep <- names(cross.18$geno)[keep]
 #cross.18 <- subset(cross.18, chr=keep)
 
-cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
 LGtable <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod)
 keep <- which.max(table(LGtable$LG))
 ## form linkage groups on phase-fixed data
@@ -146,7 +147,7 @@ if (reorder.marks==T){
   print('estimating map with markers at physical positions')
   ord <- order(as.numeric(gsub(paste(X,":",sep=''),'',markernames(cross.18,chr=X))))
   cross.18 <- switch.order(cross.18, chr=X,ord , error.prob=0.01,
-    map.function="kosambi",maxit=1000, tol=1e-6, sex.sp=F)
+    map.function="kosambi",maxit=1000, tol=1e-3, sex.sp=F)
 }
 
 ## rename to the correct LG
@@ -155,6 +156,10 @@ names(cross.18$geno) <- X
 print('removing double cross-over genotypes')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
+
+print('Removing duplicates')
+dups <- findDupMarkers(cross.18, exact.only=F, adjacent.only=T)
+cross.18 <- drop.markers(cross.18, unlist(dups))
 
 print(summary(pull.map(cross.18))[as.character(X),])
 

@@ -1,10 +1,26 @@
 #!/bin/R
 ## Each chrom/pop info
-pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
-X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
-slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
-popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
-
+if(exists('debug')){
+  ####### DEBUG ONLY ####
+  slurmcore <- 12
+  setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
+  ### Prompt
+  pop <- function()c('NBH','NEW','ELR','NEW')[menu(c('NBH','NEW','ELR','NEW'), title="Which pop")]
+  pop <- popq <- pop()
+  X <- function()c(1:24)[menu(1:24, title="Which Chromosome")]
+  X <- X()
+  ## Only use previously mapped markers?
+  mapped.only <- function()c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Mapped markers only?")]
+  mapped.only <- mapped.only()
+  ## Only use granparent confirmed markers?
+  confirmed <- function()c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Only use granparent confirmed markers?")]
+  confirmed <- confirmed()
+} else {
+  pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
+  X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
+  slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
+  popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
+}
 ## QTL Scans
 chrms <- c(1:24)
 pops <- c('NBH','NEW','ELR')
@@ -41,8 +57,8 @@ if (pop=='NBH'){
   mapped.only=TRUE
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final NBH LOD
-  grpRf <- 0.3
-  finRf <- 0.4
+  grpRf <- 0.4
+  finRf <- 0.2
   cutoff <- 1.0e-6
   miss <- 5
 } else if (pop=='ELR'){
@@ -52,8 +68,8 @@ if (pop=='NBH'){
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
-  grpRf <- 0.25
-  finRf <- 0.15
+  grpRf <- 0.4
+  finRf <- 0.2
   cutoff <- 1.0e-5
   miss <- 4 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
@@ -65,7 +81,7 @@ if (pop=='NBH'){
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.4
-  finRf <- 0.3
+  finRf <- 0.2
   cutoff <- 1.0e-6
   miss <- 5
 }
