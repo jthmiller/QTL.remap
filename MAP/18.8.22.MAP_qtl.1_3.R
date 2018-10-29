@@ -60,6 +60,14 @@ if(confirmed==F){
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 }
 
+print('Removing double cross-overs')
+  cross.18 <- removeDoubleXO(cross.18, verbose=T)
+print('Done removing dxo..')
+
+print('Removing duplicates')
+dups <- findDupMarkers(cross.18, exact.only=T, adjacent.only=T)
+cross.18 <- drop.markers(cross.18, unlist(dups))
+
 ### Table before missing filter
 gt <- geno.table(cross.18)
 pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt)))
@@ -92,7 +100,7 @@ if (chrom.b4 > 1){
   while (chrom.b4 > chrom.after){
     chrom.b4 <- nchr(cross.18)
     cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=chrnames(cross.18)[1]))
-    cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
+    cross.18 <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod, reorgMarkers=TRUE)
     chrom.after <- nchr(cross.18)
     }
   print('done fixing phase... switching phase added no new markers to the LG')
@@ -104,17 +112,17 @@ if (chrom.b4 > 1){
 #gi <- pull.geno(cross.18)[,tokeep]
 
 ### Continue to keep that are linked to markers that have been previously mapped
-keep <- sapply(1:nchr(cross.18),function(i){
-    a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
-    b <- sum(tokeep %in% markernames(cross.18,chr=i))
-    return(a+b > 2)
-  }
-)
-keep <- names(cross.18$geno)[keep]
-cross.18 <- subset(cross.18, chr=keep)
+#keep <- sapply(1:nchr(cross.18),function(i){
+#    a <- sum(X==gsub('\\:.*','',markernames(cross.18,chr=i)))
+#    b <- sum(tokeep %in% markernames(cross.18,chr=i))
+#    return(a+b > 2)
+#  }
+#)
+#keep <- names(cross.18$geno)[keep]
+#cross.18 <- subset(cross.18, chr=keep)
 
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
-LGtable <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod)
+LGtable <- formLinkageGroups(cross.18, max.rf=grpRf, min.lod=grpLod)
 keep <- which.max(table(LGtable$LG))
 ## form linkage groups on phase-fixed data
 cross.18 <- subset(cross.18, chr=keep)
@@ -134,9 +142,7 @@ if (reorder.marks==T){
 } else {
   ord <- order(as.numeric(gsub(paste(X,":",sep=''),'',markernames(cross.18,chr=X))))
   cross.18 <- switch.order(cross.18, chr=X,ord , error.prob=0.01,
-    map.function="kosambi",maxit=3000, tol=1e-6, sex.sp=F)
-  POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=10000)
-  cross.18 <- replace.map(cross.18, POS.map.18)
+    map.function="kosambi",maxit=1000, tol=1e-6, sex.sp=F)
 }
 
 ## rename to the correct LG
