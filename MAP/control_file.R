@@ -60,7 +60,7 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6
-  miss <- 5
+  miss <- 10
 } else if (pop=='ELR'){
   mapped.only <- TRUE
   confirmed <- TRUE
@@ -70,8 +70,8 @@ if (pop=='NBH'){
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.4
   finRf <- 0.2
-  cutoff <- 1.0e-5
-  miss <- 4 ## Higher, need more power to detect seg distortion
+  cutoff <- 1.0e-4
+  miss <- 10 ## Higher, need more power to detect seg distortion
 } else if ( pop=='NEW'){
   confirmed=T
   reorder.marks<-F
@@ -83,7 +83,7 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6
-  miss <- 5
+  miss <- 10
 }
 
 if (mapped.only==TRUE & reorder.marks==F) {

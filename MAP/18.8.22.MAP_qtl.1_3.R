@@ -161,6 +161,14 @@ print('Removing duplicates')
 dups <- findDupMarkers(cross.18, exact.only=F, adjacent.only=T)
 cross.18 <- drop.markers(cross.18, unlist(dups))
 
+print('Dropping markers with too many genotypes missing after removing DXO')
+marker.warning()
+cross.18 <- drop.missing(cross.18,miss)
+gt.missing <- geno.table(cross.18)
+marker.warning()
+print('Dropping markers')
+marker.warning()
+
 print(summary(pull.map(cross.18))[as.character(X),])
 
 gt.fin <- geno.table(cross.18)
