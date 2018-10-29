@@ -27,8 +27,8 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 } else {
   print('Ripple at physical positions')
     ripVanWink <- ripple(cross.18, X, window=7, method="likelihood",
-       error.prob=ers, map.function="kosambi",maxit=1000, tol=1e-6,
-       sex.sp=F, verbose=TRUE, n.cluster=12)
+       error.prob=ers, map.function="kosambi",maxit=100, tol=1e-6,
+       sex.sp=F, verbose=TRUE, n.cluster=slurmcore)
     cross.18 <- switch.order(cross.18, X, ripVanWink[1,])
 }
 
