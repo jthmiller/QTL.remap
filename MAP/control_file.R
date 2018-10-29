@@ -15,11 +15,17 @@ if(exists('debug.cross')){
   ## Only use granparent confirmed markers?
   confirmed <- function()c(TRUE,FALSE)[menu(c(TRUE,FALSE), title="Only use granparent confirmed markers?")]
   confirmed <- confirmed()
+  ### Libraries for plots
+  fpacks <- c('ggplot2','reshape','pheatmap')
+  lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
+  mpacks <- c('gplots','qgraph')
+  lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 } else {
   pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
   X <- as.numeric(Sys.getenv('SLURM_ARRAY_TASK_ID')) ## X is equal to chrom number
   slurmcore <- as.numeric(Sys.getenv('SLURM_CPUS_PER_TASK'))
   popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c('NBH','ELR','NEW','BP')]
+  plotting <- F
 }
 ## QTL Scans
 chrms <- c(1:24)
@@ -39,11 +45,11 @@ source(file.path(basedir,'rQTL/scripts/QTL_remap/QTL/model_source_file.R'))
 
 ## Libraries
 flib <- '/share/apps/rmodules'
-fpacks <- c('devtools','httr','ggplot2','reshape','pheatmap','RColorBrewer')
+fpacks <- c('devtools','httr','RColorBrewer')
 lapply(fpacks, require, character.only = TRUE,lib.loc=flib)
 
 mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
-mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools','gplots','qgraph')
+mpacks <- c('qtl','foreach','doParallel','qtl2','qtlTools')
 lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 
 ### Phenotype translation
