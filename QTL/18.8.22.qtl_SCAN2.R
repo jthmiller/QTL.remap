@@ -2,14 +2,6 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 
 load(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/QTLmap.Rsave',sep=''))
 
-## Single scan on downsampled data
-DS.perm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
-DS.scan.imp <- scanone(cross.18, method="imp",model='normal',pheno.col=6)
-
-### Downsampled Multi-QTL models with stepwise
-qtl.05 <- summary(DS.scan.imp, perms=DS.perm.imp, alpha=0.05)
-qtl.scan1 <- makeqtl(cross.18, chr=qtl.05$chr, pos=qtl.05$pos)
-
 ### Permute the null distribution of LODs
 operm <- scantwo(cross.18, pheno.col=6, model="normal",
   method="imp",addcovar=NULL, intcovar=NULL, weights=NULL,
