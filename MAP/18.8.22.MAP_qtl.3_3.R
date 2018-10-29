@@ -32,7 +32,6 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
     cross.18 <- switch.order(cross.18, X, ripVanWink[1,])
 }
 
-
 print('plotting LOD matrix')
 png(file.path(popdir,paste(X,'_RF_FINAL.png',sep='')))
 plotRF(cross.18,chr=chrnames(cross.18)[1],what='both',mark.diagonal=T,col.scheme="redblue")

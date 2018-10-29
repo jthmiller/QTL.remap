@@ -43,7 +43,7 @@ cross.18$pheno$pheno_miss05[indy] <- NA
 ### Error rate and genoprobs
 ers <- 0.002
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
-cross.18 <- sim.geno(cross.18,error.prob=ers)
+cross.18 <- sim.geno(cross.18,error.prob=ers,step=1, n.draws=200)
 write.cross(cross.18,filestem=paste(qtldir,'NO_DUP_MARKERS.QTLmap',sep=''),format="csv")
 
 #### Nonparametric scan
@@ -78,18 +78,21 @@ scan.norm.em.gt <- scanone(cross.18, method="em",model='normal',maxit=5000, phen
 ## Find LOD thresholds to get a null dist. of
 ### remove markers that are exactly the same to speed up (same results)
 
-perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=24)
-perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=24)
+perms.np.em <- scanone(cross.18, model="np", pheno.col=2, n.perm=2000, method='em',perm.strata=cross.18$pheno$stata, n.cluster=slurmcore)
+perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=2, n.cluster=slurmcore)
 
-perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
-perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=24)
-perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=24)
+perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=slurmcore)
+perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=slurmcore)
+perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=slurmcore)
 
-perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=24)
-perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6,n.cluster=24)
+perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
+perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
+perms.norm.hk <- scanone(cross.18, method="hk",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
+perms.norm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
+perms.norm.imp.2 <- scanone(cross.18, method="imp",model='normal',chr=-2,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6,n.cluster=slurmcore)
+
+save.image(file.path(popdir,'QTLmap.Rsave'))
+##load(file.path(popdir,'QTLmap.Rsave'))
 
 ### Multi-QTL models
 th <- summary(perms.norm.imp)[1,]
@@ -111,26 +114,24 @@ out.cim.inf <- cim(cross.18, n.marcovar=3, window=Inf,pheno.col=6,method="imp", 
 
 save.image(file.path(popdir,'QTLmap.Rsave'))
 
-gt <- geno.table(cross.18)
-barks <- rownames(gt[which(gt$missing > 4),])
-cross.18 <- drop.markers(cross.18,markers=barks)
-full <- stepwiseqtl(cross.18, qtl=qtl.uns, additive.only=F, method="imp", pheno.col=6, scan.pairs=T,keeptrace=FALSE)
-
-hyper <- sim.geno(cross.18, step=1, n.draws=256, err=0.001)
-
-
-save.image(file.path(popdir,'QTLmap.Rsave'))
-
 cross.18 <- subset(cross.18,ind=cross.18$pheno$stata=='ind')
 gt <- geno.table(cross.18)
 barks <- rownames(gt[which(gt$missing > 2),])
 cross.18 <- drop.markers(cross.18,markers=barks)
-Impute <- mqmaugment(cross.18, minprob=0.001, strategy="impute",verbose=TRUE)
+print('Re-estimating the final map with many iterations...')
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=1000)
+cross.18 <- replace.map(cross.18, POS.map.18)
+print('Done mapping..')
+cross.18 <- sim.geno(cross.18,error.prob=ers,step=1, n.draws=25)
+full.2 <- stepwiseqtl(cross.18, qtl=qtl.uns, additive.only=F, method="imp", pheno.col=6, scan.pairs=T,keeptrace=FALSE)
+
+Impute <- mqmaugment(cross.18, minprob=0.01, strategy="impute",verbose=TRUE)
+print('mqmscan additive')
 mqm <- mqmscan(Impute,pheno.col = 6,model="additive",forceML=F,outputmarkers=F)
-autocofactors <- mqmautocofactors(Impute, 20)
+autocofactors <- mqmautocofactors(Impute, 15)
 mqm_auto <- mqmscan(Impute, autocofactors)
 mqm.d <- mqmscan(Impute,pheno.col = 6,model="dominance",forceML=F,outputmarkers=F)
-results <- mqmpermutation(Impute, scanfunction=mqmscan,pheno.col = 6, cofactors=autocofactors,n.cluster=25, n.perm=25, batchsize=25)
+results <- mqmpermutation(Impute, scanfunction=mqmscan,pheno.col = 6, cofactors=autocofactors,n.cluster=slurmcore, n.perm=24, batchsize=24)
 resultsrqtl <- mqmprocesspermutation(results)
 
 save.image(file.path(popdir,'QTLmap.Rsave'))

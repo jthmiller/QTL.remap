@@ -8,6 +8,22 @@ ELR <- new.env()
 NEW <- new.env()
 load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NEW/REMAPS/QTLmap.Rsave', envir=NEW)
 
+cbind(
+  NBH=summaryMap(NBH$cross.18)$length,
+  NEW=summaryMap(NBH$cross.18)$length,
+  ELR=summaryMap(NBH$cross.18)$length,
+
+)
+
+sapply(1:24,function(X){
+    cmdist <-
+}
+)
+
+sim.geno(cross, n.draws=16, step=0, off.end=0, error.prob=0.0001,
+map.function=c("haldane","kosambi","c-f","morgan"),
+stepwidth=c("fixed", "variable", "max"))
+
 
 
 dir <- '/home/jmiller1/QTL_Map_Raw/popgen/rQTL'

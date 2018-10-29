@@ -78,16 +78,6 @@ gt.pval <- geno.table(cross.18)
 
 marker.warning()
 
-print('Finding markers that are near known QTLs and dumping to X.keepmarkers.csv')
-qtl.index <-  which(test.QTLs$chrm.n == X)
-tokeep <- unlist(sapply(qtl.index,function(Z){
-    markerList <- list()
-    markerList[[Z]] <- keepQTL(Z,i=cross.18)
-    return(markerList)
-    }
-  )
-)
-
 write(file=paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''),
   tokeep,sep = ",")
 

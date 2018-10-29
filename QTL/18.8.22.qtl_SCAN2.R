@@ -2,13 +2,6 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 
 load(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/QTLmap.Rsave',sep=''))
 
-cross.18 <- dropSimilarMarkers(cross.18, rf.threshold = 0.02)
-cross.18 <- repRipple(cross.18, error.prob=ers, map.function="kosambi",window = 6)
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",maxit=1000)
-cross.18 <- replace.map(cross.18, POS.map.18)
-cross.18 <- jittermap(cross.18, amount=1e-6)
-cross.18 <- sim.geno(cross.18,n.draws=64, step=1,error.prob=ers)
-
 ## Single scan on downsampled data
 DS.perm.imp <- scanone(cross.18, method="imp",model='normal',n.perm=2000,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
 DS.scan.imp <- scanone(cross.18, method="imp",model='normal',pheno.col=6)
