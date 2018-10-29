@@ -3,7 +3,7 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 
 cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 
-cross.18 <- clean(cross.18)
+cross.18 <- qtl::clean(cross.18)
 
 print('Ripple at physical positions')
 cross.18 <- repRipple.jm(cross, chr = 1:24, window = 7,method = "countxo",

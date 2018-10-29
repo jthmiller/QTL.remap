@@ -8,7 +8,7 @@ cross.18.grid <- reduce2grid(NBH$cross.18)
 operm <- scantwo(cross.18.grid, pheno.col=6, model="normal",
   method="imp",addcovar=NULL, intcovar=NULL, weights=NULL,
   use="all.obs",incl.markers=FALSE, clean.output=FALSE,
-  clean.nmar=1, clean.distance=0,maxit=1000, tol=1e-4,
+  clean.nmar=1, clean.distance=0,maxit=1, tol=1e-4,
   verbose=TRUE, n.perm=slurmcore , perm.Xsp=FALSE, perm.strata=cross.18.grid$pheno$stata,
   assumeCondIndep=FALSE, batchsize=250, n.cluster=slurmcore)
 
