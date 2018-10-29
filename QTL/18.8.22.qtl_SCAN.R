@@ -3,6 +3,15 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 
 cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 
+cross.18 <- clean(cross.18)
+
+print('Ripple at physical positions')
+cross.18 <- repRipple.jm(cross, chr = chrnames(cross)[1], window = 7,method = "countxo",
+  verbose = T,map.function = "kosambi", sex.sp=F, clean1st = T, ripVerb = TRUE)
+
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=10000)
+cross.18 <- replace.map(cross.18, POS.map.18)
+
 print('Writing the merged chromosome markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,outname,'.BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
 
@@ -43,7 +52,7 @@ cross.18$pheno$pheno_miss05[indy] <- NA
 ### Error rate and genoprobs
 ers <- 0.002
 cross.18 <- calc.genoprob(cross.18, step=1,error.prob=ers,map.function='kosambi')
-cross.18 <- sim.geno(cross.18,error.prob=ers,step=1, n.draws=200)
+cross.18 <- sim.geno(cross.18,error.prob=ers,step=0.5, n.draws=250)
 write.cross(cross.18,filestem=paste(qtldir,'NO_DUP_MARKERS.QTLmap',sep=''),format="csv")
 
 #### Nonparametric scan
@@ -83,7 +92,7 @@ perms.2p.em <- scanone(cross.18, model="2part",n.perm=2000,perm.strata=cross.18$
 
 perms.bin.em <- scanone(cross.18, method="em",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=slurmcore)
 perms.bin.mr <- scanone(cross.18, method="mr",model='binary', n.perm=2000, perm.strata=cross.18$pheno$stata, n.cluster=slurmcore)
-perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=slurmcore)
+#perms.bin.em <- scanone(cross.18, method="hk",model='binary',maxit=2000,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=1, n.cluster=slurmcore)
 
 perms.norm.em <- scanone(cross.18, method="em",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
 perms.norm.ehk <- scanone(cross.18, method="ehk",model='normal',maxit=500,n.perm=500,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
@@ -99,13 +108,6 @@ th <- summary(perms.norm.imp)[1,]
 norm.qtl <- summary(scan.norm.imp, perms=perms.norm.imp, alpha=0.05)
 qtl.uns <- makeqtl(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
 full <- stepwiseqtl(cross.18, additive.only=T, method="imp", pheno.col=6, scan.pairs=T)
-
-### Re-scan with covariates on chr2
-mar <- find.marker(cross.18, chr=norm.qtl$chr, pos=norm.qtl$pos)
-g <- pull.geno(cross.18)[,mar]
-#### Scanone
-scan.norm.imp.2ad <- scanone(cross.18, method="imp",model='normal',maxit=5000, pheno.col=6,addcovar=g)
-scan.norm.imp.2in <- scanone(cross.18, method="imp",model='normal',maxit=5000, pheno.col=6,addcovar=g,intcovar=g)
 
 ### CIM
 out.cim.40 <- cim(cross.18, n.marcovar=3, window=40,pheno.col=6,method="imp", error.prob=0.002)

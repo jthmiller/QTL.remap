@@ -19,9 +19,11 @@ cm.len <- cm.len[1:24,]
 
 NBH$cross.18$ID <- paste('NBH',NBH$cross.18$ID,sep='_')
 NEW$cross.18$ID <- paste('NEW',NEW$cross.18$ID,sep='_')
-comp <- c(NBH$cross.18,NEW$cross.18)
+NBH.x <- qtl::clean(NBH$cross.18)
+NEW.x <- qtl::clean(NEW$cross.18)
+cross <- c(NBH$cross.18,NEW$cross.18)
 
-cross <- sim.geno(comp, n.draws=16, step=10, off.end=0,
+cross <- sim.geno(cross, n.draws=250, step=1, off.end=0,
   error.prob=0.01,map.function="kosambi",stepwidth="fixed")
 
 cross.nbh <- subset(cross,ind=comp$pheno$cross1==1)
@@ -52,14 +54,28 @@ scan.all <- c(scan.norm.imp.NBH,scan.norm.imp.NEW)
 png('~/NBH_NEW.png')
 plot(scan.norm.imp.NBH, scan.norm.imp.NEW, chr=chrs.model, lodcolumn=1,
   incl.markers=FALSE,lty=1, col=c("violetred","black"), lwd=2,
-  add=FALSE, gap=25, mtick = "line",
+  add=FALSE, gap=25, mtick = "line",bandcol="gray70",
   show.marker.names=FALSE, alternate.chrid=T,
-  bandcol=NULL, type="l", cex=1, pch=1, bg="grey",
+  type="l", cex=1, pch=1, bg="grey",
+  bgrect=NULL)
+dev.off()
+
+png('~/NBH_NEW_ALL.png',width = 1000)
+plot(scan.norm.imp.NBH, scan.norm.imp.NEW, chr=1:24, lodcolumn=1,
+  incl.markers=FALSE,lty=1, col=c("violetred","black"), lwd=2,
+  add=FALSE, gap=25, mtick = "line",bandcol="gray70",
+  show.marker.names=FALSE, alternate.chrid=T,
+  type="l", cex=1, pch=1, bg="grey",
   bgrect=NULL)
 dev.off()
 
 
+png('~/NBH_RF_2.png')
+plotRF(cross.nbh, chr = 2)
+dev.off()
 
+
+## Positionmaps instead
 for (X in 1:24){
   ord <- order(as.numeric(gsub(paste(X,":",sep=''),'',markernames(NBH$cross.18,chr=X))))
   NBH$cross.18 <- switch.order(NBH$cross.18, chr=X, ord, error.prob=0.01,
@@ -73,13 +89,15 @@ for (X in 1:24){
   NEW$cross.18 <- switch.order(NEW$cross.18, chr=X, ord, error.prob=0.01,
     map.function="kosambi",maxit=100, tol=1e-6, sex.sp=F)
   POS.map.18 <- est.map(NEW$cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=10)
-  NEW$cross.18 <<- replace.map(NEW$cross.18, POS.map.18)
+  NEW$cross.18 <- replace.map(NEW$cross.18, POS.map.18)
 }
 
 
+nbh <- subset(cross.nbh,chr=2)
+#Z <- repRipple(nbh, chr=2, error.prob=0.01, map.function="kosambi",window = 3)
+Z <- repRipple.jm(nbh, chr=chrnames(nbh)[1], map.function="kosambi",window = 3,re.est.map=FALSE)
 
-
-
+POS.map.18 <- est.map(Z,error.prob=ers,map.function="kosambi", chr=X,maxit=1)
 
 
 
