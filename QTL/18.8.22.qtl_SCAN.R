@@ -6,7 +6,7 @@ cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 cross.18 <- qtl::clean(cross.18)
 
 print('Ripple at physical positions')
-cross.18 <- repRipple.jm(cross, chr = 1:24, window = 7,method = "countxo",
+cross.18 <- repRipple.jm(cross.18, chr = 1:24, window = 7,method = "countxo",
   verbose = T,map.function = "kosambi", sex.sp=F, clean1st = F, ripVerb = TRUE)
 
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",maxit=1000)
