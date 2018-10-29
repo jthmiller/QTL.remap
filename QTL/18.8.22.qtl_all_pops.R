@@ -21,13 +21,13 @@ NBH$cross.18$ID <- paste('NBH',NBH$cross.18$ID,sep='_')
 NEW$cross.18$ID <- paste('NEW',NEW$cross.18$ID,sep='_')
 NBH.x <- qtl::clean(NBH$cross.18)
 NEW.x <- qtl::clean(NEW$cross.18)
-cross <- c(NBH$cross.18,NEW$cross.18)
+cross <- c(NBH.x,NEW.x)
 
-cross <- sim.geno(cross, n.draws=250, step=1, off.end=0,
-  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+cross <- sim.geno(cross, n.draws=250, step=1, off.end=10,
+  error.prob=0.001,map.function="kosambi",stepwidth="fixed")
 
-cross.nbh <- subset(cross,ind=comp$pheno$cross1==1)
-cross.new <- subset(cross,ind=comp$pheno$cross2==1)
+cross.nbh <- subset(cross,ind=cross$pheno$cross1==1)
+cross.new <- subset(cross,ind=cross$pheno$cross2==1)
 
 scan.norm.imp.NBH <- scanone(cross.nbh, method="imp",model='normal',pheno.col=6)
 scan.norm.imp.NEW <- scanone(cross.new, method="imp",model='normal',pheno.col=6)
@@ -51,9 +51,9 @@ chrs.model <- unique(qtl.uns.NEW$chr, qtl.uns.NEW$chr)
 
 scan.all <- c(scan.norm.imp.NBH,scan.norm.imp.NEW)
 
-png('~/NBH_NEW.png')
-plot(scan.norm.imp.NBH, scan.norm.imp.NEW, chr=chrs.model, lodcolumn=1,
-  incl.markers=FALSE,lty=1, col=c("violetred","black"), lwd=2,
+png('~/NEW_NBH.png',width = 2000)
+plot(scan.norm.imp.NBH,scan.norm.imp.NEW, chr=1:24, lodcolumn=1,
+  incl.markers=FALSE,lty=1, col=c("black","blue"), lwd=3,
   add=FALSE, gap=25, mtick = "line",bandcol="gray70",
   show.marker.names=FALSE, alternate.chrid=T,
   type="l", cex=1, pch=1, bg="grey",

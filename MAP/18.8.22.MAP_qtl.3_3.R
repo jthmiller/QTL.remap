@@ -41,7 +41,7 @@ plotRF(cross.18,chr=chrnames(cross.18)[1],what='both',mark.diagonal=T,col.scheme
 dev.off()
 
 print('Re-estimating the final map with many iterations...')
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=10000)
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=1000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 print('Done mapping..')
 

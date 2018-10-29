@@ -43,7 +43,7 @@ if (pop=='NBH'){
   finLod <- 12 ## Higher final NBH LOD
   grpRf <- 0.25
   finRf <- 0.15
-  cutoff <- 1.0e-8
+  cutoff <- 1.0e-6
   miss <- 5
 } else if (pop=='ELR'){
   mapped.only <- TRUE
@@ -66,7 +66,7 @@ if (pop=='NBH'){
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.25
   finRf <- 0.15
-  cutoff <- 1.0e-8
+  cutoff <- 1.0e-6
   miss <- 5
 }
 

@@ -3,8 +3,8 @@
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/scan/err_%x_%A_%a.txt
 #SBATCH --time=48:00:00
 #SBATCH --job-name=QTL.Remap
-#SBATCH --cpus-per-task=24
-#SBATCH --mem-per-cpu=2000
+#SBATCH --cpus-per-task=12
+#SBATCH --mem-per-cpu=4000
 #SBATCH -p low
 #SBATCH --mail-type=ALL
 
