@@ -24,13 +24,16 @@ if (reorder.marks==T){
 print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-3)
-} else {
-  print('Ripple at physical positions')
-    ripVanWink <- ripple(cross.18, X, window=6, method="likelihood",
-       error.prob=ers, map.function="kosambi",maxit=100, tol=1e-6,
-       sex.sp=F, verbose=TRUE, n.cluster=slurmcore)
-    cross.18 <- switch.order(cross.18, X, ripVanWink[1,])
 }
+#else {
+#  print('Ripple at physical positions')
+#  cross.18 <- repRipple.jm(cross, chr = chrnames(cross)[1], window = 7,method = "countxo",
+#  verbose = T,map.function = "kosambi", sex.sp=F, clean1st = T, ripVerb = TRUE)
+    #ripVanWink <- ripple(cross.18, X, window=6, method="likelihood",
+    #   error.prob=ers, map.function="kosambi",maxit=100, tol=1e-6,
+    #   sex.sp=F, verbose=TRUE, n.cluster=slurmcore)
+    #cross.18 <- switch.order(cross.18, X, ripVanWink[1,])
+#}
 
 print('plotting LOD matrix')
 png(file.path(popdir,paste(X,'_RF_FINAL.png',sep='')))
