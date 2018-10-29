@@ -6,10 +6,10 @@ cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 cross.18 <- clean(cross.18)
 
 print('Ripple at physical positions')
-cross.18 <- repRipple.jm(cross, chr = chrnames(cross)[1], window = 7,method = "countxo",
-  verbose = T,map.function = "kosambi", sex.sp=F, clean1st = T, ripVerb = TRUE)
+cross.18 <- repRipple.jm(cross, chr = 1:24, window = 7,method = "countxo",
+  verbose = T,map.function = "kosambi", sex.sp=F, clean1st = F, ripVerb = TRUE)
 
-POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi", chr=X,maxit=10000)
+POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",maxit=1000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Writing the merged chromosome markers to rQTL format')
