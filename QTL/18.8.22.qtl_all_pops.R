@@ -84,54 +84,11 @@ for (X in 1:24){
   NBH$cross.18 <- replace.map(NBH$cross.18, POS.map.18)
 }
 
-for (X in 1:24){
-  ord <- order(as.numeric(gsub(paste(X,":",sep=''),'',markernames(NEW$cross.18,chr=X))))
-  NEW$cross.18 <- switch.order(NEW$cross.18, chr=X, ord, error.prob=0.01,
-    map.function="kosambi",maxit=100, tol=1e-6, sex.sp=F)
-  POS.map.18 <- est.map(NEW$cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=10)
-  NEW$cross.18 <- replace.map(NEW$cross.18, POS.map.18)
-}
-
-
-nbh <- subset(cross.nbh,chr=2)
-#Z <- repRipple(nbh, chr=2, error.prob=0.01, map.function="kosambi",window = 3)
-Z <- repRipple.jm(nbh, chr=chrnames(nbh)[1], map.function="kosambi",window = 3,re.est.map=FALSE)
-
-POS.map.18 <- est.map(Z,error.prob=ers,map.function="kosambi", chr=X,maxit=1)
-
-
+f
 
 save.image(file.path('~/NEW.NBH.QTLmap.Rsave'))
 #perms.norm.imp <- scanone(comp, method="imp",model='normal',n.perm=5,perm.strata=cross.18$pheno$stata,pheno.col=6, n.cluster=slurmcore)
 
-
-
-
-
-
-scan.cat <- c(NBH$scan.norm.imp,NEW$scan.norm.imp)
-
-
-sapply(1:24,function(X){
-    cmdist <-
-}
-)
-
-
-
-
-dir <- '/home/jmiller1/QTL_Map_Raw/popgen/rQTL'
-
-cross.18 <- read.cross(format='csv',dir=dir,BC.gen=0, F.gen=2,
-   file='remap_outBACKUP.QTL_chr.QTLmap.csv',
-   geno=c('AA','AB','BB'),alleles=c("A","B"))
-
-
-
-
-
-NBH$cross.18$pheno$ID <- paste('NBH',NBH$cross.18$pheno$ID,sep='')
-NEW$cross.18$pheno$ID <- paste('NEW',NEW$cross.18$pheno$ID,sep='')
 
 trym <- combineMap(NBH$cross.18,NEW$cross.18, keep.all = FALSE, merge.by = "marker" )
 tryg <- combineMap(NBH$cross.18,NEW$cross.18, keep.all = TRUE, merge.by = "genotypes")

@@ -7,7 +7,7 @@ operm <- scantwo(cross.18, pheno.col=6, model="normal",
   method="imp",addcovar=NULL, intcovar=NULL, weights=NULL,
   use="all.obs",incl.markers=FALSE, clean.output=FALSE,
   clean.nmar=1, clean.distance=0,maxit=2000, tol=1e-4,
-  verbose=TRUE, n.perm=12 , perm.Xsp=FALSE, perm.strata=cross.18$pheno$stata,
+  verbose=TRUE, n.perm=slurmcore , perm.Xsp=FALSE, perm.strata=cross.18$pheno$stata,
   assumeCondIndep=FALSE, batchsize=250, n.cluster=slurmcore)
 
 pen <- calc.penalties(operm)
@@ -22,7 +22,7 @@ DS.stepwise.model <- stepwiseqtl(cross.18, pheno.col=6, qtl=qtl.scan1, max.qtl=1
 DS.scan2.imp <- scantwo(cross.18, pheno.col=6, model="normal",
   method="imp",addcovar=NULL, intcovar=NULL, weights=NULL,
   use="all.obs",incl.markers=FALSE, clean.output=FALSE,
-  clean.nmar=1, clean.distance=0,maxit=4000, tol=1e-4,
+  clean.nmar=1, clean.distance=0,maxit=1000, tol=1e-4,
   verbose=TRUE, perm.Xsp=FALSE, perm.strata=cross.18$pheno$stata,
   assumeCondIndep=FALSE, batchsize=250, n.cluster=slurmcore)
 
