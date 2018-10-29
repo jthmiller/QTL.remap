@@ -86,8 +86,8 @@ gt.pval <- geno.table(cross.18)
 
 marker.warning()
 
-write(file=paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''),
-  tokeep,sep = ",")
+#write(file=paste(popdir,'/chr',X,'_',outname,'.keepmarkers.csv',sep=''),
+#  tokeep,sep = ",")
 
 print('forming initial linkage groups to fix phase...')
 cross.18 <- formLinkageGroups(cross.18, max.rf=finRf, min.lod=finLod, reorgMarkers=TRUE)
