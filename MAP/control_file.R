@@ -1,6 +1,6 @@
 #!/bin/R
 ## Each chrom/pop info
-if(exists('debug')){
+if(exists('debug.cross')){
   ####### DEBUG ONLY ####
   slurmcore <- 12
   setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/')
