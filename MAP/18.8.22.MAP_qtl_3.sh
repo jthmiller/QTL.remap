@@ -2,10 +2,10 @@
 #SBATCH -o /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final/out_%x_%A_%a.txt
 #SBATCH -e /home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/array_error_out/final/err_%x_%A_%a.txt
 #SBATCH -t 12:00:00
-#SBATCH --cpus-per-task=24
+#SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=2200
-#SBATCH -p low
-#SBATCH --array=1-24
+#SBATCH -p high
+#SBATCH --array=1-24%4
 
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
