@@ -25,14 +25,14 @@ print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-3)
 } else {
-ripLod <- ripple(cross.18,chr=X, window=5, method="likelihood",
-  error.prob=0.01, map.function="kosambi",maxit=100,
-  tol=1e-6, sex.sp=FALSE, verbose=TRUE,n.cluster=slurmcore)
-new.ord <- ripLod[which.max(ripLod[,"LOD"]),]
-cross.18 <- switch.order(cross.18, X, new.ord)
-png(file.path(popdir,paste(X,'_order.png',sep='')))
-plot(gsub(paste(X,':',sep=''),markernames(cross.18)),main='position' )
-dev.off()
+  ripLod <- ripple(cross.18,chr=X, window=2, method="likelihood",
+    error.prob=0.01, map.function="kosambi",maxit=2000,
+    tol=1e-6, sex.sp=FALSE, verbose=TRUE,n.cluster=slurmcore)
+  new.ord <- ripLod[which.max(ripLod[,"LOD"]),]
+  cross.18 <- switch.order(cross.18, X, new.ord)
+  png(file.path(popdir,paste(X,'_order.png',sep='')))
+    plot(gsub(paste(X,':',sep=''),markernames(cross.18)),main='position' )
+  dev.off()
 }
 
 print('plotting LOD matrix')
