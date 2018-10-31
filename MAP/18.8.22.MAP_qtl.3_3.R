@@ -31,7 +31,7 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   new.ord <- ripLod[which.max(ripLod[,"LOD"]),]
   cross.18 <- switch.order(cross.18, X, new.ord)
   png(file.path(popdir,paste(X,'_order.png',sep='')))
-    plot(gsub(paste(X,':',sep=''),markernames(cross.18)),main='position' )
+    plot(gsub(paste(X,':',sep=''),'',markernames(cross.18)),main='position' )
   dev.off()
 }
 
