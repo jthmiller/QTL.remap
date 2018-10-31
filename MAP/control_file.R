@@ -70,9 +70,9 @@ if (pop=='NBH'){
   cutoff <- 1.0e-6
   miss <- 4
 } else if (pop=='ELR'){
-  mapped.only <- TRUE
-  confirmed <- TRUE
+  confirmed=T
   reorder.marks<-F
+  mapped.only=TRUE
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD

@@ -143,7 +143,6 @@ names(cross.18$geno) <- X
 
 marker.warning()
 
-
 if (reorder.marks==T){
   print('initial order filtered markers with 0.01 errorprob. Takes awhile...')
   cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
