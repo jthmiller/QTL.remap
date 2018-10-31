@@ -56,7 +56,15 @@ cross.pars.ELR <- cross.pars
 all.pars <- c(cross.pars.NBH,cross.pars.NEW,cross.pars.ELR)
 all.pars.gt <- geno.table(all.pars)
 
-sum()
+
+BLI <- subset(all.pars, ind=c('NBH_NBH1M','NEW_NEW911M','BLI_BI1124M'))
+BLI.gt <- geno.table(BLI)
+TOL <- subset(all.pars, ind=c('NBH_NBH1F','NEW_NEW911F','ELR_ER1124F'))
+TOL.gt <- geno.table(TOL)
+
+
+
+
 
 
 par1 <- subset(cross.pars,ind=cross.pars$pheno$ID[1])
