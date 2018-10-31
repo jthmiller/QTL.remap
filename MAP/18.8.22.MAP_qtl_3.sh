@@ -4,9 +4,9 @@
 #SBATCH -t 12:00:00
 #SBATCH --cpus-per-task=24
 #SBATCH --mem-per-cpu=2000
-#SBATCH -p med
+#SBATCH -p high
 ########SBATCH --array=1-24
-#SBATCH --array=12
+#SBATCH --array=2
 
 scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
