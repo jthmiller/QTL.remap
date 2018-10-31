@@ -32,9 +32,11 @@ con <- file(file.path(popdir,'kinship.keep.ind.txt'), open='r')
 keepers <- readLines(con)
 close(con)
 
+print('Dropping kinship outliers')
 cross.18 <- subset(cross.18,ind=cross.18$pheno$ID %in% keepers)
 cross.18 <- subset(cross.18,ind=!is.na(cross.18$pheno$Phen))
 
+print('Dropping all chromosomes except the one to map')
 ## Map each QTL chro independently
 if (mapped.only==T){
   allbut <- c(1:24)[-X]
@@ -49,7 +51,7 @@ if(confirmed==F){
   dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
   cross.18 <- drop.markers(cross.18, unlist(dups))
 } else if (confirmed==T & pop=='ELR'){
-  print('Filtering with one parent')
+  print('Filtering with one G.parent')
   cross.bli <- subset(cross.pars, ind='ELR_ER1124F')
   gt.bli <- geno.table(cross.bli)
   gt.bli <- rownames(gt.bli)[which(gt.bli$AA==1 | gt.bli$BB==1)]
@@ -57,6 +59,7 @@ if(confirmed==F){
   cross.18 <- drop.markers(cross.18,marks.drop)
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 } else {
+  print('Filtering with both G.parents')
   gt.pars <- geno.table(cross.pars)
   gt.pars.set2 <- gt.pars[which(gt.pars$missing==1),]
   gt.pars.set2 <- rownames(gt.pars.set2)[which(gt.pars.set2$AA==1 | gt.pars.set2$BB==1)]
@@ -68,9 +71,13 @@ if(confirmed==F){
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 }
 
+marker.warning()
+
 print('Removing duplicates')
 dups <- findDupMarkers(cross.18, exact.only=F, adjacent.only=T)
 cross.18 <- drop.markers(cross.18, unlist(dups))
+
+marker.warning()
 
 ### Table before missing filter
 gt <- geno.table(cross.18)
@@ -81,6 +88,7 @@ pval <- log10(gt$P.value)
 print(paste('Dropping markers with',miss,'or more genotypes missing'))
 cross.18 <- drop.missing(cross.18,miss)
 gt.missing <- geno.table(cross.18)
+
 marker.warning()
 
 ### invariants
@@ -157,7 +165,7 @@ print('removing double cross-over genotypes')
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
 
-print('Removing duplicates')
+print('Removing duplicates induced by DXO')
 dups <- findDupMarkers(cross.18, exact.only=F, adjacent.only=T)
 cross.18 <- drop.markers(cross.18, unlist(dups))
 
