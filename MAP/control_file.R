@@ -68,7 +68,8 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6
-  miss <- 4
+  miss2 <- 5
+  miss2 <- 10
   if (X%in%(18)){miss <- 8}
 } else if (pop=='ELR'){
   confirmed=T
@@ -80,7 +81,8 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6 ## Higher, need more power to detect seg distortion
-  miss <- 4
+  miss1 <- 4
+  miss2 <- 8
   if (X%in%(18)){miss <- 10}
 } else if ( pop=='NEW'){
   confirmed=T
@@ -93,7 +95,8 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6
-  miss <- 10
+  miss1 <- 5
+  miss2 <- 10
 }
 
 if (mapped.only==TRUE & reorder.marks==F) {

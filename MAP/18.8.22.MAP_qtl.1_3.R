@@ -45,6 +45,40 @@ if (mapped.only==T){
   cross.pars <- subset(cross.pars, chr=subset.qtl)
   marker.warning()
 }
+
+##########scratch #############
+
+
+cross.pars.NBH <- cross.pars
+cross.pars.NEW <- cross.pars
+cross.pars.ELR <- cross.pars
+
+all.pars <- c(cross.pars.NBH,cross.pars.NEW,cross.pars.ELR)
+all.pars.gt <- geno.table(all.pars)
+
+sum()
+
+
+par1 <- subset(cross.pars,ind=cross.pars$pheno$ID[1])
+par2 <- subset(cross.pars,ind=cross.pars$pheno$ID[2])
+par1.gt <- geno.table(par1)
+par2.gt <- geno.table(par2)
+par12.gt <- geno.table(cross.pars)
+ofs <- geno.table(cross.18)
+
+
+
+
+gp1.het.gp2.hom <- rownames(par1.gt )[which(par1.gt$AB==1 & par12.gt$missing<1)]
+
+ofs[gp1.het.gp2.hom,]
+par1.offs <- drop.markers(cross.18,(!rownames(cross.18)%in%gp1.het.gp2.hom))
+cross.18 <- formLinkageGroups(par1.offs, min.lod=finLod, reorgMarkers=TRUE)
+
+drop <- rownames(par12.gt)[which(par12.gt$AA==2 | par12.gt$BB==2 | par12.gt$missing==2)]
+cross.18 <- drop.markers(cross.18,drop)
+##########################
+
 ### grandparent confirmed markers
 if(confirmed==F){
   print('Not using GP genos for filtering')
