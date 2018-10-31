@@ -157,24 +157,34 @@ if (reorder.marks==T){
     map.function="kosambi",maxit=1000, tol=1e-3, sex.sp=F)
 }
 
-## rename to the correct LG
-names(cross.18$geno) <- X
+print(summary(pull.map(cross.18))[as.character(X),])
 
 print('removing double cross-over genotypes')
+## rename to the correct LG
+names(cross.18$geno) <- X
 cross.18 <- removeDoubleXO(cross.18, verbose=T)
 print('Done removing dxo..')
+
+marker.warning()
 
 print('Removing duplicates induced by DXO')
 dups <- findDupMarkers(cross.18, exact.only=F, adjacent.only=T)
 cross.18 <- drop.markers(cross.18, unlist(dups))
+print('Done..')
+
+marker.warning()
 
 print('Dropping markers with too many genotypes missing after removing DXO')
-marker.warning()
 cross.18 <- drop.missing(cross.18,miss)
 gt.missing <- geno.table(cross.18)
+print('Done dropping markers')
+
 marker.warning()
-print('Dropping markers')
-marker.warning()
+
+print('Final map estimation')
+
+POS.map.18 <- est.map(cross.18,error.prob=0.01,map.function="kosambi", chr=X,maxit=1000)
+cross.18 <- replace.map(cross.18, POS.map.18)
 
 print(summary(pull.map(cross.18))[as.character(X),])
 
