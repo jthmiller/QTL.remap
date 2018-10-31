@@ -79,7 +79,7 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6 ## Higher, need more power to detect seg distortion
-  miss <- 10
+  miss <- 4
 } else if ( pop=='NEW'){
   confirmed=T
   reorder.marks<-F
