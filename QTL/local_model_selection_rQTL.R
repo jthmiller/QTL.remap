@@ -1,5 +1,42 @@
-cross.18 <- read.cross(file=file.path('~/Dropbox/QTL_Paper/DATA/tempout.csv'),format='csv',
-  geno=c(1:3),estimate.map=FALSE)
+#cross.18 <- read.cross(file=file.path('~/Dropbox/QTL_Paper/DATA/tempout.csv'),format='csv',
+#  geno=c(1:3),estimate.map=FALSE)
+
+NEW <- read.cross(file=file.path('~/Dropbox/QTL_Paper/DATA/NEW.cross.csv'),format='csv',
+  estimate.map=FALSE,geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+NBH <- read.cross(file=file.path('~/Dropbox/QTL_Paper/DATA/NBH.cross.csv'),format='csv',
+  estimate.map=FALSE,geno=c('AA','AB','BB'),alleles=c("A","B"))
+
+
+NBH.2 <- subset(NBH,chr=2)
+nbh.2.erlod <- calc.errorlod(NBH.2, error.prob=0.01,map.function="kosambi",version="new")
+
+plotErrorlod(nbh.2.erlod)
+top.errorlod(nbh.2.erlod)
+
+i <- 2
+plotRF(NBH,chr=i,what='both',mark.diagonal=T,col.scheme="redblue")
+
+abline(v=find.markerindex(NBH.2,top.errorlod(nbh.2.erlod)[7,3]),col='black')
+
+
+abline(v=448)
+
+abline(v=145,col='black')
+abline(v=90,col='red')
+abline(v=37,col='blue')
+abline(v=95,col='black')
+
+mapthis <- drop.markers(mapthis, markernames(mapthis,chr=i)[c(1:2)])
+
+nbh.err <- switch.order(NBH.2, chr=2, c(1:400,448:458,401:447), error.prob=0.02,
+  map.function="kosambi",maxit=1000, tol=1e-6, sex.sp=F)
+plotRF(nbh.err,chr=i,what='both',mark.diagonal=T,col.scheme="redblue")
+save.image('~/Dropbox/QTL_Paper/Rough Figures/LOD/profiles/MAP/NEW.1_24.Rsave')
+
+
+
+
 
 dups <- findDupMarkers(cross.18, exact.only=FALSE, adjacent.only=FALSE)
 ### remove markers that are exactly the same.

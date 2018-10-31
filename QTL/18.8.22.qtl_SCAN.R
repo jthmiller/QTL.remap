@@ -6,14 +6,14 @@ cross.18 <- reconst(X=chrms,pop=popq,temp.dir=popdir,a=2)
 cross.18 <- qtl::clean(cross.18)
 
 print('Ripple at physical positions')
-cross.18 <- repRipple.jm(cross.18, chr = 1:24, window = 7,method = "countxo",n.cluster=12,
+cross.18 <- repRipple.jm(cross.18, chr = 1:24, window = 7,method = "countxo",
   verbose = T,map.function = "kosambi", sex.sp=F, clean1st = F, ripVerb = TRUE)
 
 POS.map.18 <- est.map(cross.18,error.prob=ers,map.function="kosambi",maxit=1000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 
 print('Writing the merged chromosome markers to rQTL format')
-write.cross(cross.18,filestem=paste(popdir,outname,'.BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
+write.cross(cross.18,filestem=paste(popdir,'/',outname,'.BACKUP.QTL_chr.QTLmap',sep=''),format="csv")
 
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
 phen$Pheno_05 <- phen$pheno_all
