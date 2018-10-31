@@ -68,7 +68,7 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 1.0e-6
-  miss <- 6
+  miss <- 4
 } else if (pop=='ELR'){
   mapped.only <- TRUE
   confirmed <- TRUE
@@ -79,7 +79,7 @@ if (pop=='NBH'){
   grpRf <- 0.4
   finRf <- 0.2
   cutoff <- 6 ## Higher, need more power to detect seg distortion
-  miss <- 6
+  miss <- 10
 } else if ( pop=='NEW'){
   confirmed=T
   reorder.marks<-F
