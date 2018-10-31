@@ -78,7 +78,7 @@ pos <- as.numeric(gsub(paste(X,':',sep=''),'',rownames(gt)))
 pval <- log10(gt$P.value)
 
 #### Filter Conservative
-print('Dropping markers with genotypes missing')
+print(paste('Dropping markers with',miss,'or more genotypes missing'))
 cross.18 <- drop.missing(cross.18,miss)
 gt.missing <- geno.table(cross.18)
 marker.warning()
