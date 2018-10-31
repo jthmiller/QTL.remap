@@ -35,14 +35,9 @@ try <- interpPositions(new.pos, new.map, nbh.map)
 
 NBH.x <- qtl::clean(NBH$cross.18)
 NEW.x <- qtl::clean(NEW$cross.18)
-ELR.x <- qtl::clean(NEW$cross.18)
+ELR.x <- qtl::clean(ELR$cross.18)
 
 cross <- c(NBH.x,NEW.x,ELR.x)
-
-cross2 <- reduce2grid(cross)
-cross.nbh <- subset(cross,ind=cross$pheno$cross1==1)
-cross.new <- subset(cross,ind=cross$pheno$cross2==1)
-cross.elr <- subset(cross,ind=cross$pheno$cross3==1)
 
 cross <- sim.geno(cross, n.draws=20, step=1, off.end=10,
   error.prob=0.001,map.function="kosambi",stepwidth="fixed")
@@ -55,7 +50,80 @@ scan.norm.imp.NBH <- scanone(cross.nbh, method="imp",model='normal',pheno.col=6)
 scan.norm.imp.NEW <- scanone(cross.new, method="imp",model='normal',pheno.col=6)
 scan.norm.imp.ELR <- scanone(cross.elr, method="imp",model='normal',pheno.col=6)
 ### Saved to home
-save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
+#save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
+#load(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
+
+## GGplot library(ggplot2)
+## GGridges library("ggridges")
+library('devtools')
+
+#### Sim and reduce to grid ####
+NBH.x <- qtl::clean(NBH$cross.18)
+NEW.x <- qtl::clean(NEW$cross.18)
+ELR.x <- qtl::clean(ELR$cross.18)
+
+
+nbh.grid <- sim.geno(NBH.x, n.draws=20, step=5, off.end=0,
+  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+new.grid <- sim.geno(NEW.x, n.draws=20, step=5, off.end=0,
+  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+elr.grid <- sim.geno(ELR.x, n.draws=20, step=5, off.end=0,
+  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+
+nbh.grid <- reduce2grid(nbh.grid)
+new.grid <- reduce2grid(new.grid)
+elr.grid <- reduce2grid(elr.grid)
+
+scan.NBH <- scanone(nbh.grid, method="imp",model='normal',pheno.col=6)
+scan.NEW <- scanone(new.grid, method="imp",model='normal',pheno.col=6)
+scan.ELR <- scanone(elr.grid, method="imp",model='normal',pheno.col=6)
+
+melted.nbh <- data.frame(pop='NBH',chr=scan.NBH$chr,pos=scan.NBH$pos,lod=scan.NBH$lod)
+melted.new <- data.frame(pop='NEW',chr=scan.NEW$chr,pos=scan.NEW$pos,lod=scan.NEW$lod)
+melted.elr <- data.frame(pop='ELR',chr=scan.ELR$chr,pos=scan.ELR$pos,lod=scan.ELR$lod)
+melted <- rbind(melted.nbh,melted.new,melted.elr)
+pals <- brewer.pal(11,"Set3")
+#melted$pop <- factor(melted$pop, levels=c('NBH','NEW','ELR'))
+
+png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
+ggplot(melted,
+  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
+  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
+  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
+  #scale_x_continuous('pos') +
+  #scale_y_continuous('lod') +
+  scale_y_discrete('lod')+
+  theme(axis.text=element_text(size=10))
+dev.off()
+
+
+
+
+
+
+
+
+
+
+melted.nbh <- data.frame(pop='NBH',chr=scan.norm.imp.NBH$chr,pos=scan.norm.imp.NBH$pos,lod=scan.norm.imp.NBH$lod)
+melted.new <- data.frame(pop='NEW',chr=scan.norm.imp.NEW$chr,pos=scan.norm.imp.NEW$pos,lod=scan.norm.imp.NEW$lod)
+melted <- rbind(melted.nbh,melted.new)
+pals <- brewer.pal(11,"Set3")
+melted$pop <- factor(melted$pop, levels=c('NBH','NEW'))
+########### works #######
+png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
+ggplot(melted,
+  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
+  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
+  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
+  #scale_x_continuous('pos') +
+  #scale_y_continuous('lod') +
+  scale_y_discrete('lod')+
+  theme(axis.text=element_text(size=10))
+dev.off()
+
+
+
 
 
 #scan.norm.imp.NBH <- scanone(comp, method="imp",model='normal',pheno.col=6,ind.noqtl=comp$pheno$cross1==1)
@@ -122,16 +190,8 @@ save.image(file.path('~/NEW.NBH.QTLmap.Rsave'))
 
 
 
-# install stable version
-install.packages("ggridges")
-library(devtools)
-install_github("clauswilke/ggridges")
 
 
-
-melted.nbh <- data.frame(pop='NBH',chr=scan.norm.imp.NBH$chr,pos=scan.norm.imp.NBH$pos,lod=scan.norm.imp.NBH$lod)
-melted.new <- data.frame(pop='NEW',chr=scan.norm.imp.NEW$chr,pos=scan.norm.imp.NEW$pos,lod=scan.norm.imp.NEW$lod)
-melted <- rbind(melted.nbh,melted.new)
 
 
 png('~/ggplot2.qtl.png')
