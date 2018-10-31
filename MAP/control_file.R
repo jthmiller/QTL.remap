@@ -81,6 +81,7 @@ if (pop=='NBH'){
   finRf <- 0.2
   cutoff <- 1.0e-6 ## Higher, need more power to detect seg distortion
   miss <- 4
+  if (X%in%(18)){miss <- 10}
 } else if ( pop=='NEW'){
   confirmed=T
   reorder.marks<-F
