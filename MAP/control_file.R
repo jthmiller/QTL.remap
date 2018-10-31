@@ -78,7 +78,7 @@ if (pop=='NBH'){
   finLod <- 12 ## Higher final ELR LOD
   grpRf <- 0.4
   finRf <- 0.2
-  cutoff <- 6 ## Higher, need more power to detect seg distortion
+  cutoff <- 1.0e-6 ## Higher, need more power to detect seg distortion
   miss <- 10
 } else if ( pop=='NEW'){
   confirmed=T
