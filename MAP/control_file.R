@@ -69,6 +69,7 @@ if (pop=='NBH'){
   finRf <- 0.2
   cutoff <- 1.0e-6
   miss <- 4
+  if (X%inc(18)){miss <- 8}
 } else if (pop=='ELR'){
   confirmed=T
   reorder.marks<-F
