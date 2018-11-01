@@ -70,7 +70,7 @@ if (pop=='NBH'){
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1.0e-6
-  miss2 <- 5
+  miss1 <- 5
   miss2 <- 10
   if (X%in%(18)){miss <- 8}
 } else if (pop=='ELR'){
