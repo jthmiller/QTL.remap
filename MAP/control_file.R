@@ -86,6 +86,7 @@ if (pop=='NBH'){
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1.0e-6 ## Higher, need more power to detect seg distortion
+  miss <- 10
   miss1 <- 4
   miss2 <- 8
   if (X%in%(18)){miss <- 10}
@@ -101,6 +102,7 @@ if (pop=='NBH'){
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1.0e-6
+  miss <- 10
   miss1 <- 5
   miss2 <- 10
 }
