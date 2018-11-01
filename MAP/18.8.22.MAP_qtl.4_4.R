@@ -34,6 +34,8 @@ rownames(phenos) <- paste('NG',1:length(count.pheno),sep='')
 write.table(no_genos,file=file.path(popdir,'no_genos.csv'),
   col.names=F,row.names=F,quote=F,sep=',')
 
+write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=''),format="csv",chr=X)
+
 system(paste('cat ',popdir,'/chr',X,'_',outname,'_3.QTLmap.csv ',popdir,'/no_genos.csv > ',popdir,'/temp.',X,sep=''))
 
 print('saving... done with mapping ind chromosomes')
