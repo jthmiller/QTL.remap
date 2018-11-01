@@ -10,6 +10,8 @@ cross.18 <- read.cross(format='csv',dir=popdir,
 
 marker.warning()
 
+print(summary(pull.map(cross.18))[as.character(X),])
+
 print('dropping markers by error lod')
 
 print('2nd time removing double cross-overs')
@@ -36,6 +38,8 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
 } else if (reprip==T){
   cross.18 <- repRipple.jm(cross=cross.18,chr=X, error.prob=0.05, map.function="kosambi",window = 6)
 }
+
+print(summary(pull.map(cross.18))[as.character(X),])
 
 print('plotting LOD matrix')
 png(file.path(popdir,paste(X,'_RF_FINAL.png',sep='')))
