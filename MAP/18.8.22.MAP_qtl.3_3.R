@@ -24,7 +24,7 @@ if (reorder.marks==T){
 print('Re-setimating map from filtered data on')
 cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   error.prob=ers, map.function='kosambi',sex.sp=F,maxit=10000,tol=1e-3)
-} else {
+} else if (hoods==T){
   ripLod <- ripple(cross.18,chr=X, window=4, method="likelihood",
     error.prob=0.01, map.function="kosambi",maxit=2000,
     tol=1e-6, sex.sp=FALSE, verbose=TRUE,n.cluster=slurmcore)
@@ -33,6 +33,8 @@ cross.18 <- orderMarkers(cross.18,chr=X,window=5,use.ripple=T,
   png(file.path(popdir,paste(X,'_order.png',sep='')))
     plot(gsub(paste(X,':',sep=''),'',markernames(cross.18)),main='position' )
   dev.off()
+} else if (reprip==T){
+  cross.18 <- repRipple.jm(cross=cross.18,chr=X, error.prob=0.05, map.function="kosambi",window = 6)
 }
 
 print('plotting LOD matrix')

@@ -781,7 +781,7 @@ get.par.snp.number <- function(X){
     }
   )
 }
-repRipple.jm<-function(cross, chr = NULL, window = 5,method = "countxo", verbose = T,
+repRipple.jm<-function(cross, chr = NULL, window = 5,method = "countxo", verbose = T,re.est.map=F,
                     map.function = "kosambi", sex.sp=F, clean1st = FALSE, ripVerb = TRUE, ...){
   loadNamespace("qtl")
   if(clean1st) cross<-clean(cross)
@@ -811,8 +811,9 @@ repRipple.jm<-function(cross, chr = NULL, window = 5,method = "countxo", verbose
             cat("orig n XO = ", orig.xo, "new n XO = ",new.xo,"\n")
           }
         }
-        mars[[j]]<-mars[[j]][ord]
+        mars[[as.character(j)]]<-mars[[as.character(j)]][ord]
         cross<-newLG(cross = cross, markerList = mars)
+        names(cross$geno) <- j
       }
     }
   }

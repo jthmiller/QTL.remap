@@ -59,6 +59,8 @@ lapply(mpacks, require, character.only = TRUE,lib.loc=mylib)
 trsl.bin <- c(0,0,0,1,1,1)
 names(trsl.bin) <- as.character(0:5)
 
+hoods <- F
+reprip <- T
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
   ns <- 'North'
