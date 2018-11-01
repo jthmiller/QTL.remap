@@ -3,7 +3,9 @@
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 load(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
 
-paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep='')
+cross.18 <- read.cross(format='csv',dir=popdir,
+   file=paste('/chr',X,'_',outname,'_3.QTLmap.csv',sep=''),
+   geno=c('AA','AB','BB'),alleles=c("A","B"))
 
 print('Adding un-genotyped individuals for stratified analysis')
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)

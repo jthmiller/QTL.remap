@@ -63,4 +63,7 @@ cross.18$pheno$Pheno <- trsl.bin[as.character(cross.18$pheno$Pheno_05)]
 
 print('Re-writing the markers to rQTL format')
 write.cross(cross.18,filestem=paste(popdir,'/chr',X,'_',outname,'_3.QTLmap',sep=''),format="csv",chr=X)
+
+rm(cross.18)
+
 save.image(paste(popdir,'/chr',X,'_',outname,'.QTLmap.Rsave',sep=''))
