@@ -67,8 +67,8 @@ if (pop=='NBH'){
   mapped.only=TRUE
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final NBH LOD
-  grpRf <- 0.4
-  finRf <- 0.2
+  grpRf <- 0.3
+  finRf <- 0.15
   cutoff <- 1.0e-6
   miss2 <- 5
   miss2 <- 10
@@ -81,8 +81,8 @@ if (pop=='NBH'){
   missing <- 0.9
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
-  grpRf <- 0.4
-  finRf <- 0.2
+  grpRf <- 0.3
+  finRf <- 0.15
   cutoff <- 1.0e-6 ## Higher, need more power to detect seg distortion
   miss1 <- 4
   miss2 <- 8
@@ -96,8 +96,8 @@ if (pop=='NBH'){
   missing <- 0.8
   grpLod <- 10 ## Standard LG form LOD
   finLod <- 12 ## Higher final ELR LOD
-  grpRf <- 0.4
-  finRf <- 0.2
+  grpRf <- 0.3
+  finRf <- 0.15
   cutoff <- 1.0e-6
   miss1 <- 5
   miss2 <- 10

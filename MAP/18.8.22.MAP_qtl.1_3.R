@@ -65,22 +65,23 @@ if(confirmed==F){
 #  gt.pars.set2 <- gt.pars[which(gt.pars$missing==1),]
 #  gt.pars.set2 <- rownames(gt.pars.set2)[which(gt.pars.set2$AA==1 | gt.pars.set2$BB==1)]
 #  gt.pars <- rownames(gt.pars)[which(gt.pars$AA==1 & gt.pars$BB==1)]
-  print('Dropped markers that do not follow expectations from GP genotypes')
 #  gt.pars <- c(gt.pars,gt.pars.set2)
 
-if(ns=='South'){
-  con <- file(file.path(dirso,'fixed.south.txt'))
-  north <- readLines(con)
+  if(ns=='South'){
+    con <- file(file.path(dirso,'fixed.south.txt'))
+    gt.pars <- readLines(con)
+    close(con)
+  } else {
+    con <- file(file.path(dirso,'fixed.north.txt'))
+    gt.pars <- readLines(con)
   close(con)
-} else {
-  con <- file(file.path(dirso,'fixed.north.txt'))
-  north <- readLines(con)
-  close(con)
-}
-
+  }
   marks.drop <- markernames(cross.18)[!markernames(cross.18) %in% gt.pars]
   cross.18 <- drop.markers(cross.18,marks.drop)
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
+
+  print('Dropped markers that do not follow expectations from GP genotypes')
+
 }
 
 marker.warning()
@@ -98,7 +99,7 @@ pval <- log10(gt$P.value)
 
 #### Filter Conservative
 print(paste('Dropping markers with',miss,'or more genotypes missing'))
-cross.18 <- drop.missing(cross.18,miss)
+cross.18 <- drop.missing(cross.18,miss1)
 gt.missing <- geno.table(cross.18)
 
 marker.warning()
@@ -187,7 +188,7 @@ print('Done..')
 marker.warning()
 
 print('Dropping markers with too many genotypes missing after removing DXO')
-cross.18 <- drop.missing(cross.18,miss)
+cross.18 <- drop.missing(cross.18,miss2)
 gt.missing <- geno.table(cross.18)
 print('Done dropping markers')
 
