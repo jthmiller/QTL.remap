@@ -812,7 +812,7 @@ repRipple.jm<-function(cross, chr = NULL, window = 5,method = "countxo", verbose
           }
         }
         mars[[as.character(j)]]<-mars[[as.character(j)]][ord]
-        cross<-newLG(cross = cross, markerList = mars)
+        cross<-qtlTools::newLG(cross = cross, markerList = mars)
         names(cross$geno) <- j
       }
     }
