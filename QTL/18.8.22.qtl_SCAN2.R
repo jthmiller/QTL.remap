@@ -2,7 +2,7 @@ source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 
 load(paste('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/',pop,'/REMAPS/QTLmap.Rsave',sep=''))
 
-cross.18.grid <- reduce2grid(NBH$cross.18)
+cross.18.grid <- reduce2grid(cross.18)
 
 ### Permute the null distribution of LODs
 operm <- scantwo(cross.18.grid, pheno.col=6, model="normal",
