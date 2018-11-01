@@ -14,5 +14,6 @@ pop=$1
 #if [ $pop = "ELR" ]; then
 #  Rscript $scriptdir/18.8.22.MAP_ELR.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 #else
-  Rscript $scriptdir/18.8.22.MAP_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+#  Rscript $scriptdir/18.8.22.MAP_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 #fi
+Rscript $scriptdir/18.8.22.MAP_qtl.1_3.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

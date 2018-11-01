@@ -1,6 +1,11 @@
 #!/bin/bash
 #source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
+library(ggplot2)
+library("ggridges")
+library('devtools')
+
+
 
 NBH <- new.env()
 load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NBH/REMAPS/QTLmap.Rsave', envir=NBH)
@@ -52,10 +57,6 @@ scan.norm.imp.ELR <- scanone(cross.elr, method="imp",model='normal',pheno.col=6)
 ### Saved to home
 #save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
 #load(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
-
-## GGplot library(ggplot2)
-## GGridges library("ggridges")
-library('devtools')
 
 #### Sim and reduce to grid ####
 NBH.x <- qtl::clean(NBH$cross.18)
