@@ -46,47 +46,6 @@ if (mapped.only==T){
   marker.warning()
 }
 
-##########scratch #############
-
-
-cross.pars.NBH <- cross.pars
-cross.pars.NEW <- cross.pars
-cross.pars.ELR <- cross.pars
-
-all.pars <- c(cross.pars.NBH,cross.pars.NEW,cross.pars.ELR)
-all.pars.gt <- geno.table(all.pars)
-
-
-BLI <- subset(all.pars, ind=c('NBH_NBH1M','NEW_NEW911M','BLI_BI1124M'))
-BLI.gt <- geno.table(BLI)
-TOL <- subset(all.pars, ind=c('NBH_NBH1F','NEW_NEW911F','ELR_ER1124F'))
-TOL.gt <- geno.table(TOL)
-
-
-
-
-
-
-par1 <- subset(cross.pars,ind=cross.pars$pheno$ID[1])
-par2 <- subset(cross.pars,ind=cross.pars$pheno$ID[2])
-par1.gt <- geno.table(par1)
-par2.gt <- geno.table(par2)
-par12.gt <- geno.table(cross.pars)
-ofs <- geno.table(cross.18)
-
-
-
-
-gp1.het.gp2.hom <- rownames(par1.gt )[which(par1.gt$AB==1 & par12.gt$missing<1)]
-
-ofs[gp1.het.gp2.hom,]
-par1.offs <- drop.markers(cross.18,(!rownames(cross.18)%in%gp1.het.gp2.hom))
-cross.18 <- formLinkageGroups(par1.offs, min.lod=finLod, reorgMarkers=TRUE)
-
-drop <- rownames(par12.gt)[which(par12.gt$AA==2 | par12.gt$BB==2 | par12.gt$missing==2)]
-cross.18 <- drop.markers(cross.18,drop)
-##########################
-
 ### grandparent confirmed markers
 if(confirmed==F){
   print('Not using GP genos for filtering')
@@ -102,12 +61,23 @@ if(confirmed==F){
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))
 } else {
   print('Filtering with both G.parents')
-  gt.pars <- geno.table(cross.pars)
-  gt.pars.set2 <- gt.pars[which(gt.pars$missing==1),]
-  gt.pars.set2 <- rownames(gt.pars.set2)[which(gt.pars.set2$AA==1 | gt.pars.set2$BB==1)]
-  gt.pars <- rownames(gt.pars)[which(gt.pars$AA==1 & gt.pars$BB==1)]
+#  gt.pars <- geno.table(cross.pars)
+#  gt.pars.set2 <- gt.pars[which(gt.pars$missing==1),]
+#  gt.pars.set2 <- rownames(gt.pars.set2)[which(gt.pars.set2$AA==1 | gt.pars.set2$BB==1)]
+#  gt.pars <- rownames(gt.pars)[which(gt.pars$AA==1 & gt.pars$BB==1)]
   print('Dropped markers that do not follow expectations from GP genotypes')
-  gt.pars <- c(gt.pars,gt.pars.set2)
+#  gt.pars <- c(gt.pars,gt.pars.set2)
+
+if(ns=='South'){
+  con <- file(file.path(dirso,'fixed.south.txt'))
+  north <- readLines(con)
+  close(con)
+} else {
+  con <- file(file.path(dirso,'fixed.north.txt'))
+  north <- readLines(con)
+  close(con)
+}
+
   marks.drop <- markernames(cross.18)[!markernames(cross.18) %in% gt.pars]
   cross.18 <- drop.markers(cross.18,marks.drop)
   par.pos <- as.numeric(gsub(paste(X,':',sep=''),'',markernames(cross.18)))

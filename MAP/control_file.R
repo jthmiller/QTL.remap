@@ -40,6 +40,7 @@ indpops <- file.path(basedir,'plinkfiles/ind.pops')
 popdir <- file.path(basedir,'rQTL',pop,'REMAPS')
 qtldir <- file.path(basedir,'rQTL/remap_out')
 errfile <- file.path(qtldir,'genotyping_error_rate.txt')
+dirso <- '/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/'
 
 ## Funtions for processing rQTL map data
 source(file.path(basedir,'rQTL/scripts/QTL_remap/MAP/source_file.R'))
@@ -60,6 +61,7 @@ names(trsl.bin) <- as.character(0:5)
 
 ## Parameters for rQTL for population specific datasets (NBH markers require at least 70% genotypes )
 if (pop=='NBH'){
+  ns <- 'North'
   confirmed=T
   reorder.marks<-F
   mapped.only=TRUE
@@ -72,6 +74,7 @@ if (pop=='NBH'){
   miss2 <- 10
   if (X%in%(18)){miss <- 8}
 } else if (pop=='ELR'){
+  ns <- 'South'
   confirmed=T
   reorder.marks<-F
   mapped.only=TRUE
@@ -85,6 +88,7 @@ if (pop=='NBH'){
   miss2 <- 8
   if (X%in%(18)){miss <- 10}
 } else if ( pop=='NEW'){
+  ns <- 'North'
   confirmed=T
   reorder.marks<-F
   mapped.only=TRUE
