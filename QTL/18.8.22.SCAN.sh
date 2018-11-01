@@ -5,9 +5,7 @@
 #SBATCH --job-name=QTL.Remap
 #SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=4000
-#SBATCH -p low
-#SBATCH --mail-type=ALL
-
+#SBATCH -p high
 
 ####QTLs are on chrm '1 2 8 13 18 24'
 
