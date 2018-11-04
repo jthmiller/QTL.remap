@@ -5,8 +5,6 @@ library(ggplot2)
 library("ggridges")
 library('devtools')
 
-
-
 NBH <- new.env()
 load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NBH/REMAPS/QTLmap.Rsave', envir=NBH)
 ELR <- new.env()
@@ -96,6 +94,25 @@ ggplot(melted,
   scale_y_discrete('lod')+
   theme(axis.text=element_text(size=10))
 dev.off()
+
+
+
+
+
+
+# Read a table with positions to interpolate and/or extrapolate
+predict_file <- list.files(fpath,
+                       pattern = "BaySha_physical",
+                       full.names = T)
+to_predict <- read.table(predict_file, sep = ",", header = T)
+# Predict, accessible under MF.obj$predictions
+MF.obj <- predict(MF.obj, to_predict)
+
+
+
+MF.obj <-  genphys_fit(MF.obj, type = "consensus", z = 5)
+plot(MF.obj, which = "mareymap", maps = "consensus")
+
 
 
 
