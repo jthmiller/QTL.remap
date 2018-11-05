@@ -10,6 +10,9 @@ sbatch -J "kinship" $scriptdir/MAP/compare.kinship.sh
 #New Bedford Harbor
 NBH1=$(sbatch -J "NBH.initial" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_1.sh NBH)
 NBH2=$(sbatch -J "NBH.pardrop"  --parsable --dependency=afterany:$NBH1 $scriptdir/MAP/18.8.22.MAP_qtl_2.sh NBH)
+NBH2=$(sbatch -J "NBH.pardrop"  --parsable $scriptdir/MAP/18.8.22.MAP_qtl_2.sh NBH)
+NBH2=$(sbatch -J "NBH.pardrop"  --parsable --dependency=afterany:$NBH1 $scriptdir/MAP/18.8.22.MAP_qtl_2.sh NBH)
+NBH3=$(sbatch -J "NBH.ripple" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_3.sh NBH)
 NBH3=$(sbatch -J "NBH.ripple" --parsable --dependency=afterany:$NBH2 $scriptdir/MAP/18.8.22.MAP_qtl_3.sh NBH)
 NBH4=$(sbatch -J "NBH.final" --parsable --dependency=afterany:$NBH3 $scriptdir/MAP/18.8.22.MAP_qtl_4.sh NBH)
 NBH5=$(sbatch -J "NBH.scan" --parsable --dependency=afterany:$NBH4 $scriptdir/QTL/18.8.22.SCAN.sh NBH)
