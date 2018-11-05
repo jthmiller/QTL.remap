@@ -6,7 +6,7 @@ if (exists("debug.cross")) {
   slurmcore <- 12
   setwd("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/")
   ### Prompt
-  pop <- function() c("NBH", "NEW", "ELR", "BRP")[menu(c("NBH", "NEW", "ELR", "BRP"),
+  pop <- function() c("NBH", "NEW", "ELR", "BRP")[menu(c("NBH", "NEW", "ELR", "BRP"), 
     title = "Which pop")]
   pop <- popq <- pop()
   X <- function() c(1:24)[menu(1:24, title = "Which Chromosome")]
@@ -17,7 +17,7 @@ if (exists("debug.cross")) {
   ## Only use granparent confirmed markers?
   confirmed <- function() c(TRUE, FALSE)[menu(c(TRUE, FALSE), title = "Only use granparent confirmed markers?")]
   confirmed <- confirmed()
-
+  
   ### Libraries for plots
   flib <- "/share/apps/rmodules"
   fpacks <- c("ggplot2", "reshape", "pheatmap")
@@ -93,7 +93,6 @@ if (pop == "NBH") {
   miss <- 10
   miss1 <- 4
   miss2 <- 8
-  }
 } else if (pop == "NEW") {
   ns <- "North"
   confirmed = T
@@ -120,7 +119,7 @@ if (mapped.only == TRUE & reorder.marks == F) {
 }
 
 ## Try to get error exported by map
-expr <- paste("tac ", errfile, " | grep -m 1 '", pop, " ", X, "' | awk '{print $5}'",
+expr <- paste("tac ", errfile, " | grep -m 1 '", pop, " ", X, "' | awk '{print $5}'", 
   sep = "")
 try(ers <- as.numeric(system(expr, intern = T)))
 
