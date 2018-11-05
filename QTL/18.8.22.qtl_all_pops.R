@@ -1,5 +1,5 @@
 #!/bin/bash
-#source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/debug.R')
+#debug.cross<- T
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 library(ggplot2)
 library("ggridges")
@@ -65,12 +65,12 @@ ggplot(phenosN, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),co
 dev.off()
 
 png('/home/jmiller1/public_html/phenotypes.png',width = 600)
-ggplot(phenos5, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop))) +
+ggplot(phenos5, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop)),show.legend = F) +
   geom_density_ridges(alpha=0.5,scale=1.3, bandwidth=.5)+
      xlim(0, 5) +
      xlab("Phenotype Score") +
      ylab("Density") +
-     scale_color_manual(labels = c("T999", "T888"), values = c("blue", "red")) +
+     scale_alpha(guide = 'none')
      scale_fill_discrete(name = "Populations") +
      theme(text = element_text(size=20),axis.text.y = element_blank())
 dev.off()
@@ -79,6 +79,9 @@ dev.off()
 
 
 
+pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
+phen$Pheno_05 <- phen$pheno_all
+index <- which(phen$pop_all=='BRP')
 
 
 

@@ -6,7 +6,7 @@ if (exists("debug.cross")) {
   slurmcore <- 12
   setwd("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/")
   ### Prompt
-  pop <- function() c("NBH", "NEW", "ELR", "NEW")[menu(c("NBH", "NEW", "ELR", "NEW"), 
+  pop <- function() c("NBH", "NEW", "ELR", "BRP")[menu(c("NBH", "NEW", "ELR", "BRP"), 
     title = "Which pop")]
   pop <- popq <- pop()
   X <- function() c(1:24)[menu(1:24, title = "Which Chromosome")]
