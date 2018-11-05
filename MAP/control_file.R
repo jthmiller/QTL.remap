@@ -76,7 +76,7 @@ if (pop == "NBH") {
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1e-06
-  miss <- 10
+  miss <- 15
   miss1 <- 5
   miss2 <- 10
   if (X %in% (18)) {
@@ -92,12 +92,12 @@ if (pop == "NBH") {
   finLod <- 12  ## Higher final ELR LOD
   grpRf <- 0.3
   finRf <- 0.15
-  cutoff <- 1e-06  ## Higher, need more power to detect seg distortion
-  miss <- 10
+  cutoff <- 0.001  ## Higher, need more power to detect seg distortion
+  miss <- 5
   miss1 <- 4
   miss2 <- 8
   if (X %in% (18)) {
-    miss <- 10
+    miss <- 7
   }
 } else if (pop == "NEW") {
   ns <- "North"
@@ -111,7 +111,7 @@ if (pop == "NBH") {
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1e-06
-  miss <- 10
+  miss <- 15
   miss1 <- 5
   miss2 <- 10
 }

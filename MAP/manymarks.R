@@ -48,21 +48,31 @@ if (mapped.only == T) {
   marker.warning()
 }
 
-marker.warning()
-
 print("marker dump")
 
 if (pop == "ELR") {
   con <- file(file.path(dirso, "elr.dump.txt"))
   dump <- readLines(con)
   close(con)
+  cross.18 <- drop.markers(cross.18, dump)
+  
+  fileConn <- file(file.path(dirso, "elr.down.txt"))
+  elr.down <- readLines(fileConn)
+  close(fileConn)
+  cross.18 <- drop.markers(cross.18, markernames(cross.18)[markernames(cross.18) %in% 
+    elr.down])
+  marker.warning()
+  
+  print("Removing duplicates")
+  dups <- findDupMarkers(cross.18, exact.only = F, adjacent.only = F)
+  cross.18 <- drop.markers(cross.18, unlist(dups))
+  
 } else {
   con <- file(file.path(dirso, "nor.dump.txt"))
   dump <- readLines(con)
   close(con)
+  cross.18 <- drop.markers(cross.18, dump)
 }
-
-cross.18 <- drop.markers(cross.18, dump)
 
 marker.warning()
 
@@ -75,13 +85,12 @@ cross.18 <- switchAlleles(cross.18, toSwitch)
 
 gt.missing <- geno.table(cross.18)
 
-if (!pop == "ELR") {
-  gt.cross.pars <- geno.table(cross.pars)
-  ind <- rownames(gt.cross.pars)[which(gt.cross.pars$AA == 2 | gt.cross.pars$BB == 
-    2)]
-  ind <- ind[ind %in% rownames(gt.missing)]
-  cross.18 <- drop.markers(cross.18, ind)
-}
+gt.cross.pars <- geno.table(cross.pars)
+
+ind <- rownames(gt.cross.pars)[which(gt.cross.pars$AA == 2 | gt.cross.pars$BB == 
+  2)]
+ind <- ind[ind %in% rownames(gt.missing)]
+cross.18 <- drop.markers(cross.18, ind)
 
 marker.warning()
 
@@ -92,7 +101,7 @@ cross.18 <- drop.markers(cross.18, rownames(gt.missing[gt.missing$P.value < cuto
 
 marker.warning()
 
-cross.18 <- drop.missing(cross.18, 15)
+cross.18 <- drop.missing(cross.18, miss)
 
 marker.warning()
 
@@ -101,7 +110,6 @@ gt.cross.pars <- geno.table(cross.pars)[markernames(cross.18), ]
 swit <- checkAlleles(cross.18, threshold = 6, verbose = F)
 swit.v <- swit[!swit[, 1] %in% toSwitch, 1]
 cross.18 <- switchAlleles(cross.18, swit.v)
-
 
 swit <- checkAlleles(cross.18, threshold = 7, verbose = F)
 swit <- swit[!swit[, 1] %in% toSwitch, ]
@@ -114,7 +122,7 @@ cross.18 <- drop.markers(cross.18, swit)
 
 cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.35, min.lod = 10, reorgMarkers = TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
 cross.18 <- subset(cross.18, chr = which.max(nmar(cross.18)))
 names(cross.18$geno) <- X

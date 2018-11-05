@@ -64,7 +64,7 @@ gt.TOL.S <- geno.table(TOL.S)
 s.index <- which(gt.TOL.S$AB>0 | gt.BLI.S$AB>0)
 elr.dump <- unique(rownames(gt.TOL.S)[s.index])
 
-nbh.index <- which(gt.TOL.N$AB>0 | gt.BLI.N$AB>0)
+n.index <- which(gt.TOL.N$AB>0 | gt.BLI.N$AB>0)
 nor.dump <- unique(rownames(gt.TOL.N)[n.index])
 
 fileConn <- file(file.path(dirso,'nor.dump.txt'))
@@ -83,5 +83,46 @@ toSwitch <- c(toB,toA)
 fileConn <- file(file.path(dirso,'toSwitch.txt'))
 writeLines(toSwitch, fileConn)
 close(fileConn)
+
+
+if (pop=='ELR'){
+  ### Better set for ELR
+  not.het <- rownames(gt.BLI)[which(gt.BLI$AB==0 & gt.BLI$AA>=2 | gt.BLI$AB==0 & gt.BLI$BB>=2)]
+  ### Each tolerant GPs
+  SOc <- c(subset(marks[[3]],ind='BLI_BI1124M'),
+    subset(marks[[3]],ind='ELR_ER1124F'))
+  SO <- geno.table(SOc)
+  SO.mis.A <- rownames(SO)[which(SO$missing==1 & SO$AB==0 & SO$AA==1 & SO$BB==0)]
+  SO.mis.B <- rownames(SO)[which(SO$missing==1 & SO$AB==0 & SO$AA==0 & SO$BB==1)]
+
+  SO.ok <- rownames(SO)[which(SO$AA==1 & SO$BB==1)]
+  BBfix <- rownames(gt.BLI)[which(gt.BLI$BB[SO.mis.A]==2)]
+  AAfix <- rownames(gt.BLI)[which(gt.BLI$AA[SO.mis.B]==2)]
+  SO.bm <- rownames(SO)[which(SO$missing==2)]
+  bmfix <- rownames(gt.BLI)[gt.BLI[SO.bm,3]>=2 | gt.BLI[SO.bm,5]>=2]
+  onlythese <- c(SO.ok,BBfix,AAfix,bmfix)
+
+  fileConn <- file(file.path(dirso,'elr.down.txt'))
+  writeLines(onlythese , fileConn)
+  close(fileConn)
+  }
+
+
+
+
+  SOc <- c(subset(marks[[3]],ind='BLI_BI1124M'),
+    subset(marks[[3]],ind='ELR_ER1124F'))
+  SO <- geno.table(SOc)
+  SO.d.1 <- rownames(SO)[which(SO$AB>=1)]
+  SO.d.2 <- rownames(SO)[which(SO$AA>1 | SO$BB>1 )]
+  justdrop <- c(SO.d.1,SO.d.2 )
+
+  fileConn <- file(file.path(dirso,'elr.down.txt'))
+  writeLines(justdrop , fileConn)
+  close(fileConn)
+
+
+
+
 
 ####done####
