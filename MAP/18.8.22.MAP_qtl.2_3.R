@@ -18,11 +18,11 @@ print("Dropping ~3 markers that inflate the map. Takes a long time...")
 # 'kosambi', error.prob = 0.03, sex.sp = F, verbose = F, parallel = T, cores =
 # slurmcore)
 
-dropone <- parallel.droponemarker(cross, chr, error.prob = 0.03, map.function = "kosambi", 
+dropone <- parallel.droponemarker(cross.18, chr, error.prob = 0.03, map.function = "kosambi", 
   m = 0, p = 0, maxit = 5, cores = slurmcore, tol = 1e-06, sex.sp = FALSE, verbose = F, 
   parallel = T)
 
-cross1 <- dropByDropone(cross = cross.18, droponeRes = dropone, endMarkerThresh = 15, 
+cross.18 <- dropByDropone(cross = cross.18, droponeRes = dropone, endMarkerThresh = 15, 
   re.est.map = F)
 
 marker.warning()
