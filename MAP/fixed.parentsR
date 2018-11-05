@@ -1,6 +1,9 @@
 debug.cross <- T
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 
+dirso <- '/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/'
+
+
 pops <- list('NBH','NEW','ELR')
 
 marks <- lapply(pops,function(pop){
@@ -27,37 +30,58 @@ marks <- lapply(pops,function(pop){
   }
 )
 
-BLI <- geno.table(c(subset(marks[[1]],ind='NBH_NBH1M'),
+### All BLI GPs
+BLI <- c(subset(marks[[1]],ind='NBH_NBH1M'),
   subset(marks[[2]],ind='NEW_NEW911M'),
-  subset(marks[[3]],ind='BLI_BI1124M')))
+  subset(marks[[3]],ind='BLI_BI1124M'))
+gt.BLI <- geno.table(BLI)
 
-tol.N <- geno.table(c(subset(marks[[1]],ind='NBH_NBH1F'),
-  subset(marks[[2]],ind='NEW_NEW911F')))
+TOL <- c(subset(marks[[1]],ind='NBH_NBH1F'),
+  subset(marks[[2]],ind='NEW_NEW911F'),
+  subset(marks[[3]],ind='ELR_ER1124F'))
+gt.TOL <- geno.table(TOL)
 
-tol.S <- geno.table(subset(marks[[3]],ind='ELR_ER1124F'))
+### Ind pops ###
 
-bli <- rownames(BLI)[which(BLI$AB==0)]
-north <- rownames(tol.N)[which(tol.N$AB==0)]
-south <- rownames(tol.S)[which(tol.S$AB==0)]
+BLI.N <- c(subset(marks[[1]],ind='NBH_NBH1M'),
+  subset(marks[[2]],ind='NEW_NEW911M'))
+gt.BLI.N <- geno.table(BLI.N)
 
-north <- intersect(bli,north)
-south <- intersect(bli,south)
+BLI.S <- subset(marks[[3]],ind='BLI_BI1124M')
+gt.BLI.S <- geno.table(BLI.S)
 
-dirso <- '/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/'
+### Each tolerant GPs
+TOL.N <- c(subset(marks[[1]],ind='NBH_NBH1F'),
+  subset(marks[[2]],ind='NEW_NEW911F'))
+gt.TOL.N <- geno.table(TOL.N)
 
-fileConn <- file(file.path(dirso,'fixed.north.txt'))
-writeLines(north, fileConn)
+#### Low cov ELR indivdual
+TOL.S <- subset(marks[[3]],ind='ELR_ER1124F')
+gt.TOL.S <- geno.table(TOL.S)
+
+### Dump vec #####
+
+s.index <- which(gt.TOL.S$AB>0 | gt.BLI.S$AB>0)
+elr.dump <- unique(rownames(gt.TOL.S)[s.index])
+
+nbh.index <- which(gt.TOL.N$AB>0 | gt.BLI.N$AB>0)
+nor.dump <- unique(rownames(gt.TOL.N)[n.index])
+
+fileConn <- file(file.path(dirso,'nor.dump.txt'))
+writeLines(nor.dump, fileConn)
 close(fileConn)
 
-fileConn <- file(file.path(dirso,'fixed.south.txt'))
-writeLines(south, fileConn)
+fileConn <- file(file.path(dirso,'elr.dump.txt'))
+writeLines(elr.dump, fileConn)
 close(fileConn)
 
+#### Switching phase of markers based on g.parent GTs
+toB <- rownames(gt.BLI[which(gt.BLI$AA>=1 & gt.BLI$missing>=0 & gt.BLI$BB==0),])
+toA <- rownames(gt.TOL[which(gt.TOL$BB>=1 & gt.TOL$missing>=0 & gt.TOL$AA==0),])
+toSwitch <- c(toB,toA)
 
+fileConn <- file(file.path(dirso,'toSwitch.txt'))
+writeLines(toSwitch, fileConn)
+close(fileConn)
 
-
-
-
-
-
-##########################
+####done####

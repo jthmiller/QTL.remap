@@ -17,6 +17,7 @@ if (exists("debug.cross")) {
   ## Only use granparent confirmed markers?
   confirmed <- function() c(TRUE, FALSE)[menu(c(TRUE, FALSE), title = "Only use granparent confirmed markers?")]
   confirmed <- confirmed()
+  
   ### Libraries for plots
   flib <- "/share/apps/rmodules"
   fpacks <- c("ggplot2", "reshape", "pheatmap")

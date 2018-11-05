@@ -12,6 +12,235 @@ load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/ELR/REMAPS/QTLmap.Rsave', envir=ELR
 NEW <- new.env()
 load('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NEW/REMAPS/QTLmap.Rsave', envir=NEW)
 
+ELR$cross.18$pheno$ID_pop <- 'ELR'
+NEW$cross.18$pheno$ID_pop <- 'NEW'
+NBH$cross.18$pheno$ID_pop <- 'NBH'
+
+#### Sim and reduce to grid ####
+NBH.x <- qtl::clean(NBH$cross.18)
+NEW.x <- qtl::clean(NEW$cross.18)
+ELR.x <- qtl::clean(ELR$cross.18)
+
+nbh.grid <- sim.geno(NBH.x, n.draws=250, step=5, off.end=0,
+  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+new.grid <- sim.geno(NEW.x, n.draws=250, step=5, off.end=0,
+  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+elr.grid <- sim.geno(ELR.x, n.draws=250, step=5, off.end=0,
+  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
+
+nbh.grid <- reduce2grid(nbh.grid)
+new.grid <- reduce2grid(new.grid)
+elr.grid <- reduce2grid(elr.grid)
+
+scan.NBH <- scanone(nbh.grid, method="imp",model='normal',pheno.col=6)
+scan.NEW <- scanone(new.grid, method="imp",model='normal',pheno.col=6)
+scan.ELR <- scanone(elr.grid, method="imp",model='normal',pheno.col=6)
+
+melted.nbh <- data.frame(pop='NBH',chr=scan.NBH$chr,pos=scan.NBH$pos,lod=scan.NBH$lod)
+melted.new <- data.frame(pop='NEW',chr=scan.NEW$chr,pos=scan.NEW$pos,lod=scan.NEW$lod)
+melted.elr <- data.frame(pop='ELR',chr=scan.ELR$chr,pos=scan.ELR$pos,lod=scan.ELR$lod)
+melted <- rbind(melted.nbh,melted.new,melted.elr)
+pals <- brewer.pal(11,"Set3")
+#melted$pop <- factor(melted$pop, levels=c('NBH','NEW','ELR'))
+
+### Saved to home
+save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
+#load(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
+
+
+phenosN <- c(NBH$cross.18$pheno$pheno_norm,ELR$cross.18$pheno$pheno_norm,NEW$cross.18$pheno$pheno_norm)
+phenos5 <- c(NBH$cross.18$pheno$pheno_05,ELR$cross.18$pheno$pheno_05,NEW$cross.18$pheno$pheno_05)
+names.pop <- c(NBH$cross.18$pheno$ID_pop,ELR$cross.18$pheno$ID_pop,NEW$cross.18$pheno$ID_pop)
+phenos5 <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenos5))
+phenosN <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenosN))
+
+#Density ridges
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenosN, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop))) +
+  geom_density_ridges(alpha=0.5,scale=1.3, bandwidth=.5)+
+     xlim(-1, 6) +
+     xlab("Phenotype Score") +
+     ylab("Density") +
+     theme(text = element_text(size=20),axis.text.y = element_blank())
+dev.off()
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenos5, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop))) +
+  geom_density_ridges(alpha=0.5,scale=1.3, bandwidth=.5)+
+     xlim(0, 5) +
+     xlab("Phenotype Score") +
+     ylab("Density") +
+     scale_color_manual(labels = c("T999", "T888"), values = c("blue", "red")) +
+     scale_fill_discrete(name = "Populations") +
+     theme(text = element_text(size=20),axis.text.y = element_blank())
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://cran.rstudio.com/web/packages/mapfuser/vignettes/mapfuser.html
+
+
+png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
+ggplot(melted,
+  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
+  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
+  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
+  #scale_x_continuous('pos') +
+  #scale_y_continuous('lod') +
+  scale_y_discrete('lod')+
+  theme(axis.text=element_text(size=10))
+dev.off()
+
+#Phenotypes
+phenos5 <- c(NBH$cross.18$pheno$pheno_05,ELR$cross.18$pheno$pheno_05,NEW$cross.18$pheno$pheno_05)
+names.pop <- c(NBH$cross.18$pheno$ID_pop,ELR$cross.18$pheno$ID_pop,NEW$cross.18$pheno$ID_pop)
+phenos <- data.frame(pop=as.factor(names.pop),phen=factor(phenos5, ordered = TRUE))
+
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenos, aes(phen,fill=pop)) +
+  geom_histogram(aes(y = ..density..), breaks=seq(0,5),position="dodge")
+dev.off()
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenos, aes(phen,fill=as.factor(pop),color=as.factor(pop))) +
+  geom_density(aes(y = ..count..),binwidth=1,position="dodge")+
+  scale_x_discrete(breaks=seq(1,5))
+dev.off()
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenos, aes(phen,fill=as.factor(pop),color=as.factor(pop))) +
+  geom_density(aes(y = ..density..), alpha=0.5)+
+  scale_x_discrete(breaks=seq(1,5))
+dev.off()
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenos, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop))) +
+  geom_density_ridges2(alpha=0.5,scale=1, bandwidth=1)+
+     xlim(0, 5)
+dev.off()
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phenos, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop))) +
+  geom_density_ridges(alpha=0.5,scale=1.3, bandwidth=.5)+
+     xlim(0, 5) +
+     xlab("Phenotype Score") +
+     ylab("Density") +
+     theme(text = element_text(size=20))
+dev.off()
+
+
+phenos5 <- c(NBH$cross.18$pheno$pheno_norm,ELR$cross.18$pheno$pheno_norm,NEW$cross.18$pheno$pheno_norm)
+names.pop <- c(NBH$cross.18$pheno$ID_pop,ELR$cross.18$pheno$ID_pop,NEW$cross.18$pheno$ID_pop)
+phenos <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenos5))
+
+
+
+
+
+
+
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 300)
+ggplot(phenos, aes(x=phen, colour=pop)) + geom_density()
+dev.off()
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 3000)
+ggplot(phenos, aes(as.numeric(phenos$phen),fill=pop)) +
+  geom_bar(stat = 'count',position="dodge",width = 1) +
+  scale_x_discrete(limits = as.numeric(phenos$phen))
+dev.off()
+
+ggplot(data=phenos, aes(x=factor(dose), y=length, fill=supp)) +
+    geom_bar(stat="identity", position=position_dodge())
+
+ggplot(phenos) + geom_density(aes(x = yield, color = site))
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 3000)
+ggplot(phenos, aes(phen)) +
+  stat_density(aes(fill=factor(pop)), alpha=0.8)
+dev.off()
+
+p <-ggplot(mydata, aes(months, values))
+p +geom_bar(stat = "identity", aes(fill = type), position = "dodge") +
+  xlab("Months") + ylab("Count") +
+  ggtitle("Chickens & Eggs") +
+  theme_bw()
+
+
+  png('/home/jmiller1/public_html/phenotypes.png',width = 3000)
+
+  qplot(phenos, data = phenos$phen, geom = "density",
+      color = pop, linetype = pop)
+dev.off()
+
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 3000)
+ggplot(phenos, aes(phen)) +
+  geom_bar(aes(fill=pop),stat="count", position = "dodge",
+  bins=6, bin = 1,
+   col="black",
+   size=.1)
+dev.off()
+
+
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 3000)
+ggplot(phenos, aes(phen, colour = pop)) +
+  geom_freqpoly(binwidth = 1,stat="count")
+  dev.off()
+
+
+
+
+  #Phenotypes
+  phenos5 <- c(NBH$cross.18$pheno$pheno_05,ELR$cross.18$pheno$pheno_05,NEW$cross.18$pheno$pheno_05)
+  names.pop <- c(NBH$cross.18$pheno$ID_pop,ELR$cross.18$pheno$ID_pop,NEW$cross.18$pheno$ID_pop)
+  phenos <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenos5))
+
+
+
+tabso <- table(phenos)
+
+png('/home/jmiller1/public_html/phenotypes.png',width = 3000)
+ ggplot(tabso, aes(x = phen,y=pop, color=pop))+
+ geom_bar(stat="count", position = "dodge")
+  dev.off()
+
+
+
+
+
+
+
+
+
+
 check.ELR <- scanone(ELR$cross.18, method="imp",model='normal',pheno.col=6)
 
 cm.len <- cbind(
@@ -23,9 +252,6 @@ cm.len.max <- apply(cm.len,1,max)
 cm.len <- cm.len.max-cm.len[,1:2]
 cm.len <- cm.len[1:24,]
 
-ELR$cross.18$ID <- paste('ELR',ELR$cross.18$ID,sep='_')
-NBH$cross.18$ID <- paste('NBH',NBH$cross.18$ID,sep='_')
-NEW$cross.18$ID <- paste('NEW',NEW$cross.18$ID,sep='_')
 
 a <- unlist(lapply(strsplit(markernames(NEW$cross.18),':',fixed=T),'[[',1))
 b <- unlist(lapply(strsplit(markernames(NEW$cross.18),':',fixed=T),'[[',2))
@@ -55,45 +281,6 @@ scan.norm.imp.ELR <- scanone(cross.elr, method="imp",model='normal',pheno.col=6)
 ### Saved to home
 #save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
 #load(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
-
-#### Sim and reduce to grid ####
-NBH.x <- qtl::clean(NBH$cross.18)
-NEW.x <- qtl::clean(NEW$cross.18)
-ELR.x <- qtl::clean(ELR$cross.18)
-
-
-nbh.grid <- sim.geno(NBH.x, n.draws=20, step=5, off.end=0,
-  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
-new.grid <- sim.geno(NEW.x, n.draws=20, step=5, off.end=0,
-  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
-elr.grid <- sim.geno(ELR.x, n.draws=20, step=5, off.end=0,
-  error.prob=0.01,map.function="kosambi",stepwidth="fixed")
-
-nbh.grid <- reduce2grid(nbh.grid)
-new.grid <- reduce2grid(new.grid)
-elr.grid <- reduce2grid(elr.grid)
-
-scan.NBH <- scanone(nbh.grid, method="imp",model='normal',pheno.col=6)
-scan.NEW <- scanone(new.grid, method="imp",model='normal',pheno.col=6)
-scan.ELR <- scanone(elr.grid, method="imp",model='normal',pheno.col=6)
-
-melted.nbh <- data.frame(pop='NBH',chr=scan.NBH$chr,pos=scan.NBH$pos,lod=scan.NBH$lod)
-melted.new <- data.frame(pop='NEW',chr=scan.NEW$chr,pos=scan.NEW$pos,lod=scan.NEW$lod)
-melted.elr <- data.frame(pop='ELR',chr=scan.ELR$chr,pos=scan.ELR$pos,lod=scan.ELR$lod)
-melted <- rbind(melted.nbh,melted.new,melted.elr)
-pals <- brewer.pal(11,"Set3")
-#melted$pop <- factor(melted$pop, levels=c('NBH','NEW','ELR'))
-
-png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
-ggplot(melted,
-  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
-  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
-  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
-  #scale_x_continuous('pos') +
-  #scale_y_continuous('lod') +
-  scale_y_discrete('lod')+
-  theme(axis.text=element_text(size=10))
-dev.off()
 
 
 
