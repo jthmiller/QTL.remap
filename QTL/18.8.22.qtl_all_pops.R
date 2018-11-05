@@ -83,6 +83,17 @@ pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata
 phen$Pheno_05 <- phen$pheno_all
 index <- which(phen$pop_all=='BRP')
 
+png('/home/jmiller1/public_html/phenotypes.png',width = 600)
+ggplot(phen, aes(Pheno_05,pop_all,height=..density..,group=pop_all,fill=as.factor(pop_all),show.legend = F)) +
+  geom_density_ridges(alpha=0.5,scale=1.4, bandwidth=.5)+
+     xlim(0, 5) +
+     xlab("Phenotype Score") +
+     ylab("Density") +
+     scale_alpha(guide = 'none') +
+     scale_fill_discrete(name = "Populations") +
+     theme(text = element_text(size=20),axis.text.y = element_blank(),
+      plot.margin = unit(c(1,1,1,1), "cm"))
+dev.off()
 
 
 

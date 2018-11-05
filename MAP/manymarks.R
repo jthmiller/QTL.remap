@@ -138,6 +138,19 @@ POS.map.18 <- est.map(cross.18, error.prob = 0.1, map.function = "kosambi", chr 
 
 cross.18 <- replace.map(cross.18, POS.map.18)
 
+marker.warning()
+
+cross.18 <- removeDoubleXO(cross.18, verbose = T)
+print("Done removing dxo..")
+
+cross.18 <- drop.missing(cross.18, miss)
+
+marker.warning()
+
+
+
+
+
 print(summary(pull.map(cross.18))[as.character(X), ])
 
 print("Writing the markers to rQTL format")

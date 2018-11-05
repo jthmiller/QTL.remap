@@ -76,7 +76,7 @@ if (pop == "NBH") {
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1e-06
-  miss <- 15
+  miss <- 13
   miss1 <- 5
   miss2 <- 10
   if (X %in% (18)) {
@@ -111,7 +111,7 @@ if (pop == "NBH") {
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1e-06
-  miss <- 15
+  miss <- 13
   miss1 <- 5
   miss2 <- 10
 }
