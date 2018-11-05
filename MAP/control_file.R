@@ -33,8 +33,12 @@ if (exists("debug.cross")) {
   plotting <- F
 }
 ## QTL Scans
+
 chrms <- c(1:24)
 pops <- c("NBH", "NEW", "ELR")
+all.pops <- c("NBH", "BP", "ELR", "NEW")
+popcol <- brewer.pal(8, "Paired")[c(2, 4, 6, 8)]
+names(popcol) <- all.pops
 
 ## Directories
 basedir <- "/home/jmiller1/QTL_Map_Raw/popgen"
@@ -55,7 +59,7 @@ fpacks <- c("devtools", "httr", "RColorBrewer")
 lapply(fpacks, require, character.only = TRUE, lib.loc = flib)
 
 mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
-mpacks <- c("qtl", "foreach", "doParallel", "qtl2", "qtlTools")
+mpacks <- c("qtl", "foreach", "doParallel", "qtl2", "qtlTools", "ggridges")
 lapply(mpacks, require, character.only = TRUE, lib.loc = mylib)
 
 ### Phenotype translation

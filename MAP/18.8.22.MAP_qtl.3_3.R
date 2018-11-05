@@ -49,11 +49,15 @@ dev.off()
 
 print("Re-estimating the final map with many iterations...")
 POS.map.18 <- est.map(cross.18, error.prob = ers, map.function = "kosambi", chr = X, 
-  maxit = 1000)
+  maxit = 10000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 print("Done mapping..")
 
 print(summary(pull.map(cross.18))[as.character(X), ])
+
+vec <- as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18)))
+
+print(paste("physical positions from", min(vec), "to", max(vec)))
 
 print("Re-estimating error rate for QTL mapping")
 ers <- er.rate(cross = cross.18, cpus = slurmcore, maxit = 1000)

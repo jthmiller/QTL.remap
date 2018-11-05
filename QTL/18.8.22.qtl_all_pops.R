@@ -47,59 +47,27 @@ pals <- brewer.pal(11,"Set3")
 save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
 #load(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
 
-
-phenosN <- c(NBH$cross.18$pheno$pheno_norm,ELR$cross.18$pheno$pheno_norm,NEW$cross.18$pheno$pheno_norm)
-phenos5 <- c(NBH$cross.18$pheno$pheno_05,ELR$cross.18$pheno$pheno_05,NEW$cross.18$pheno$pheno_05)
-names.pop <- c(NBH$cross.18$pheno$ID_pop,ELR$cross.18$pheno$ID_pop,NEW$cross.18$pheno$ID_pop)
-phenos5 <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenos5))
-phenosN <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenosN))
-
-#Density ridges
-png('/home/jmiller1/public_html/phenotypes.png',width = 600)
-ggplot(phenosN, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop))) +
-  geom_density_ridges(alpha=0.5,scale=1.3, bandwidth=.5)+
-     xlim(-1, 6) +
-     xlab("Phenotype Score") +
-     ylab("Density") +
-     theme(text = element_text(size=20),axis.text.y = element_blank())
-dev.off()
-
-png('/home/jmiller1/public_html/phenotypes.png',width = 600)
-ggplot(phenos5, aes(phen,pop,height=..density..,group=pop,fill=as.factor(pop),color=as.factor(pop)),show.legend = F) +
-  geom_density_ridges(alpha=0.5,scale=1.3, bandwidth=.5)+
-     xlim(0, 5) +
-     xlab("Phenotype Score") +
-     ylab("Density") +
-     scale_alpha(guide = 'none')
-     scale_fill_discrete(name = "Populations") +
-     theme(text = element_text(size=20),axis.text.y = element_blank())
-dev.off()
-
-
-
-
-
 pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt',header=T)
 phen$Pheno_05 <- phen$pheno_all
 index <- which(phen$pop_all=='BRP')
-
+phen$pop_all <- factor(phen$pop_all, levels = c('NBH','BP','NEW','ELR'))
+#
 png('/home/jmiller1/public_html/phenotypes.png',width = 600)
-ggplot(phen, aes(Pheno_05,pop_all,height=..density..,group=pop_all,fill=as.factor(pop_all),show.legend = F)) +
-  geom_density_ridges(alpha=0.5,scale=1.4, bandwidth=.5)+
-     xlim(0, 5) +
-     xlab("Phenotype Score") +
-     ylab("Density") +
-     scale_alpha(guide = 'none') +
-     scale_fill_discrete(name = "Populations") +
-     theme(text = element_text(size=20),axis.text.y = element_blank(),
-      plot.margin = unit(c(1,1,1,1), "cm"))
+ggplot(phen, aes(Pheno_05, y = pop_all,fill=pop_all, group=pop_all, height=..density.., show.legend = F,order = as.numeric(pop_all))) +
+  geom_density_ridges(scale=1.33,bandwidth=.5) +
+  xlab("Phenotype Score") +
+  ylab("Density") +
+  scale_alpha(guide = 'none') +
+  scale_y_discrete(limits=rev(levels(phen$pop_all)),expand=c(0.01,0.01)) +
+  scale_x_continuous(expand=c(0.02,0.02),limits =c(0,5)) +
+  scale_fill_manual(name = "Populations",guide = "legend",values=popcol) +
+  theme(
+    text = element_text(size=20),
+    axis.text.y = element_blank(),
+    panel.background = element_rect(fill = "white", colour = "black", size = 0.1, linetype = 1),
+   )
 dev.off()
-
-
-
-
-
-
+#
 
 
 
@@ -236,6 +204,7 @@ ggplot(phenos, aes(phen, colour = pop)) +
   phenos5 <- c(NBH$cross.18$pheno$pheno_05,ELR$cross.18$pheno$pheno_05,NEW$cross.18$pheno$pheno_05)
   names.pop <- c(NBH$cross.18$pheno$ID_pop,ELR$cross.18$pheno$ID_pop,NEW$cross.18$pheno$ID_pop)
   phenos <- data.frame(pop=as.factor(names.pop),phen=as.numeric(phenos5))
+
 
 
 
