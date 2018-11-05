@@ -147,9 +147,10 @@ cross.18 <- drop.missing(cross.18, miss)
 
 marker.warning()
 
+POS.map.18 <- est.map(cross.18, error.prob = 0.1, map.function = "kosambi", chr = X, 
+  maxit = 1000)
 
-
-
+cross.18 <- replace.map(cross.18, POS.map.18)
 
 print(summary(pull.map(cross.18))[as.character(X), ])
 
