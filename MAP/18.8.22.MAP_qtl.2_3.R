@@ -18,12 +18,17 @@ print("Dropping ~3 markers that inflate the map. Takes a long time...")
 # 'kosambi', error.prob = 0.03, sex.sp = F, verbose = F, parallel = T, cores =
 # slurmcore)
 
-dropone <- parallel.droponemarker(cross.18, chr = X, error.prob = 0.03, map.function = "kosambi", 
-  m = 0, p = 0, maxit = 5, cores = slurmcore, tol = 1e-06, sex.sp = FALSE, verbose = F, 
-  parallel = T)
 
-cross.18 <- dropByDropone(cross = cross.18, droponeRes = dropone, endMarkerThresh = 15, 
-  re.est.map = F)
+for (i in 1:droppo) {
+  
+  dropone <- parallel.droponemarker(cross.18, chr = X, error.prob = 0.03, map.function = "kosambi", 
+    m = 0, p = 0, maxit = 5, cores = slurmcore, tol = 1e-06, sex.sp = FALSE, 
+    verbose = F, parallel = T)
+  
+  cross.18 <- qtlTools::dropByDropone(cross = cross.18, droponeRes = dropone, endMarkerThresh = 25, 
+    re.est.map = F)
+}
+
 
 marker.warning()
 
