@@ -21,11 +21,11 @@ NBH.x <- qtl::clean(NBH$cross.18)
 NEW.x <- qtl::clean(NEW$cross.18)
 ELR.x <- qtl::clean(ELR$cross.18)
 
-nbh.grid <- sim.geno(NBH.x, n.draws=250, step=5, off.end=0,
+nbh.grid <- sim.geno(NBH.x, n.draws=250, step=5, off.end=10,
   error.prob=0.01,map.function="kosambi",stepwidth="fixed")
-new.grid <- sim.geno(NEW.x, n.draws=250, step=5, off.end=0,
+new.grid <- sim.geno(NEW.x, n.draws=250, step=5, off.end=10,
   error.prob=0.01,map.function="kosambi",stepwidth="fixed")
-elr.grid <- sim.geno(ELR.x, n.draws=250, step=5, off.end=0,
+elr.grid <- sim.geno(ELR.x, n.draws=250, step=5, off.end=10,
   error.prob=0.01,map.function="kosambi",stepwidth="fixed")
 
 nbh.grid <- reduce2grid(nbh.grid)
