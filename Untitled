@@ -1,0 +1,4 @@
+#!/bin/bash
+cp -r /home/jmiller1/elias ~/herring
+exc="herring/code/EO.sh"
+sbatch -J "EO.bigmem" $exc
