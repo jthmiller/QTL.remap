@@ -101,6 +101,7 @@ cross.18 <- drop.markers(cross.18, rownames(gt.missing[gt.missing$P.value < cuto
 
 marker.warning()
 
+print(paste("dropping marks more than", miss, "missing"))
 cross.18 <- drop.missing(cross.18, miss)
 
 marker.warning()

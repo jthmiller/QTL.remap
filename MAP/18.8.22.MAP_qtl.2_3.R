@@ -29,8 +29,19 @@ for (i in 1:droppo) {
     re.est.map = F)
 }
 
-
 marker.warning()
+
+if (pop == "ELR") {
+  
+  cross.18 <- dropSimilarMarkers(cross.18, chr = X, rf.threshold = 0.01, sd.weight = 0, 
+    na.weight = 1, keepEnds = FALSE, doNotDrop = NULL, verbose = TRUE, blockSize = 100, 
+    byChr = TRUE, runFullMatrix = FALSE, ...)
+  
+}
+
+
+
+
 
 if (reorder.marks == T) {
   print("Re-order markers")
@@ -40,7 +51,7 @@ if (reorder.marks == T) {
 
 print("Re-estimating the map")
 POS.map.18 <- est.map(cross.18, error.prob = 0.05, map.function = "kosambi", chr = X, 
-  maxit = 1000)
+  maxit = 3000)
 
 cross.18 <- replace.map(cross.18, POS.map.18)
 
