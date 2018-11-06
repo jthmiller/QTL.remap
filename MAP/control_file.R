@@ -79,7 +79,7 @@ if (pop == "NBH") {
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 1e-06
-  miss <- 15
+  miss <- 12
   miss1 <- 5
   miss2 <- 15
   droppo <- 3
@@ -112,7 +112,7 @@ if (pop == "NBH") {
   cutoff <- 1e-06
   miss <- 15
   miss1 <- 5
-  miss2 <- 10
+  miss2 <- 12
   droppo <- 2
 }
 
