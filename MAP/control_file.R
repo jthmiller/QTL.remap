@@ -81,7 +81,7 @@ if (pop == "NBH") {
   cutoff <- 1e-06
   miss <- 15
   miss1 <- 5
-  miss2 <- 10
+  miss2 <- 15
   droppo <- 3
 } else if (pop == "ELR") {
   ns <- "South"

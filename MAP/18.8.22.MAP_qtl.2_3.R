@@ -27,6 +27,11 @@ for (i in 1:droppo) {
   
   cross.18 <- qtlTools::dropByDropone(cross = cross.18, droponeRes = dropone, endMarkerThresh = 25, 
     re.est.map = F)
+  
+  marker.warning()
+  
+  print(i)
+  
 }
 
 marker.warning()
@@ -38,9 +43,6 @@ if (pop == "ELR") {
     byChr = TRUE, runFullMatrix = FALSE, ...)
   
 }
-
-
-
 
 
 if (reorder.marks == T) {
