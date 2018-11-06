@@ -18,7 +18,7 @@ NBH4=$(sbatch -J "NBH.final" --parsable --dependency=afterany:$NBH3 $scriptdir/M
 NBH5=$(sbatch -J "NBH.scan" --parsable --dependency=afterany:$NBH4 $scriptdir/QTL/18.8.22.SCAN.sh NBH)
 #NBH5=$(sbatch -J "NBH.scan" --parsable $scriptdir/QTL/18.8.22.SCAN.sh NBH)
 NBH6=$(sbatch -J "NBH.scan2" --parsable --dependency=afterany:$NBH5 $scriptdir/QTL/18.8.22.SCAN2.sh NBH)
-NBH6=$(sbatch -J "NBH.scan2" --parsable $scriptdir/QTL/18.8.22.SCAN2.sh NBH)
+#NBH6=$(sbatch -J "NBH.scan2" --parsable $scriptdir/QTL/18.8.22.SCAN2.sh NBH)
 #NBH5=$(sbatch -J "NBH.parents" --parsable $scriptdir/QTL/compare.kinship2.sh NBH)
 #E. river
 ELR1=$(sbatch -J "ELR.initial" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_1.sh ELR)

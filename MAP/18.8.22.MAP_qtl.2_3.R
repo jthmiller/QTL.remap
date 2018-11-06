@@ -36,15 +36,6 @@ for (i in 1:droppo) {
 
 marker.warning()
 
-if (pop == "ELR") {
-  
-  cross.18 <- dropSimilarMarkers(cross.18, chr = X, rf.threshold = 0.01, sd.weight = 0, 
-    na.weight = 1, keepEnds = FALSE, doNotDrop = NULL, verbose = TRUE, blockSize = 100, 
-    byChr = TRUE, runFullMatrix = FALSE, ...)
-  
-}
-
-
 if (reorder.marks == T) {
   print("Re-order markers")
   cross.18 <- orderMarkers(cross.18, chr = X, window = 5, use.ripple = T, error.prob = ers, 
