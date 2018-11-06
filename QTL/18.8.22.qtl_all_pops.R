@@ -1,5 +1,5 @@
 #!/bin/bash
-#debug.cross<- T
+debug.cross<- T
 source('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R')
 library(ggplot2)
 library("ggridges")
@@ -40,8 +40,6 @@ melted.nbh <- data.frame(pop='NBH',chr=scan.NBH$chr,pos=scan.NBH$pos,lod=scan.NB
 melted.new <- data.frame(pop='NEW',chr=scan.NEW$chr,pos=scan.NEW$pos,lod=scan.NEW$lod)
 melted.elr <- data.frame(pop='ELR',chr=scan.ELR$chr,pos=scan.ELR$pos,lod=scan.ELR$lod)
 melted <- rbind(melted.nbh,melted.new,melted.elr)
-pals <- brewer.pal(11,"Set3")
-#melted$pop <- factor(melted$pop, levels=c('NBH','NEW','ELR'))
 
 ### Saved to home
 save.image(file.path('~/NEW.NBH.ELR.QTLmap.Rsave'))
@@ -51,7 +49,8 @@ pheno.all <- phen <- read.table('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata
 phen$Pheno_05 <- phen$pheno_all
 index <- which(phen$pop_all=='BRP')
 phen$pop_all <- factor(phen$pop_all, levels = c('NBH','BP','NEW','ELR'))
-#
+
+#Phenotype figure
 png('/home/jmiller1/public_html/phenotypes.png',width = 600)
 ggplot(phen, aes(Pheno_05, y = pop_all,fill=pop_all, group=pop_all, height=..density.., show.legend = F,order = as.numeric(pop_all))) +
   geom_density_ridges(scale=1.33,bandwidth=.5) +
@@ -67,7 +66,43 @@ ggplot(phen, aes(Pheno_05, y = pop_all,fill=pop_all, group=pop_all, height=..den
     panel.background = element_rect(fill = "white", colour = "black", size = 0.1, linetype = 1),
    )
 dev.off()
-#
+
+
+# All chr
+png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
+ggplot(melted,
+  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
+  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
+  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
+  #scale_x_continuous('pos') +
+  #scale_y_continuous('lod') +
+  scale_y_discrete('lod')+
+  scale_fill_manual(name = "Populations",guide = "legend",values=popcol) +
+  theme(axis.text=element_text(size=10))
+dev.off()
+
+
+
+melted2 <- melted[which(!melted$pop=='ELR'),]
+melted2$pop <- factor(melted2$pop, levels = c('NEW','NBH'))
+
+
+# All chr
+png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
+ggplot(melted,
+  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
+  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
+  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
+  #scale_x_continuous('pos') +
+  #scale_y_continuous('lod') +
+  scale_y_discrete('lod')+
+  theme(axis.text=element_text(size=10))
+dev.off()
+
+
+
+
+
 
 
 
@@ -79,17 +114,6 @@ dev.off()
 
 https://cran.rstudio.com/web/packages/mapfuser/vignettes/mapfuser.html
 
-
-png('/home/jmiller1/public_html/ggplot2.qtl.png',width = 3000)
-ggplot(melted,
-  aes(y=as.factor(pop),x=pos,height=lod,fill=pop)) +
-  geom_ridgeline(stat='identity',alpha=0.5,scale=0.25) +
-  facet_wrap(~as.factor(chr),scales='free_x',nrow = 1, ncol = 24,strip.position = NULL) +
-  #scale_x_continuous('pos') +
-  #scale_y_continuous('lod') +
-  scale_y_discrete('lod')+
-  theme(axis.text=element_text(size=10))
-dev.off()
 
 #Phenotypes
 phenos5 <- c(NBH$cross.18$pheno$pheno_05,ELR$cross.18$pheno$pheno_05,NEW$cross.18$pheno$pheno_05)
