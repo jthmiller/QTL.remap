@@ -82,6 +82,7 @@ if (pop == "NBH") {
   miss <- 15
   miss1 <- 5
   miss2 <- 10
+  droppo <- 3
 } else if (pop == "ELR") {
   ns <- "South"
   confirmed = T
@@ -96,6 +97,7 @@ if (pop == "NBH") {
   miss <- 10
   miss1 <- 4
   miss2 <- 8
+  droppo <- 3
 } else if (pop == "NEW") {
   ns <- "North"
   confirmed = T
@@ -111,6 +113,7 @@ if (pop == "NBH") {
   miss <- 15
   miss1 <- 5
   miss2 <- 10
+  droppo <- 2
 }
 
 if (mapped.only == TRUE & reorder.marks == F) {
