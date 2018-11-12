@@ -26,8 +26,13 @@ for (i in 1:droppo) {
     m = 0, p = 0, maxit = 5, cores = slurmcore, tol = 1e-06, sex.sp = FALSE, 
     verbose = F, parallel = T)
   
-  cross.18 <- qtlTools::dropByDropone(cross = cross.18, droponeRes = dropone, midMarkerThresh = 3, 
-    endMarkerThresh = 10, re.est.map = F)
+  dropone$Ldiff <- abs(as.numeric(dropone$Ldiff))
+  drops <- rownames(summary(dropone)[1, ])
+  
+  cross.18 <- drop.markers(cross.18, drops)
+  
+  # cross.18 <- qtlTools::dropByDropone(cross = cross.18, droponeRes = dropone,
+  # midMarkerThresh = 15, endMarkerThresh = 15, re.est.map = F)
   
   marker.warning()
   

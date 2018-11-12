@@ -109,7 +109,7 @@ if (pop == "NBH") {
   miss <- 4
   miss1 <- 4
   miss2 <- 8
-  droppo <- 5
+  droppo <- 15
 } else if (pop == "NEW") {
   ns <- "North"
   confirmed = T
