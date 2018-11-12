@@ -52,7 +52,7 @@ fpacks <- c("devtools", "httr", "RColorBrewer", "qtl")
 lapply(fpacks, require, character.only = TRUE, lib.loc = flib)
 
 mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
-mpacks <- c("qtl", "foreach", "qtl2", "qtlTools")
+mpacks <- c("qtl", "foreach", "qtl2", "qtlTools", "doParallel")
 lapply(mpacks, require, character.only = TRUE, lib.loc = mylib)
 
 sourceDir <- function(path, trace = TRUE, ...) {
