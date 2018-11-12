@@ -1,6 +1,4 @@
 #!/bin/R
-
-debug.cross <- T
 source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 
 cross.18 <- reconst(X = chrms, pop = popq, temp.dir = popdir, a = 2)
