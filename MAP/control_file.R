@@ -95,7 +95,7 @@ if (pop == "NBH") {
   grpRf <- 0.3
   finRf <- 0.15
   cutoff <- 0.001  ## Higher, need more power to detect seg distortion
-  miss <- 5
+  miss <- 4
   miss1 <- 4
   miss2 <- 8
   droppo <- 5
