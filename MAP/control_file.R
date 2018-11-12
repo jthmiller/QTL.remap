@@ -48,13 +48,14 @@ source(file.path(basedir, "rQTL/scripts/QTL_remap/QTL/model_source_file.R"))
 
 ## Libraries
 flib <- "/share/apps/rmodules"
-fpacks <- c("devtools", "httr", "RColorBrewer")
+fpacks <- c("devtools", "httr", "RColorBrewer", "doParallel", "qtl")
 lapply(fpacks, require, character.only = TRUE, lib.loc = flib)
 
 mylib <- "/home/jmiller1/R/x86_64-pc-linux-gnu-library/3.5"
-mpacks <- c("qtl", "foreach", "doParallel", "qtl2", "qtlTools")
+mpacks <- c("qtl", "foreach", "qtl2", "qtlTools")
 lapply(mpacks, require, character.only = TRUE, lib.loc = mylib)
 
+sourceDir("doParallel/R")
 ## Pop vars
 chrms <- c(1:24)
 pops <- c("NBH", "NEW", "ELR")

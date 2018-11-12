@@ -14,7 +14,7 @@ NBH2=$(sbatch -J "NBH.pardrop"  --parsable --dependency=afterany:$NBH1 $scriptdi
 NBH3=$(sbatch -J "NBH.ripple" --parsable --dependency=afterany:$NBH2 $scriptdir/MAP/18.8.22.MAP_qtl_3.sh NBH)
 #NBH3=$(sbatch -J "NBH.ripple" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_3.sh NBH)
 NBH4=$(sbatch -J "NBH.final" --parsable --dependency=afterany:$NBH3 $scriptdir/MAP/18.8.22.MAP_qtl_4.sh NBH)
-#NBH4=$(sbatch -J "NBH.final" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_4.sh NBH)
+NBH4=$(sbatch -J "NBH.final" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_4.sh NBH)
 NBH5=$(sbatch -J "NBH.scan" --parsable --dependency=afterany:$NBH4 $scriptdir/QTL/18.8.22.SCAN.sh NBH)
 #NBH5=$(sbatch -J "NBH.scan" --parsable $scriptdir/QTL/18.8.22.SCAN.sh NBH)
 NBH6=$(sbatch -J "NBH.scan2" --parsable --dependency=afterany:$NBH5 $scriptdir/QTL/18.8.22.SCAN2.sh NBH)
