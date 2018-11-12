@@ -36,5 +36,5 @@ NEW3=$(sbatch -J "NEW.ripple" --parsable --dependency=afterany:$NEW2 $scriptdir/
 NEW4=$(sbatch -J "NEW.final" --parsable --dependency=afterany:$NEW3 $scriptdir/MAP/18.8.22.MAP_qtl_4.sh NEW)
 NEW4=$(sbatch -J "NEW.final" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_4.sh NEW)
 NEW5=$(sbatch -J "NEW.scan" --parsable --dependency=afterany:$NEW4 $scriptdir/QTL/18.8.22.SCAN.sh NEW)
-#NEW5=$(sbatch -J "NEW.scan" --parsable $scriptdir/QTL/18.8.22.SCAN.sh NEW)
+NEW5=$(sbatch -J "NEW.scan" --parsable $scriptdir/QTL/18.8.22.SCAN.sh NEW)
 NEW6=$(sbatch -J "NEW.scan2" --parsable --dependency=afterany:$NEW5 $scriptdir/QTL/18.8.22.SCAN2.sh NEW)
