@@ -22,15 +22,15 @@ NBH.x <- qtl::clean(NBH$cross.18)
 NEW.x <- qtl::clean(NEW$cross.18)
 ELR.x <- qtl::clean(ELR$cross.18)
 
-nbh.grid <- sim.geno(NBH.x, n.draws = 500, step = 5, off.end = 10, error.prob = 0.01, 
+nbh.grid <- sim.geno(NBH.x, n.draws = 500, step = 5, off.end = 10, error.prob = 0.01,
   map.function = "kosambi", stepwidth = "fixed")
-new.grid <- sim.geno(NEW.x, n.draws = 500, step = 5, off.end = 10, error.prob = 0.01, 
+new.grid <- sim.geno(NEW.x, n.draws = 500, step = 5, off.end = 10, error.prob = 0.01,
   map.function = "kosambi", stepwidth = "fixed")
-elr.grid <- sim.geno(ELR.x, n.draws = 500, step = 5, off.end = 10, error.prob = 0.01, 
+elr.grid <- sim.geno(ELR.x, n.draws = 500, step = 5, off.end = 10, error.prob = 0.01,
   map.function = "kosambi", stepwidth = "fixed")
 
 cross <- c(NBH.x, NEW.x, ELR.x)
-cross <- sim.geno(cross, n.draws = 20, step = 1, off.end = 10, error.prob = 0.001, 
+cross <- sim.geno(cross, n.draws = 20, step = 1, off.end = 10, error.prob = 0.001,
   map.function = "kosambi", stepwidth = "fixed")
 
 POS.map.18 <- est.map(cross, error.prob = 0.05, map.function = "kosambi", maxit = 1000)
@@ -50,11 +50,11 @@ scan.norm.imp.NBH <- scanone(cross.nbh, method = "imp", model = "normal", pheno.
 scan.norm.imp.NEW <- scanone(cross.new, method = "imp", model = "normal", pheno.col = 6)
 scan.norm.imp.ELR <- scanone(cross.elr, method = "imp", model = "normal", pheno.col = 6)
 
-melted.nbh <- data.frame(pop = "NBH", chr = scan.norm.imp.NBH$chr, pos = scan.norm.imp.NBH$pos, 
+melted.nbh <- data.frame(pop = "NBH", chr = scan.norm.imp.NBH$chr, pos = scan.norm.imp.NBH$pos,
   lod = scan.norm.imp.NBH$lod)
-melted.new <- data.frame(pop = "NEW", chr = scan.norm.imp.NEW$chr, pos = scan.norm.imp.NEW$pos, 
+melted.new <- data.frame(pop = "NEW", chr = scan.norm.imp.NEW$chr, pos = scan.norm.imp.NEW$pos,
   lod = scan.norm.imp.NEW$lod)
-melted.elr <- data.frame(pop = "ELR", chr = scan.norm.imp.ELR$chr, pos = scan.norm.imp.ELR$pos, 
+melted.elr <- data.frame(pop = "ELR", chr = scan.norm.imp.ELR$chr, pos = scan.norm.imp.ELR$pos,
   lod = scan.norm.imp.ELR$lod)
 melted <- rbind(melted.nbh, melted.new, melted.elr)
 
@@ -62,16 +62,12 @@ melted$pop <- factor(melted$pop, levels = rev(c("NBH", "NEW", "ELR")))
 
 # All chr
 png("/home/jmiller1/public_html/ggplot2.qtl.png", width = 3000)
-ggplot(melted, aes(y = as.factor(pop), x = pos, height = lod, fill = pop)) + ylab(NULL) + 
-  geom_ridgeline(stat = "identity", scale = 0.2) + facet_wrap(~as.factor(chr), 
-  scales = "free_x", nrow = 1, ncol = 24, strip.position = NULL) + scale_y_discrete("lod") + 
-  scale_fill_manual(name = "Populations", guide = F, values = popcol) + theme(axis.text = element_text(size = 10), 
+ggplot(melted, aes(y = as.factor(pop), x = pos, height = lod, fill = pop)) + ylab(NULL) +
+  geom_ridgeline(stat = "identity", scale = 0.2) + facet_wrap(~as.factor(chr),
+  scales = "free_x", nrow = 1, ncol = 24, strip.position = NULL) + scale_y_discrete("lod") +
+  scale_fill_manual(name = "Populations", guide = F, values = popcol) + theme(axis.text = element_text(size = 10),
   axis.text.y = element_blank())
 dev.off()
-
-
-
-
 
 
 # model_source_file
@@ -81,21 +77,23 @@ out.elr <- fitqtl(ELR$cross.18, qtl = ELR$qtl.uns)
 
 
 # Phenotype plot
-pheno.all <- phen <- read.table("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt", 
+pheno.all <- phen <- read.csv("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.csv",
   header = T)
+phen <- phen[!is.na(phen$pheno_all),]
 phen$Pheno_05 <- phen$pheno_all
-index <- which(phen$pop_all == "BRP")
+#index <- which(phen$pop_all == "BRP")
+
 phen$pop_all <- factor(phen$pop_all, levels = c("NBH", "BP", "NEW", "ELR"))
 
 # Phenotype figure
 png("/home/jmiller1/public_html/phenotypes.png", width = 600)
-ggplot(phen, aes(Pheno_05, y = pop_all, fill = pop_all, group = pop_all, height = ..density.., 
-  show.legend = F, order = as.numeric(pop_all))) + geom_density_ridges(scale = 1.33, 
-  bandwidth = 0.5) + xlab("Phenotype Score") + ylab("Density") + scale_alpha(guide = "none") + 
-  scale_y_discrete(limits = rev(levels(phen$pop_all)), expand = c(0.01, 0.01)) + 
-  scale_x_continuous(expand = c(0.02, 0.02), limits = c(0, 5)) + scale_fill_manual(name = "Populations", 
-  guide = "legend", values = popcol) + theme(text = element_text(size = 20), axis.text.y = element_blank(), 
-  panel.background = element_rect(fill = "white", colour = "black", size = 0.1, 
+ggplot(phen, aes(Pheno_05, y = pop_all, fill = pop_all, group = pop_all, height = ..density..,
+  show.legend = F, order = as.numeric(pop_all))) + geom_density_ridges(scale = 1.33,
+  bandwidth = 0.5) + xlab("Phenotype Score") + ylab("Density") + scale_alpha(guide = "none") +
+  scale_y_discrete(limits = rev(levels(phen$pop_all)), expand = c(0.01, 0.01)) +
+  scale_x_continuous(expand = c(0.02, 0.02), limits = c(0, 5)) + scale_fill_manual(name = "Populations",
+  guide = "legend", values = popcol) + theme(text = element_text(size = 20), axis.text.y = element_blank(),
+  panel.background = element_rect(fill = "white", colour = "black", size = 0.1,
     linetype = 1), )
 dev.off()
 
@@ -138,8 +136,8 @@ melted2$pop <- factor(melted2$pop, levels = c("NEW", "NBH"))
 
 # All chr
 png("/home/jmiller1/public_html/ggplot2.qtl.png", width = 3000)
-ggplot(melted, aes(y = as.factor(pop), x = pos, height = lod, fill = pop)) + geom_ridgeline(stat = "identity", 
-  alpha = 0.5, scale = 0.25) + facet_wrap(~as.factor(chr), scales = "free_x", nrow = 1, 
+ggplot(melted, aes(y = as.factor(pop), x = pos, height = lod, fill = pop)) + geom_ridgeline(stat = "identity",
+  alpha = 0.5, scale = 0.25) + facet_wrap(~as.factor(chr), scales = "free_x", nrow = 1,
   ncol = 24, strip.position = NULL) + # scale_x_continuous('pos') + scale_y_continuous('lod') +
 scale_y_discrete("lod") + theme(axis.text = element_text(size = 10))
 dev.off()
@@ -149,13 +147,13 @@ dev.off()
 
 cross2 <- convert2cross2(cross.18)
 map <- insert_pseudomarkers(cross2$gmap, step = 1)
-sim_geno <- 
+sim_geno <-
 nbh2 <- convert2cross2(NBH$cross.18)
 
 
 plot_pxg(nbh2$geno$"1"[, 1], nbh2$pheno[, 2])
 
-nbh2.imp <- sim_geno(nbh2, n_draws = 200, error_prob = 0.01, map_function = "kosambi", 
+nbh2.imp <- sim_geno(nbh2, n_draws = 200, error_prob = 0.01, map_function = "kosambi",
   lowmem = FALSE, quiet = TRUE, cores = 12)
 
 

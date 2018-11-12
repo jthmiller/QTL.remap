@@ -12,28 +12,17 @@ vec <- as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18)))
 print(paste("physical positions from", min(vec), "to", max(vec)))
 
 print("Adding un-genotyped individuals for stratified analysis")
-pheno.all <- phen <- read.table("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.txt", 
+pheno.all <- phen <- read.csv("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.csv", 
   header = T)
 phen$Pheno_05 <- phen$pheno_all
 index <- which(phen$pop_all == pop)
+rownames(phen) <- paste(phen$pop_all, phen$IND, sep = "_")
+set <- rownames(phen)[which(phen$pop_all == pop)]
+ngos <- set[which(!set %in% cross.18$pheno$ID)]
+cross.18$pheno$gt <- "GT"
 
-count.pheno <- sapply(0:5, function(pt) {
-  pt <- as.character(pt)
-  total <- sum(phen$Pheno_05[index] == pt)
-  incross <- sum(cross.18$pheno$Pheno_05 == pt)
-  return(as.numeric(total - incross))
-})
-
-names(count.pheno) <- as.character(0:5)
-count.pheno <- count.pheno[!is.na(count.pheno)]
-count.pheno <- rep.int(names(count.pheno), times = as.numeric(count.pheno))
-
-no_genos <- data.frame(Pheno = as.numeric(trsl.bin[as.character(count.pheno)]), sex = 0, 
-  ID = paste("NG", 1:length(count.pheno), sep = ""), Pheno_05 = count.pheno, markers = matrix("-", 
-    nrow = length(count.pheno), ncol = as.numeric(nmar(cross.18))))
-
-phenos <- data.frame(count.pheno, Pheno = as.numeric(trsl.bin[as.character(count.pheno)]))
-rownames(phenos) <- paste("NG", 1:length(count.pheno), sep = "")
+no_genos <- data.frame(Pheno = phen[ngos, 3], sex = 0, ID = ngos, Pheno_05 = phen[ngos, 
+  3], gt <- "NG", markers = matrix("-", nrow = length(ngos), ncol = as.numeric(nmar(cross.18))))
 
 write.table(no_genos, file = file.path(popdir, paste(X, "no_genos.csv", sep = "_")), 
   col.names = F, row.names = F, quote = F, sep = ",")
