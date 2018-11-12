@@ -108,11 +108,18 @@ marker.warning()
 
 gt.cross.pars <- geno.table(cross.pars)[markernames(cross.18), ]
 
+cross.18 <- formLinkageGroups(backup, max.rf = 0.15, reorgMarkers = TRUE)
+cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
+cross.18 <- subset(cross.18, chr = which.max(nmar(cross.18)))
+names(cross.18$geno) <- X
+
 swit <- checkAlleles(cross.18, threshold = 6, verbose = F)
 swit.v <- swit[!swit[, 1] %in% toSwitch, 1]
 cross.18 <- switchAlleles(cross.18, swit.v)
 
-swit <- checkAlleles(cross.18, threshold = 7, verbose = F)
+swit <- checkAlleles(cross.18, threshold = 6, verbose = F)
 swit <- swit[!swit[, 1] %in% toSwitch, ]
 swit.m <- as.matrix(dist(swit$index))
 swit.v <- which(swit.m == 1, arr.ind = TRUE)
@@ -121,7 +128,7 @@ cross.18 <- switchAlleles(cross.18, swit[unique(swit.v[1]), 1])
 swit <- checkAlleles(cross.18, threshold = 10, verbose = F)[, 1]
 cross.18 <- drop.markers(cross.18, swit)
 
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- formLinkageGroups(backup, max.rf = 0.15, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
 cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))

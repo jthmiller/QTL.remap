@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/R
+
 setwd('/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/QTL/')
 source('control_file.R')
 
@@ -55,18 +56,25 @@ stepout1.uns <- stepwiseqtl(cross,qtl=qtl.rf.uns,pheno.col=1,model="binary",
 stepout1 <- stepwiseqtl(cross,qtl=qtl.rf,pheno.col=1,model="binary",
   additive.only=TRUE, max.qtl=7, verbose=FALSE)
 
-save.image(paste('QTLmap.Rsave',sep=''))
 
-try(
-cross.no2 <- subset(cross,chr=c(1,3:24))
-registerDoParallel(slurmcore)
-operm.hk <- foreach(i=50,
-  .combine=c,.packages = "qtl") %dopar% {
-    operm <- scantwo(cross.no2, method="hk", n.perm=1,perm.strata=strata)
-}
-pen.em <- calc.penalties(operm.hk)
-save.image(paste('QTLmap.Rsave',sep=''))
-)
+
+  save.image(paste('QTLmap.Rsave',sep=''))
+
+  try(cross.no2 <- subset(cross,chr=c(1,3:24))
+  registerDoParallel(slurmcore)
+    operm.hk <- foreach(i=50,
+    .combine=c,.packages = "qtl") %dopar% {
+      operm <- scantwo(cross.no2, method="hk", n.perm=1,perm.strata=strata)
+    }
+  pen.em <- calc.penalties(operm.hk)
+  save.image(paste('QTLmap.Rsave',sep=''))
+  )
+
+
+
+
+
+
 try(
 ### qtl scan2
 registerDoParallel(slurmcore)
