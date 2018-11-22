@@ -64,9 +64,8 @@ print("Re-estimating error rate for QTL mapping")
 ers <- er.rate(cross = cross.18, cpus = slurmcore, maxit = 1000)
 print(paste(ers, " error rate"))
 
-### Add phenotype
-cross.18$pheno$Pheno_05 <- cross.18$pheno$Pheno
-cross.18$pheno$Pheno <- trsl.bin[as.character(cross.18$pheno$Pheno_05)]
+### Add phenotype cross.18$pheno$Pheno_05 <- cross.18$pheno$Pheno
+### cross.18$pheno$Pheno <- trsl.bin[as.character(cross.18$pheno$Pheno_05)]
 
 print("Re-writing the markers to rQTL format")
 write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, "_3.QTLmap", 

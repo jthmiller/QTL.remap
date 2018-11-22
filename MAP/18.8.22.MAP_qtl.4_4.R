@@ -20,10 +20,12 @@ index <- which(phen$pop_all == pop)
 rownames(phen) <- paste(phen$pop_all, phen$IND, sep = "_")
 set <- rownames(phen)[which(phen$pop_all == pop)]
 ngos <- set[which(!set %in% cross.18$pheno$ID)]
+
+## SET genotyped ind label
 cross.18$pheno$gt <- "GT"
 
-no_genos <- data.frame(Pheno = phen[ngos, 3], sex = 0, ID = ngos, Pheno_05 = phen[ngos, 
-  3], gt <- "NG", markers = matrix("-", nrow = length(ngos), ncol = as.numeric(nmar(cross.18))))
+no_genos <- data.frame(Pheno = phen[ngos, 4], sex = 0, ID = ngos, gt <- "NG", markers = matrix("-", 
+  nrow = length(ngos), ncol = as.numeric(nmar(cross.18))))
 
 write.table(no_genos, file = file.path(popdir, paste(X, "no_genos.csv", sep = "_")), 
   col.names = F, row.names = F, quote = F, sep = ",")
