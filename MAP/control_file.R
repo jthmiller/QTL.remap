@@ -90,10 +90,10 @@ if (pop == "NBH") {
   finLod <- 12  ## Higher final NBH LOD
   grpRf <- 0.3
   finRf <- 0.15
-  cutoff <- 1e-06
+  cutoff <- 1e-05
   miss <- 12
-  miss1 <- 5
-  miss2 <- 15
+  miss1 <- 10
+  miss2 <- 8
   droppo <- 3
 } else if (pop == "ELR") {
   ns <- "South"
@@ -121,10 +121,10 @@ if (pop == "NBH") {
   finLod <- 12  ## Higher final ELR LOD
   grpRf <- 0.3
   finRf <- 0.15
-  cutoff <- 1e-06
+  cutoff <- 1e-05
   miss <- 15
-  miss1 <- 5
-  miss2 <- 12
+  miss1 <- 10
+  miss2 <- 8
   droppo <- 2
 }
 

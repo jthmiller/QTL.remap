@@ -52,6 +52,17 @@ gt.BLI.S <- geno.table(BLI.S)
 TOL.N <- c(subset(marks[[1]], ind = "NBH_NBH1F"), subset(marks[[2]], ind = "NEW_NEW911F"))
 gt.TOL.N <- geno.table(TOL.N)
 
+### Alleles to switch in north:
+flip.north.B <- rownames(gt.BLI.N[which(gt.BLI.N$AA == 2), ])
+flip.north.A <- rownames(gt.TOL.N[which(gt.TOL.N$BB == 2), ])
+toSwitch <- c(flip.north.B, flip.north.A)
+
+fileConn <- file(file.path(dirso, "toSwitch.N.txt"))
+writeLines(toSwitch, fileConn)
+close(fileConn)
+
+
+
 #### Low cov ELR indivdual
 TOL.S <- subset(marks[[3]], ind = "ELR_ER1124F")
 gt.TOL.S <- geno.table(TOL.S)

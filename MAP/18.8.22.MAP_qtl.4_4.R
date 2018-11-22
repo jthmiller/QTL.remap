@@ -30,7 +30,7 @@ write.table(no_genos, file = file.path(popdir, paste(X, "no_genos.csv", sep = "_
 write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, "_3.QTLmap", 
   sep = ""), format = "csv", chr = X)
 
-system(paste("cat ", popdir, "/chr", X, "_", outname, "_3.QTLmap.csv ", popdir, "/", 
+system(paste("cat ", popdir, "/chr", X, "_", outname, "_4.QTLmap.csv ", popdir, "/", 
   paste(X, "no_genos.csv", sep = "_"), " > ", popdir, "/temp.", X, sep = ""))
 
 print("saving... done with mapping ind chromosomes")

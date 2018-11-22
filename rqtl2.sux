@@ -1,0 +1,74 @@
+
+
+
+
+
+write_control_file('NBH.yaml', crosstype = 'f2', geno_file = 'NBH.csv',
+   founder_geno_file = 'NBH.founders.csv', gmap_file = 'NBH_gmap.csv', pmap_file = 'NBH_pmap.csv',
+   pheno_file = 'NBH_pheno.csv', covar_file = NULL, phenocovar_file = NULL,
+   sex_file = NULL, sex_covar = NULL, sex_codes = NULL,
+   crossinfo_file = NULL, crossinfo_covar = NULL, crossinfo_codes = NULL,
+   geno_codes = gts, alleles = c('A','B'), xchr = NULL, sep = ",",
+   na.strings = c("-", "NA"), comment.char = "#", geno_transposed = FALSE,
+   founder_geno_transposed = FALSE, pheno_transposed = FALSE,
+   covar_transposed = FALSE, phenocovar_transposed = FALSE,
+   description = NULL, comments = NULL, overwrite = TRUE)
+
+grav2 <- read_cross2("NBH.yaml")
+
+write.cross(NBH.x, filestem = '~/NBH', format = "csv")
+
+
+NBH.x <- drop.markers(NBH.x,markernames(NBH.x)[!markernames(NBH.x)%in%markernames(cross.pars)])
+mats <- lapply(NBH.x$geno,'[[',1)
+df <- data.frame(matrix(unlist(mats), nrow=270, byrow=T))
+
+
+df[df=='1'] <- 'AA'
+df[df=='2'] <- 'AB'
+df[df=='3'] <- 'BB'
+df[df=='0'] <- '-'
+colnames(df) <- markernames(NBH.x)
+rownames(df) <- getid(NBH.x)
+
+write.csv(df,'~/NBH.csv',quote=F)
+
+
+
+
+
+
+cross.pars <- drop.markers(cross.pars, markernames(cross.pars)[!markernames(cross.pars)%in%markernames(NBH.x)])
+
+mats <- lapply(cross.pars$geno,'[[',1)
+df <- data.frame(matrix(unlist(mats), nrow=2, byrow=T))
+df[df=='1'] <- 'AA'
+df[df=='2'] <- 'AB'
+df[df=='3'] <- 'BB'
+df[df=='0'] <- '-'
+
+colnames(df) <- markernames(cross.pars)
+rownames(df) <- getid(cross.pars)
+write.csv(df,'~/NBH.founders.csv',quote=F)
+
+
+ph <- data.frame(id=NBH.x$pheno$ID,development=NBH.x$pheno$pheno_05)
+write.csv(ph,'~/NBH_pheno.csv',quote=F,row.names=F)
+
+map <- unlist(pull.map(NBH.x))
+nam2 <- gsub('*\\.','',names(map))
+pmap <- data.frame(nam=nam2,chr=gsub('\\..*','',names(map)), phys=as.numeric(gsub('.*:','',names(map)))/1000000)
+gmap <- data.frame(nam=nam2,chr=gsub('\\..*','',names(map)), cm=map)
+write.csv(pmap,'~/NBH_pmap.csv',quote=F,row.names=F)
+write.csv(gmap,'~/NBH_gmap.csv',quote=F,row.names=F)
+
+
+
+
+crosstype: f2
+geno: NBH.csv
+founder_geno: NBH.founders.csv
+pheno: NBH_pheno.csv
+na.strings:
+- '-'
+- NA

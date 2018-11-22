@@ -22,13 +22,13 @@ print("Dropping ~3 markers that inflate the map. Takes a long time...")
 
 for (i in 1:droppo) {
   
-  dropone <- parallel.droponemarker(cross.18, chr = X, error.prob = 0.03, map.function = "kosambi", 
+  dropone <- parallel.droponemarker(cross.18, chr = X, error.prob = 0.05, map.function = "kosambi", 
     m = 0, p = 0, maxit = 5, cores = slurmcore, tol = 1e-06, sex.sp = FALSE, 
     verbose = F, parallel = T)
   
   dropone$Ldiff <- abs(as.numeric(dropone$Ldiff))
   drops <- rownames(summary(dropone)[1, ])
-  
+  print(summary(dropone)[1, ])
   cross.18 <- drop.markers(cross.18, drops)
   
   # cross.18 <- qtlTools::dropByDropone(cross = cross.18, droponeRes = dropone,

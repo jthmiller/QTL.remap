@@ -4,6 +4,48 @@ debug.cross <- T
 source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library("ggridges")
 
+
+
+# again with the qtl2
+
+cross2 <- convert2cross2(cross.18)
+map <- insert_pseudomarkers(cross2$gmap, step = 1)
+plot_pxg(nbh2$geno$"1"[, 1], nbh2$pheno[, 2])
+
+nbh2.imp <- sim_geno(nbh2, n_draws = 200, error_prob = 0.01, map_function = "kosambi", 
+  lowmem = FALSE, quiet = TRUE, cores = 12)
+
+full <- stepwiseqtl(cross.18, additive.only = T, method = "imp", pheno.col = 6, scan.pairs = T)
+out.fq <- fitqtl(cross.18, qtl = qtl.uns, formula = y ~ Q1 + Q2 + Q3 * Q4)
+out.fq <- fitqtl(NBH$cross.18, qtl = NBH$qtl.uns)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 qtl.uns
 full
 out.fq <- fitqtl(ELR$cross.18, qtl = ELR$qtl.uns, formula = y ~ Q1 + Q2 + Q3 * Q4)
