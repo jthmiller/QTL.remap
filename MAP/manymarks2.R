@@ -128,8 +128,3 @@ print(summary(pull.map(cross.18))[as.character(X), ])
 print("Writing the markers to rQTL format")
 write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, ".manymarks.QTLmap", 
   sep = ""), format = "csv", chr = X)
-
-
-png("/home/jmiller1/public_html/chr1.genos.png", width = 2000)
-plotGeno(cross.18)
-dev.off()

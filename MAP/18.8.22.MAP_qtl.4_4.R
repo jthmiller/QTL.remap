@@ -28,7 +28,7 @@ no_genos <- data.frame(Pheno = phen[ngos, 3], sex = 0, ID = ngos, Pheno_05 = phe
 write.table(no_genos, file = file.path(popdir, paste(X, "no_genos.csv", sep = "_")), 
   col.names = F, row.names = F, quote = F, sep = ",")
 
-write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, "_3.QTLmap", 
+write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, "_4.QTLmap", 
   sep = ""), format = "csv", chr = X)
 
 system(paste("cat ", popdir, "/chr", X, "_", outname, "_4.QTLmap.csv ", popdir, "/", 
