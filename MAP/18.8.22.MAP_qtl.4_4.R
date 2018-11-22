@@ -15,6 +15,7 @@ print("Adding un-genotyped individuals for stratified analysis")
 pheno.all <- phen <- read.csv("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/metadata/ALL_phenotype_Dist.csv", 
   header = T)
 phen$Pheno_05 <- phen$pheno_all
+phen$pheno_all <- as.numeric(trsl.bin[as.character(phen$pheno_all)])
 index <- which(phen$pop_all == pop)
 rownames(phen) <- paste(phen$pop_all, phen$IND, sep = "_")
 set <- rownames(phen)[which(phen$pop_all == pop)]
