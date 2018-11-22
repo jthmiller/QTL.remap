@@ -8,6 +8,22 @@ cross.18 <- read.cross(format = "csv", dir = popdir, file = paste("/chr", X, "_"
   outname, "_3.QTLmap.csv", sep = ""), geno = c("AA", "AB", "BB"), alleles = c("A", 
   "B"))
 
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- subset(cross.18, chr = which.max(nmar(cross.18)))
+names(cross.18$geno) <- X
+
+print("estimating map with markers at physical positions")
+ord <- order(as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18, chr = X))))
+
+cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.025, map.function = "kosambi", 
+  maxit = 1000, tol = 0.001, sex.sp = F)
+
+print("Re-estimating the final map with many iterations...")
+POS.map.18 <- est.map(cross.18, error.prob = 0.025, map.function = "kosambi", chr = X, 
+  maxit = 10000)
+cross.18 <- replace.map(cross.18, POS.map.18)
+print("Done mapping..")
+
 vec <- as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18)))
 print(paste("physical positions from", min(vec), "to", max(vec)))
 
