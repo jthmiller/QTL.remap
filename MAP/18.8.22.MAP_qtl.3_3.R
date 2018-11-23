@@ -25,7 +25,7 @@ cross.18 <- drop.markers(cross.18, unlist(dups))
 
 if (reorder.marks == T) {
   print("Re-setimating map from filtered data on")
-  cross.18 <- orderMarkers(cross.18, chr = X, window = 5, use.ripple = T, error.prob = ers, 
+  cross.18 <- orderMarkers(cross.18, chr = X, window = 5, use.ripple = T, error.prob = 0.025, 
     map.function = "kosambi", sex.sp = F, maxit = 10000, tol = 0.001)
 } else if (hoods == T) {
   ripLod <- ripple(cross.18, chr = X, window = 4, method = "likelihood", error.prob = 0.01, 
