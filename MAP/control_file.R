@@ -136,7 +136,9 @@ if (mapped.only == TRUE & reorder.marks == F) {
   outname <- "NW_ReMapped"
 }
 
-# if (X == 8) { reorder.marks <- T }
+if (X %in% c(8, 5)) {
+  reorder.marks <- T
+}
 
 ## Try to get error exported by map
 expr <- paste("tac ", errfile, " | grep -m 1 '", pop, " ", X, "' | awk '{print $5}'", 
