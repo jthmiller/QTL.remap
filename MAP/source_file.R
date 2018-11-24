@@ -150,7 +150,7 @@ reconst <- function(X,pop,temp.dir,a, ... ){
     pheno <- myfiles[[1]]$pheno$Pheno
     sex <- myfiles[[1]]$pheno$sex
     ID <- myfiles[[1]]$pheno$ID
-    pheno_05 <- myfiles[[1]]$pheno$Pheno
+    #pheno_05 <- myfiles[[1]]$pheno$Pheno
 
   } else if (!a==1) {
     myfiles <- lapply(temp, function(tocross){
@@ -160,7 +160,7 @@ reconst <- function(X,pop,temp.dir,a, ... ){
     ID <- myfiles[[1]]$pheno$ID
     pheno <- myfiles[[1]]$pheno$Pheno
     sex <- myfiles[[1]]$pheno$sex
-    pheno_05 <- myfiles[[1]]$pheno$Pheno_05
+    gt <- myfiles[[1]]$pheno$gt
   }
 
   map <- unlist(sapply(seq(along=myfiles),
@@ -181,7 +181,7 @@ reconst <- function(X,pop,temp.dir,a, ... ){
   }
   chr <- c('','','','',chr)
   map <- c('','','','',map[colnames(cross)])
-  cross <- cbind(pheno,pheno_05,sex,ID=as.character(ID),cross)
+  cross <- cbind(pheno,sex,ID=as.character(ID),gt,cross)
   cross <- rbind(colnames(cross),chr,map,cross)
 
   write.table(cross,file=file.path(temp.dir,'tempout'),
