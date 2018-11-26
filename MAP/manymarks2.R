@@ -29,9 +29,11 @@ cross.18$pheno$ID <- paste(popname, indname, sep = "_")
 cross.pars <- subset(cross.18, ind = is.na(cross.18$pheno$Phen))
 
 ## Remove problematic individuals (found by kinship analysis)
-con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
-keepers <- readLines(con)
-close(con)
+if (!pop == "BRP") {
+  con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
+  keepers <- readLines(con)
+  close(con)
+}
 
 print("Dropping kinship outliers")
 cross.18 <- subset(cross.18, ind = cross.18$pheno$ID %in% keepers)
@@ -51,15 +53,10 @@ if (mapped.only == T) {
 
 dirso <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/"
 
-if (!pop == "ELR") {
-  con <- file(file.path(dirso, "toSwitch.N.txt"))
-  toSwitch <- readLines(con)
-  close(con)
-} else if (pop %in% c("NBH", "NEW")) {
-  con <- file(file.path(dirso, "toSwitch.txt"))
-  toSwitch <- readLines(con)
-  close(con)
-}
+
+con <- file(file.path(dirso, "toSwitch.N.txt"))
+toSwitch <- readLines(con)
+close(con)
 
 cross.18 <- switchAlleles(cross.18, toSwitch)
 
