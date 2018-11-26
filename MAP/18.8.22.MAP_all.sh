@@ -38,3 +38,7 @@ NEW4=$(sbatch -J "NEW.final" --parsable --dependency=afterany:$NEW3 $scriptdir/M
 NEW5=$(sbatch -J "NEW.scan" --parsable --dependency=afterany:$NEW4 $scriptdir/QTL/18.8.22.SCAN.sh NEW)
 #NEW5=$(sbatch -J "NEW.scan" --parsable $scriptdir/QTL/18.8.22.SCAN.sh NEW)
 NEW6=$(sbatch -J "NEW.scan2" --parsable --dependency=afterany:$NEW5 $scriptdir/QTL/18.8.22.SCAN2.sh NEW)
+
+
+BRP1=$(sbatch -J "BRP.initial" --parsable $scriptdir/MAP/18.8.22.MAP_qtl_1.sh BP)
+NBH2=$(sbatch -J "BRP.pardrop"  --parsable --dependency=afterany:$NBH1 $scriptdir/MAP/18.8.22.MAP_qtl_2.sh BP)

@@ -26,20 +26,18 @@ cross.ELR$pheno$ID_pop <- "ELR"
 cross.NEW$pheno$ID_pop <- "NEW"
 cross.NBH$pheno$ID_pop <- "NBH"
 
-#### Sim and reduce to grid ####
-NBH.x <- qtl::clean(cross.NBH)
-NEW.x <- qtl::clean(cross.NEW)
-ELR.x <- qtl::clean(cross.ELR)
+#### Sim and reduce to grid #### NBH.x <- qtl::clean(cross.NBH) NEW.x <-
+#### qtl::clean(cross.NEW) ELR.x <- qtl::clean(cross.ELR)
 
-cross <- c(NBH.x, NEW.x)
-cross$pheno$pheno_norm <- nqrank(cross$pheno$pheno_05)
+cross <- c(cross.NBH, cross.NEW, cross.ELR)
+# cross$pheno$pheno_norm <- nqrank(cross$pheno$pheno_05)
 
 # POS.map.18 <- est.map(cross, error.prob = 0.025, map.function = 'kosambi',
 # maxit = 1000, n.cluster=slurmcore) cross <- replace.map(cross,POS.map.18)
 
 ## Use rqtl2 to determine map
 cross2 <- convert2cross2(cross)
-cross2.map <- est_map(cross2, error_prob = 0.01, map_function = "kosambi", lowmem = FALSE, 
+cross2.map <- est_map(cross2, error_prob = 0.1, map_function = "kosambi", lowmem = FALSE, 
   maxit = 10000, tol = 1e-04, quiet = TRUE, save_rf = T, cores = slurmcore)
 
 
@@ -213,7 +211,29 @@ for (i in seq_along(AHRs$str)) {
   AHRs$stp[i] <- predict(mod, newdata = new)
 }
 
-####### 
+
+AHR.bed <- read.table("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/lift_AHR_genes.bed", 
+  stringsAsFactors = F, header = F)
+colnames(AHR.bed) <- c("chrom", "str", "stp", "gene")
+
+AHR.bed$chrom <- as.numeric(gsub("chr", "", AHR.bed$chrom))
+AHR.bed$str <- as.numeric(AHR.bed$str)
+AHR.bed$stp <- as.numeric(AHR.bed$stp)
+AHR.notmap <- AHR.bed[is.na(AHR.bed$chrom), ]
+AHR.bed <- AHR.bed[!is.na(AHR.bed$chrom), ]
+
+for (i in seq_along(AHR.bed$str)) {
+  chr <- map[which(map$chr == AHR.bed$chrom[i]), ]
+  chr$pos <- as.numeric(chr$pos)
+  chr$bp <- as.numeric(chr$bp)
+  mod <- lm(pos ~ bp, data = chr)
+  new <- data.frame(bp = as.numeric(AHR.bed$str[i]))
+  AHR.bed$str[i] <- predict(mod, newdata = new)
+  new <- data.frame(bp = as.numeric(AHR.bed$stp[i]))
+  AHR.bed$stp[i] <- predict(mod, newdata = new)
+}
+
+
 
 
 

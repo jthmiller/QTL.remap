@@ -126,6 +126,22 @@ if (pop == "NBH") {
   miss1 <- 10
   miss2 <- 8
   droppo <- 2
+} else if (pop == "BRP") {
+  ns <- "North"
+  confirmed = T
+  reorder.marks <- F
+  mapped.only = TRUE
+  inds <- c(NA)  # determined to be dropped low cov
+  missing <- 0.8
+  grpLod <- 10  ## Standard LG form LOD
+  finLod <- 12  ## Higher final ELR LOD
+  grpRf <- 0.3
+  finRf <- 0.15
+  cutoff <- 1e-05
+  miss <- 15
+  miss1 <- 10
+  miss2 <- 8
+  droppo <- 2
 }
 
 if (mapped.only == TRUE & reorder.marks == F) {
