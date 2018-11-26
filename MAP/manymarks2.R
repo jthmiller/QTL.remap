@@ -33,10 +33,11 @@ if (!pop == "BRP") {
   con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
   keepers <- readLines(con)
   close(con)
+  print("Dropping kinship outliers")
+  cross.18 <- subset(cross.18, ind = cross.18$pheno$ID %in% keepers)
+  
 }
 
-print("Dropping kinship outliers")
-cross.18 <- subset(cross.18, ind = cross.18$pheno$ID %in% keepers)
 cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$Phen))
 
 marker.warning()
