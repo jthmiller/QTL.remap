@@ -28,6 +28,9 @@ if (exists("debug.cross")) {
   lapply(mpacks, require, character.only = TRUE, lib.loc = mylib)
 } else {
   pop <- commandArgs(TRUE)[commandArgs(TRUE) %in% c("NBH", "ELR", "NEW", "BP")]
+  if (pop == "BP") {
+    pop <- "BRP"
+  }
   X <- as.numeric(Sys.getenv("SLURM_ARRAY_TASK_ID"))  ## X is equal to chrom number
   slurmcore <- as.numeric(Sys.getenv("SLURM_CPUS_PER_TASK"))
   popq <- commandArgs(TRUE)[commandArgs(TRUE) %in% c("NBH", "ELR", "NEW", "BP")]
