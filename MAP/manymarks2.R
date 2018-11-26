@@ -55,7 +55,7 @@ if (!pop == "ELR") {
   con <- file(file.path(dirso, "toSwitch.N.txt"))
   toSwitch <- readLines(con)
   close(con)
-} else {
+} else if (pop %in% c("NBH", "NEW")) {
   con <- file(file.path(dirso, "toSwitch.txt"))
   toSwitch <- readLines(con)
   close(con)
