@@ -129,7 +129,7 @@ if (pop == "NBH") {
   miss1 <- 10
   miss2 <- 8
   droppo <- 2
-} else if (pop == "BP") {
+} else if (pop == "BRP") {
   ns <- "North"
   confirmed = T
   reorder.marks <- F
