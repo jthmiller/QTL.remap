@@ -26,6 +26,9 @@ cross.ELR$pheno$ID_pop <- "ELR"
 cross.NEW$pheno$ID_pop <- "NEW"
 cross.NBH$pheno$ID_pop <- "NBH"
 
+mak <- markernames(cross.NEW)
+cross.NEW <- switchAlleles(cross.NEW, markers = mak)
+
 #### Sim and reduce to grid #### NBH.x <- qtl::clean(cross.NBH) NEW.x <-
 #### qtl::clean(cross.NEW) ELR.x <- qtl::clean(cross.ELR)
 

@@ -83,7 +83,7 @@ marker.warning()
 
 cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.25, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
 cross.18 <- subset(cross.18, chr = which.max(nmar(cross.18)))
 names(cross.18$geno) <- X
