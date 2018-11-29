@@ -76,7 +76,7 @@ themelt.elr$pop <- 'ELR'
 
 ##save.image('/home/jmiller1/public_html/QTL_plot.Rsave')
 
-### ggplot format
+### ggplot format AHR genes
 cnv.ahrs <- function(cross2,AHRdf,EXP){
   mapo <- convert2cross2(cross2)
   mapo$pmap <- mapo$gmap
@@ -110,7 +110,10 @@ cnv.ahrs <- function(cross2,AHRdf,EXP){
 nbh.gens <- cnv.ahrs(cross2=cross.nbh,AHRdf=AHR.bed,EXP=F)
 new.gens <- cnv.ahrs(cross.new,AHRdf=AHR.bed,EXP=F)
 elr.gens <- cnv.ahrs(cross.elr,AHRdf=AHR.bed,EXP=F)
+qtl.gens <-nbh.gens[which(nbh.gens$chr %in% c(1,2,5,8,10,12,13,18,24)),]
+minor.gens  <- nbh.gens[which(nbh.gens$chr %in% c(8,13,23,24)),]
 
+### ggplot popgen locations
 dir <- '/home/jmiller1/QTL_Map_Raw/popgen/tables'
 nbh.popgen <- read.table(file.path(dir,'outliersNBH.txt.ncbi.lifted'),sep='\t',header=T)
 new.popgen <- read.table(file.path(dir,'outliersNYC.txt.ncbi.lifted'),sep='\t',header=T)
@@ -147,13 +150,16 @@ cnv.popgen <- function(cross2,popgen,top){
   fraps$sz <- rescale(fraps$rank, to = c(4,1))
   return(fraps)
 }
-new.rank <- cnv.popgen(cross.nbh,new.popgen,top=300)
-nbh.rank <- cnv.popgen(cross.nbh,nbh.popgen,top=300)
-elr.rank <- cnv.popgen(cross.nbh,elr.popgen,top=300)
+new.rank <- cnv.popgen(cross.nbh,new.popgen,top=50)
+nbh.rank <- cnv.popgen(cross.nbh,nbh.popgen,top=50)
+elr.rank <- cnv.popgen(cross.nbh,elr.popgen,top=50)
 nbh.rank$pop <- 'NBH'
 new.rank$pop <- 'NEW'
 elr.rank$pop <- 'ELR'
 all.rank <- rbind(new.rank,nbh.rank,elr.rank)
+all.rank$pop <- factor(all.rank$pop, levels = c("NBH", "NEW", "ELR"))
+qtl.rank <- all.rank[which(all.rank$chr %in% c(1,2,5,8,10,12,13,18,24)),]
+minor.rank <- all.rank[which(all.rank$chr %in% c(8,13,23,24)),]
 
 ### GGriges plot
 melted.nbh <- data.frame(pop = "NBH", chr = scan.norm.imp.NBH$chr, pos = scan.norm.imp.NBH$pos,
@@ -165,7 +171,6 @@ melted.elr <- data.frame(pop = "ELR", chr = scan.norm.imp.ELR$chr, pos = scan.no
 
 melted <- rbind(melted.nbh, melted.new, melted.elr)
 melted$pop <- factor(melted$pop, levels = rev(c("NBH", "NEW", "ELR")))
-
 
 ##Total CM length of NBH. Rescale to NBH
 mxes <- sapply(1:24,function(X){max(themelt.nbh$pos[which(themelt.nbh$chr==X)])})
@@ -189,11 +194,10 @@ for(i in 2:24){
 }
 
 allmelt <- rbind(themelt.nbh,new.rescale,elr.rescale)
-
-#### Subest for only qtl plots
+allmelt$pop <- factor(allmelt$pop, levels = c("NBH", "NEW", "ELR"))
 qtlmelt <- allmelt[which(allmelt$chr %in% c(1,2,5,8,10,12,13,18,24)),]
-qtl.rank <- all.rank[which(all.rank$chr %in% c(1,2,5,8,10,12,13,18,24)),]
-qtl.gens <-nbh.gens[which(nbh.gens$chr %in% c(1,2,5,8,10,12,13,18,24)),]
+qtlminor  <- allmelt[which(allmelt$chr %in% c(8,13,23,24)),]
+#### Subest for only qtl plots
 ##qtl.rank <- nbh.rank[which(nbh.rank$chr %in% c(1,2,5,8,10,12,13,18,24)),]
 
 #save.image('/home/jmiller1')
@@ -254,10 +258,11 @@ png("/home/jmiller1/public_html/new_genes_below_rank_above.qtl.png", width = 300
     point.padding = unit(0.3, "lines"), vjust=1)
 dev.off()
 
-p <- ggplot(themelt.elr, aes(x = pos, y = lod))
+p <- ggplot(themelt.elr, aes(x = pos, y = lod,color=pop))
 png("/home/jmiller1/public_html/rank_top_scaled_random.qtl.png", width = 3000)
   p + facet_wrap(~chr, scales = "free_x",nrow = 1,ncol = 24) +
   scale_y_continuous(limits = c(-12, 23)) +
+  scale_color_manual(values=popcol)+
   geom_line(size = 2, alpha = 0.6) +
   theme_minimal() +
   theme(axis.text = element_text(size = 10)) +
@@ -278,9 +283,10 @@ png("/home/jmiller1/public_html/rank_top_scaled_random.qtl.png", width = 3000)
 dev.off()
 
 p <- ggplot(allmelt, aes(x = pos, y = lod, colour=pop))
-png("/home/jmiller1/public_html/ggplot2.qtl.png", width = 2000)
+png("/home/jmiller1/public_html/no_annot_.qtl.png", width = 2000)
   p + facet_wrap(~chr,nrow = 1,scales = "free_x",ncol = 24) +
-  scale_y_continuous(limits = c(-12, 22)) +
+  scale_y_continuous(limits = c(0, 22)) +
+  scale_color_manual(values=popcol)+
   geom_line(size = 2, alpha = 0.6) +
   theme_minimal() +
   theme(axis.text = element_text(size = 10)) +
@@ -288,9 +294,10 @@ png("/home/jmiller1/public_html/ggplot2.qtl.png", width = 2000)
 dev.off()
 
 p <- ggplot(allmelt, aes(x = pos, y = lod, colour=pop))
-png("/home/jmiller1/public_html/ggplot2.qtl.png", width = 2000)
+png("/home/jmiller1/public_html/ahr_genes_only.qtl.png", width = 2000)
   p + facet_wrap(~chr,nrow = 1,scales = "free_x",ncol = 24) +
-  scale_y_continuous(limits = c(-3, 22)) +
+  scale_y_continuous(limits = c(0, 22)) +
+  scale_color_manual(values=popcol)+
   geom_line(size = 2, alpha = 0.6) +
   theme_minimal() +
   theme(axis.text = element_text(size = 10)) +
@@ -307,23 +314,22 @@ png("/home/jmiller1/public_html/ggplot2.qtl.png", width = 2000)
   labs(x = "Chromosome",y = "LOD",linetype = "")
 dev.off()
 
-
 p <- ggplot(allmelt, aes(x = pos, y = lod, colour =pop))
 png("/home/jmiller1/public_html/All_chr.qtl.png", width = 2000)
   p + facet_wrap(~chr,nrow = 1,scales = "free_x",ncol = 24) +
   scale_color_manual(values=popcol)+
   scale_y_continuous(limits = c(-5, 22)) +
   theme_minimal() +
-    geom_label_repel(aes(x = pos, y=0.1,label = gene),segment.size =1,label.padding= unit(0.2, "lines"),
+    geom_label_repel(aes(x = pos, y=0.1,label = gene),color='black',segment.size =1,label.padding= unit(0.2, "lines"),
     data = nbh.gens, direction = 'y', size = 3, seed=666,ylim = c(5,20),segment.alpha=.5) +
   geom_line(size = 2, alpha = 0.5) +
-  geom_label_repel(aes(x = pos, y=0.1,label = gene),label.padding= unit(0.2, "lines"),
+  geom_label_repel(aes(x = pos, y=0.1,label = gene),color='black',label.padding= unit(0.2, "lines"),
     ylim = c(5,20),  segment.size =0, max.iter = 6000,nudge_y=2,
     data = nbh.gens, direction = 'y', size = 3.5, seed=666) +
   geom_label_repel(aes(x = pos, y = 0,fill=pop,label = rank),
     data = all.rank, size = 3.5,segment.size =1,force=4,min.segment.length=0.1,
     point.padding = unit(0.4, "lines"),direction = 'both',ylim = c(0,-8),seed=666,box.padding=0.1)+
-  geom_label_repel(aes(x = pos, y = 0,label = rank,fill=pop),color = 'white', fontface = "bold",
+  geom_label_repel(aes(x = pos, y = 0,label = rank,), fontface = "bold",
     data = all.rank, size = 3.5, segment.size =0,force=4,min.segment.length=0.1,
     point.padding = unit(0.4, "lines"),direction = 'both',ylim = c(0,-8),seed=666,box.padding=0.1)+
   theme(axis.title.x=element_blank(),
@@ -333,24 +339,50 @@ png("/home/jmiller1/public_html/All_chr.qtl.png", width = 2000)
   labs(x = "Chromosome",y = "LOD",linetype = "")
 dev.off()
 
-
 p <- ggplot(qtlmelt, aes(x = pos, y = lod, colour =pop))
 png("/home/jmiller1/public_html/all_pop_qtl_only.png", width = 2000)
   p + facet_wrap(~chr,nrow = 1,scales = "free_x",ncol = 9) +
   scale_color_manual(values=popcol)+
   scale_y_continuous(limits = c(-5, 22)) +
   theme_minimal() +
-    geom_label_repel(aes(x = pos, y=0.1,label = gene),segment.size =1,label.padding= unit(0.2, "lines"),
+    geom_label_repel(aes(x = pos, y=0.1,label = gene),color='black',segment.size =1,label.padding= unit(0.2, "lines"),
     data = qtl.gens , direction = 'y', size = 5, seed=666,nudge_y=2,ylim = c(5,20),segment.alpha=.5) +
   geom_line(size = 2, alpha = 0.5) +
-  geom_label_repel(aes(x = pos, y=0.1,label = gene),label.padding= unit(0.2, "lines"),
+  geom_label_repel(aes(x = pos, y=0.1,label = gene),color='black',label.padding= unit(0.2, "lines"),
     ylim = c(5,20),  segment.size =0, max.iter = 6000,nudge_y=2,
     data = qtl.gens , direction = 'y', size = 5, seed=666) +
-  geom_label_repel(aes(x = pos, y = 0,fill=pop,label = rank),
+  geom_label_repel(aes(x = pos, y = 0,color=pop,label = rank),
     data = qtl.rank, size = 5,segment.size =1,force=4,min.segment.length=0.1,
     point.padding = unit(0.4, "lines"),direction = 'both',ylim = c(0,-8),seed=666,box.padding=0.1)+
-  geom_label_repel(aes(x = pos, y = 0,label = rank,fill=pop),color = 'white', fontface = "bold",
+  geom_label_repel(aes(x = pos, y = 0,label = rank), fontface = "bold",
     data = qtl.rank, size = 5, segment.size =0,force=4,min.segment.length=0.1,
+    point.padding = unit(0.4, "lines"),direction = 'both',ylim = c(0,-8),seed=666,box.padding=0.1)+
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank(),
+        legend.position="none")+
+  labs(x = "Chromosome",y = "LOD",linetype = "")
+dev.off()
+## Why would chromosomes with top ranked loci have fewest signatures?
+##
+
+p <- ggplot(qtlminor, aes(x = pos, y = lod, colour =pop))
+png("/home/jmiller1/public_html/minor_qtl_only.png", width = 2000)
+  p + facet_wrap(~chr,nrow = 1,scales = "free_x",ncol = 9) +
+  scale_color_manual(values=popcol)+
+  scale_y_continuous(limits = c(-5, 22)) +
+  theme_minimal() +
+    geom_label_repel(aes(x = pos, y=0.1,label = gene),color='black',segment.size =1,label.padding= unit(0.2, "lines"),
+    data = minor.gens , direction = 'y', size = 5, seed=666,nudge_y=2,ylim = c(5,20),segment.alpha=.5) +
+  geom_line(size = 2, alpha = 0.5) +
+  geom_label_repel(aes(x = pos, y=0.1,label = gene),color='black',label.padding= unit(0.2, "lines"),
+    ylim = c(5,20),  segment.size =0, max.iter = 6000,nudge_y=2,
+    data = minor.gens , direction = 'y', size = 5, seed=666) +
+  geom_label_repel(aes(x = pos, y = 0,color=pop,label = rank),
+    data = minor.rank, size = 5,segment.size =1,force=4,min.segment.length=0.1,
+    point.padding = unit(0.4, "lines"),direction = 'both',ylim = c(0,-8),seed=666,box.padding=0.1)+
+  geom_label_repel(aes(x = pos, y = 0,label = rank), fontface = "bold",
+    data = minor.rank, size = 5, segment.size =0,force=4,min.segment.length=0.1,
     point.padding = unit(0.4, "lines"),direction = 'both',ylim = c(0,-8),seed=666,box.padding=0.1)+
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
@@ -368,13 +400,28 @@ dev.off()
 
 
 
+rabbit hole
+i <- 1
+disto <- sapply(1:24,function(X){
+length(which(all.rank$chr==X & all.rank$rank<(max(all.rank$rank)*i)))
+})
 
+for (i in seq.int(0.01,0.99,.025)){
 
+  bindo <- sapply(1:24,function(X){
+  length(which(all.rank$chr==X & all.rank$rank<(max(all.rank$rank)*i)))
+})
+  disto <- rbind(disto,bindo)
+}
 
+disto <- t(disto)
+colnames(disto) <- c(1,seq.int(0.01,0.99,.025))
+rownames(disto) <- 1:24
 
-
-
-
+png('/home/jmiller1/public_html/rabithole.png')
+plot(as.numeric(colnames(disto)),disto[1,])
+sapply(2:24, function(X){ points(as.numeric(colnames(disto)),disto[X,])})
+dev.off()
 
 
 
