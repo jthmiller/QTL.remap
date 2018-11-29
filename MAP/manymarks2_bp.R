@@ -50,6 +50,18 @@ if (mapped.only == T) {
   marker.warning()
 }
 
+BP <- subset(cross.18, ind = cross.18$pheno$ID %in% c("BRP_BRP1F", "BRP_BRP8F"))
+BI <- subset(cross.18, ind = cross.18$pheno$ID %in% c("BRP_BRP1M", "BRP_BRP8M"))
+gt.BI <- geno.table(BI)
+gt.BP <- geno.table(BP)
+swt <- c(rownames(gt.BP[which(gt.BP$BB == 2), ]), rownames(gt.BI[which(gt.BP$AA == 
+  2), ]))
+cross.18 <- switchAlleles(cross.18, swt)
+BI <- switchAlleles(BI, swt)
+BP <- switchAlleles(BP, swt)
+gt.BI <- geno.table(BI)
+gt.BP <- geno.table(BP)
+
 dirso <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/"
 con <- file(file.path(dirso, "toSwitch.N.txt"))
 toSwitch <- readLines(con)
@@ -57,7 +69,12 @@ close(con)
 
 cross.18 <- switchAlleles(cross.18, toSwitch)
 
+cross.18 <- drop.missing(cross.18, miss1)
+
 marker.warning()
+
+### To confirm markers later
+g <- pull.geno(cross.18, chr = X)[1, swt]
 
 gt.missing <- geno.table(cross.18)
 
@@ -77,12 +94,27 @@ cross.18 <- drop.missing(cross.18, miss1)
 
 marker.warning()
 
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, reorgMarkers = TRUE)
-cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
+cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$Phen))
+
 cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
-cross.18 <- subset(cross.18, chr = which.max(nmar(cross.18)))
-names(cross.18$geno) <- X
+cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 2))
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
+cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 2))
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
+cross.18.1 <- subset(cross.18, chr = 1)
+cross.18.2 <- subset(cross.18, chr = 2)
+names(cross.18.1$geno) <- X
+names(cross.18.2$geno) <- X
+
+if (getmax == T) {
+  us <- which.max(c(nmar(cross.18.1), nmar(cross.18.2)))
+  cross.18 <- get(c("cross.18.1", "cross.18.2")[us])
+} else {
+  us <- which.min(c(nmar(cross.18.1), nmar(cross.18.2)))
+  cross.18 <- get(c("cross.18.1", "cross.18.2")[us])
+}
 
 print("Removing duplicates")
 dups <- findDupMarkers(cross.18, exact.only = T, adjacent.only = F)
