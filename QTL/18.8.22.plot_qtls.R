@@ -11,17 +11,12 @@ library('ggrepel')
 AHR.bed <- read.table("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/lift_AHR_genes.bed",
   stringsAsFactors = F, header = F)
 colnames(AHR.bed) <- c("chrom", "str", "stp", "gene")
-
 AHR.bed$chrom <- as.numeric(gsub("chr", "", AHR.bed$chrom))
 AHR.bed$str <- as.numeric(AHR.bed$str)
 AHR.bed$stp <- as.numeric(AHR.bed$stp)
 AHR.notmap <- AHR.bed[is.na(AHR.bed$chrom), ]
 AHR.bed <- AHR.bed[!is.na(AHR.bed$chrom), ]
 # add arnts (forgot to scan for them)
-A<- c('8',	'16483144',	'16483822',	'ARNT')
-B <- c('10','23926932','23951650','ARNT2')
-C <- c('13','24517506', '24538696','ARNT')
-AHR.bed <- rbind(AHR.bed,A,B,C)
 
 #######
 popdir <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NBH/REMAPS"
@@ -46,6 +41,9 @@ cross.new <- sim.geno(cross.NEW, n.draws = 500, step = 5, off.end = 10, error.pr
   map.function = "kosambi", stepwidth = "fixed")
 cross.elr <- sim.geno(cross.ELR, n.draws = 500, step = 5, off.end = 10, error.prob = 0.05,
   map.function = "kosambi", stepwidth = "fixed")
+#################
+plotInfo(hyper)
+
 
 sex <- read.table(file = file.path(dirso, "sex.txt"))
 rownames(sex) <- sex$ID
