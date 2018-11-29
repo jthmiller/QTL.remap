@@ -1,6 +1,5 @@
 #!/bin/R
-### marker filtering manymarks2
-debug.cross <- T
+### marker filtering manymarks2 debug.cross <- T
 source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 ## For plotting
 marker_dens <- list()
