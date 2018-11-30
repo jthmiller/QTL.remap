@@ -145,3 +145,4 @@ fit.nomis <- fitqtl(cross.nomis, pheno.col=1, qtl.uns,method="imp",
   run.checks=TRUE, tol=1e-4, maxit=10000)
 
 capture.output(c(summary(fit),summary(fit.nomis)), file = "/home/jmiller1/public_html/brp_out.txt")
+save.image('/home/jmiller1/public_html/brp.rsave')
