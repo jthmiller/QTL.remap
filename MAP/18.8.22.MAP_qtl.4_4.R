@@ -16,12 +16,12 @@ print("estimating map with markers at physical positions")
 ord <- order(as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18, chr = X))))
 
 if (!reorder.marks == T) {
-  cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.025, map.function = "kosambi", 
+  cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.08, map.function = "kosambi", 
     maxit = 1000, tol = 0.001, sex.sp = F)
 }
 
 print("Re-estimating the final map with many iterations...")
-POS.map.18 <- est.map(cross.18, error.prob = 0.025, map.function = "kosambi", chr = X, 
+POS.map.18 <- est.map(cross.18, error.prob = 0.08, map.function = "kosambi", chr = X, 
   maxit = 10000)
 cross.18 <- replace.map(cross.18, POS.map.18)
 print("Done mapping..")
