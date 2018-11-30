@@ -17,13 +17,6 @@ AHR.notmap <- AHR.bed[is.na(AHR.bed$chrom), ]
 AHR.bed <- AHR.bed[!is.na(AHR.bed$chrom), ]
 AHR.bed$gene <- gsub(':158640','',AHR.bed$gene)
 # add arnts (forgot to scan for them)
-######### MAP BRP ####
-popdir <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/BRP/REMAPS"
-popq <- 'BRP'
-cross.18 <- reconst(X = chrms, pop = popq, temp.dir = popdir, a = 2)
-print("Writing the merged chromosome markers to rQTL format")
-write.cross(cross.18, filestem = paste(popdir, "/", outname, ".BACKUP.QTL_chr.QTLmap",
-  sep = ""), format = "csv")
 #######
 popdir <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/NBH/REMAPS"
 cross.NBH <- read.cross(format = "csv", dir = popdir, file = paste(outname, ".BACKUP.QTL_chr.QTLmap.csv",
@@ -52,6 +45,9 @@ cross.new <- sim.geno(cross.NEW, n.draws = 500, step = 5, off.end = 10, error.pr
   map.function = "kosambi", stepwidth = "fixed")
 cross.elr <- sim.geno(cross.ELR, n.draws = 500, step = 5, off.end = 10, error.prob = 0.05,
   map.function = "kosambi", stepwidth = "fixed")
+cross.brp <- sim.geno(cross.BRP, n.draws = 500, step = 5, off.end = 10, error.prob = 0.08,
+  map.function = "kosambi", stepwidth = "fixed")
+
 #################
 sex <- read.table(file = file.path(dirso, "sex.txt"))
 rownames(sex) <- sex$ID
@@ -61,10 +57,15 @@ cross.new$pheno$sex <- sex[as.character(cross.new$pheno$ID), 2]
 cross.new$pheno$binary <- as.numeric(cross.new$pheno$pheno >= 3)
 cross.elr$pheno$sex <- sex[as.character(cross.elr$pheno$ID), 2]
 cross.elr$pheno$binary <- as.numeric(cross.elr$pheno$pheno >= 3)
+cross.brp$pheno$sex <- sex[as.character(cross.brp$pheno$ID), 2]
+cross.brp$pheno$binary <- as.numeric(cross.brp$pheno$pheno >= 3)
+
+cross.brp <- subset(cross.brp,ind=cross.brp$pheno$gt==1)
 
 cross.nbh <- reduce2grid(cross.nbh)
 cross.new <- reduce2grid(cross.new)
 cross.elr <- reduce2grid(cross.elr)
+cross.brp <- reduce2grid(cross.brp)
 
 #scan.norm.imp.NBH <- scanone(cross.nbh, model = "normal", pheno.col = 1, method = "imp", addcovar = cross.nbh$pheno$sex)
 scan.norm.imp.NBH <- scanone(cross.nbh, model = "normal", pheno.col = 1, method = "imp")
@@ -72,13 +73,17 @@ scan.norm.imp.NBH <- scanone(cross.nbh, model = "normal", pheno.col = 1, method 
 scan.norm.imp.NEW <- scanone(cross.new, model = "normal", pheno.col = 1, method = "imp")
 #scan.norm.imp.ELR <- scanone(cross.elr, model = "normal", pheno.col = 1, method = "imp", addcovar = cross.elr$pheno$sex)
 scan.norm.imp.ELR <- scanone(cross.elr, model = "normal", pheno.col = 1, method = "imp")
+scan.norm.imp.BRP <- scanone(cross.brp, model = "normal", pheno.col = 1, method = "imp")
 ### use scanone for plots
 themelt.nbh <- scan.norm.imp.NBH
 themelt.new <- scan.norm.imp.NEW
 themelt.elr <- scan.norm.imp.ELR
+themelt.brp <- scan.norm.imp.BRP
+
 themelt.nbh$pop <- 'NBH'
 themelt.new$pop <- 'NEW'
 themelt.elr$pop <- 'ELR'
+themelt.brp$pop <- 'BRP'
 
 ### ggplot format AHR genes
 cnv.ahrs <- function(cross2,AHRdf,EXP){
@@ -114,7 +119,8 @@ cnv.ahrs <- function(cross2,AHRdf,EXP){
 nbh.gens <- cnv.ahrs(cross2=cross.nbh,AHRdf=AHR.bed,EXP=F)
 new.gens <- cnv.ahrs(cross.new,AHRdf=AHR.bed,EXP=F)
 elr.gens <- cnv.ahrs(cross.elr,AHRdf=AHR.bed,EXP=F)
-qtl.gens <-nbh.gens[which(nbh.gens$chr %in% c(1,2,5,8,10,12,13,18,24)),]
+brp.gens <- cnv.ahrs(cross.brp,AHRdf=AHR.bed,EXP=F)
+qtl.gens <- nbh.gens[which(nbh.gens$chr %in% c(1,2,5,8,10,12,13,18,24)),]
 minor.gens  <- nbh.gens[which(nbh.gens$chr %in% c(8,13,23,24)),]
 
 ### ggplot popgen locations
@@ -122,6 +128,7 @@ dir <- '/home/jmiller1/QTL_Map_Raw/popgen/tables'
 nbh.popgen <- read.table(file.path(dir,'outliersNBH.txt.ncbi.lifted'),sep='\t',header=T)
 new.popgen <- read.table(file.path(dir,'outliersNYC.txt.ncbi.lifted'),sep='\t',header=T)
 elr.popgen <- read.table(file.path(dir,'outliersER.txt.ncbi.lifted'),sep='\t',header=T)
+brp.popgen <- read.table(file.path(dir,'outliersBP.txt.ncbi.lifted'),sep='\t',header=T)
 
 ### Use nbh coords but elr and new popgen
 cnv.popgen <- function(cross2,popgen,top){
@@ -157,11 +164,14 @@ cnv.popgen <- function(cross2,popgen,top){
 new.rank <- cnv.popgen(cross.nbh,new.popgen,top=50)
 nbh.rank <- cnv.popgen(cross.nbh,nbh.popgen,top=50)
 elr.rank <- cnv.popgen(cross.nbh,elr.popgen,top=50)
+brp.rank <- cnv.popgen(cross.nbh,brp.popgen,top=50)
 nbh.rank$pop <- 'NBH'
 new.rank$pop <- 'NEW'
 elr.rank$pop <- 'ELR'
-all.rank <- rbind(new.rank,nbh.rank,elr.rank)
-all.rank$pop <- factor(all.rank$pop, levels = c("NBH", "NEW", "ELR"))
+brp.rank$pop <- 'BRP'
+
+all.rank <- rbind(new.rank,nbh.rank,elr.rank,brp.rank)
+all.rank$pop <- factor(all.rank$pop, levels = c("NBH",'BP', "NEW", "ELR"))
 qtl.rank <- all.rank[which(all.rank$chr %in% c(1,2,5,8,10,12,13,18,24)),]
 minor.rank <- all.rank[which(all.rank$chr %in% c(8,13,23,24)),]
 
@@ -172,9 +182,11 @@ melted.new <- data.frame(pop = "NEW", chr = scan.norm.imp.NEW$chr, pos = scan.no
   lod = scan.norm.imp.NEW$lod)
 melted.elr <- data.frame(pop = "ELR", chr = scan.norm.imp.ELR$chr, pos = scan.norm.imp.ELR$pos,
   lod = scan.norm.imp.ELR$lod)
+melted.brp <- data.frame(pop = "BRP", chr = scan.norm.imp.BRP$chr, pos = scan.norm.imp.BRP$pos,
+  lod = scan.norm.imp.BRP$lod)
 
-melted <- rbind(melted.nbh, melted.new, melted.elr)
-melted$pop <- factor(melted$pop, levels = rev(c("NBH", "NEW", "ELR")))
+melted <- rbind(melted.nbh, melted.new, melted.elr, melted.brp)
+melted$pop <- factor(melted$pop, levels = rev(c("NBH",'BP', "NEW", "ELR")))
 
 ##Total CM length of NBH. Rescale to NBH
 mxes <- sapply(1:24,function(X){max(themelt.nbh$pos[which(themelt.nbh$chr==X)])})
@@ -197,8 +209,17 @@ for(i in 2:24){
  elr.rescale <- rbind(elr.rescale,ts)
 }
 
-allmelt <- rbind(themelt.nbh,new.rescale,elr.rescale)
-allmelt$pop <- factor(allmelt$pop, levels = c("NBH", "NEW", "ELR"))
+ts <- themelt.brp[which(themelt.brp$chr==1),]
+ts$pos <- rescale(ts$pos, to=c(-10,mxes[1]))
+brp.rescale <- ts
+for(i in 2:24){
+ ts <- themelt.brp[which(themelt.brp$chr==i),]
+ ts$pos <- rescale(ts$pos, to=c(-10,mxes[i]))
+ brp.rescale <- rbind(brp.rescale,ts)
+}
+
+allmelt <- rbind(themelt.nbh,new.rescale,elr.rescale,brp.rescale)
+allmelt$pop <- factor(allmelt$pop, levels = c("NBH",'BRP', "NEW", "ELR"))
 qtlmelt <- allmelt[which(allmelt$chr %in% c(1,2,5,8,10,12,13,18,24)),]
 qtlminor  <- allmelt[which(allmelt$chr %in% c(8,13,23,24)),]
 #### Subest for only qtl plots
@@ -291,7 +312,7 @@ png("/home/jmiller1/public_html/no_annot_.qtl.png", width = 2000)
   p + facet_wrap(~chr,nrow = 1,scales = "free_x",ncol = 24) +
   scale_y_continuous(limits = c(0, 22)) +
   scale_color_manual(values=popcol)+
-  geom_line(size = 2, alpha = 0.6) +
+  geom_line(size = 2, alpha = 0.85) +
   theme_minimal() +
   theme(axis.text = element_text(size = 10)) +
   labs(x = "Chromosome",y = "LOD",linetype = "")

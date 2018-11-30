@@ -72,7 +72,7 @@ sourceDir("doParallel/R")
 ## Pop vars
 chrms <- c(1:24)
 pops <- c("NBH", "NEW", "ELR")
-all.pops <- c("NBH", "BP", "ELR", "NEW")
+all.pops <- c("NBH", "BRP", "ELR", "NEW")
 popcol <- brewer.pal(8, "Paired")[c(2, 4, 6, 8)]
 names(popcol) <- all.pops
 

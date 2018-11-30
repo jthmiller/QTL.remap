@@ -95,13 +95,13 @@ marker.warning()
 
 cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$Phen))
 
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.2, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 2))
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.2, min.lod = 12, reorgMarkers = TRUE)
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 1))
 cross.18 <- switchAlleles(cross.18, markernames(cross.18, chr = 2))
-cross.18 <- formLinkageGroups(cross.18, max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
+cross.18 <- formLinkageGroups(cross.18, max.rf = 0.2, min.lod = 12, reorgMarkers = TRUE)
 cross.18.1 <- subset(cross.18, chr = 1)
 cross.18.2 <- subset(cross.18, chr = 2)
 names(cross.18.1$geno) <- X
@@ -143,7 +143,7 @@ cross.18 <- drop.missing(cross.18, miss2)
 marker.warning()
 
 print("Re-estimating the map")
-POS.map.18 <- est.map(cross.18, error.prob = 0.05, map.function = "kosambi", chr = X, 
+POS.map.18 <- est.map(cross.18, error.prob = 0.08, map.function = "kosambi", chr = X, 
   maxit = 3000)
 
 cross.18 <- replace.map(cross.18, POS.map.18)
