@@ -25,9 +25,6 @@ popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
 indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
 cross.18$pheno$ID <- paste(popname, indname, sep = "_")
 
-## Subset and drop parents
-cross.pars <- subset(cross.18, ind = is.na(cross.18$pheno$Phen))
-
 ## Remove problematic individuals (found by kinship analysis)
 con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
 keepers <- readLines(con)

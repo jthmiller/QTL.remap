@@ -16,10 +16,10 @@ module load vcftools
 
 for X in NBH BRP NEW
 do
-#vcftools --gzvcf $vcfdir/SOMM.vcf.gz --keep $infiles/$X.samples --remove-filtered-all --recode --stdout | vcftools --vcf - --max-meanDP 90 --maxDP 90 --stdout --minGQ 20 $maf $maxf --remove-filtered-all --recode | gzip -c > $vcfdir/$X.vcf.gz
-$plink --vcf $vcfdir/$X.vcf.gz --out $indpops/$X  $init_flagset --pheno $pheno --all-pheno --update-ids $infiles/SOMM.txt
-$plink --bfile $indpops/$X --out $indpops/$X $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names $X --make-founders
-$plink --bfile $indpops/$X --out $indpops/$X $flagset --pheno $pheno --all-pheno --keep-cluster-names $X $geno $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders
+	#vcftools --gzvcf $vcfdir/SOMM.vcf.gz --keep $infiles/$X.samples --remove-filtered-all --recode --stdout | vcftools --vcf - --max-meanDP 90 --maxDP 90 --stdout --minGQ 20 $maf $maxf --remove-filtered-all --recode | gzip -c > $vcfdir/$X.vcf.gz
+	$plink --vcf $vcfdir/$X.vcf.gz --out $indpops/$X  $init_flagset --pheno $pheno --all-pheno --update-ids $infiles/SOMM.txt
+	$plink --bfile $indpops/$X --out $indpops/$X $flagset --make-bed --pheno $pheno --all-pheno --keep-cluster-names $X --make-founders
+	$plink --bfile $indpops/$X --out $indpops/$X $flagset --pheno $pheno --all-pheno --keep-cluster-names $X $geno $maf --recode --biallelic-only strict --snps-only just-acgt --nonfounders
 done
 
 ### REFILTER ELR. It contains the parent 'BLI' code (in addition to ELR fam)
@@ -47,7 +47,7 @@ $plink --bfile $indpops/ALL --out $indpops/ALL --extract $indpops/ALL.prune.in $
 ### Parents each chromosome
 for i in {1..24}
 do
-$plink --bfile $indpops/ALL --out $indpops/$i.parents --make-bed --chr $i --set-missing-var-ids @:# --allow-extra-chr --autosome-num 24 --allow-no-sex --pheno $pheno --all-pheno --keep $infiles/parents.txt --keep-cluster-names NEW NBH ELR BLI --recode --family --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs flat-missing
+	$plink --bfile $indpops/ALL --out $indpops/$i.parents --make-bed --chr $i --set-missing-var-ids @:# --allow-extra-chr --autosome-num 24 --allow-no-sex --pheno $pheno --all-pheno --keep $infiles/parents.txt --keep-cluster-names NEW NBH ELR BLI --recode --family --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs flat-missing
 done
 
 #grab unmapped data

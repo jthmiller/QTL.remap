@@ -236,21 +236,6 @@ for (i in seq_along(AHR.bed$str)) {
   AHR.bed$stp[i] <- predict(mod, newdata = new)
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # save.image('~/NEW.NBH.ELR.QTLmap.Rsave')
 
 load("~/NEW.NBH.ELR.QTLmap.Rsave")
