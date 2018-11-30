@@ -49,3 +49,14 @@ for i in {1..24}
 do
 $plink --bfile $indpops/ALL --out $indpops/$i.parents --make-bed --chr $i --set-missing-var-ids @:# --allow-extra-chr --autosome-num 24 --allow-no-sex --pheno $pheno --all-pheno --keep $infiles/parents.txt --keep-cluster-names NEW NBH ELR BLI --recode --family --snps-only just-acgt --nonfounders --distance square bin 1-ibs ibs flat-missing
 done
+
+#grab unmapped data
+X=NBH
+#vcftools --gzvcf $vcfdir/SOMM.vcf.gz --keep $infiles/$X.samples --remove-filtered-all --recode --stdout | vcftools --vcf - --stdout --minGQ 20 $maf $maxf --remove-filtered-all --recode | gzip -c > $vcfdir/$X.uf.vcf.gz
+#$plink --vcf $indpops/$X.um.vcf.gz --out $indpops/$X.um --make-bed --autosome-num 24 --allow-extra-chr --allow-no-sex --pheno $pheno --all-pheno --update-ids $infiles/SOMM.txt --make-founders
+
+
+
+$plink --vcf ~/QTL_Map_Raw/vcf/freebayes.array/SOMM.bgzip.vcf.gz --out $indpops/$X.um --make-bed --autosome-num 24 --allow-extra-chr --allow-no-sex --pheno $pheno --all-pheno --update-ids $infiles/SOMM.txt --make-founders
+
+$plink --bfile $indpops/$X.um --out $indpops/$X.um  --recode --autosome-num 24 --allow-no-sex  --allow-extra-chr --family --set-missing-var-ids @:# --pheno $pheno --all-pheno --keep-cluster-names $X --make-founders  $geno $maf  --biallelic-only strict --snps-only just-acgt --nonfounders

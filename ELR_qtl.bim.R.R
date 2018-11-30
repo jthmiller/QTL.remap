@@ -76,6 +76,8 @@ if (pop == "ELR") {
     main = paste(qtl[i], pop))
   dev.off()
   
+  
+  crOb <- subset(crOb, ind = crOb$pheno$gt == 1)
   ## multi qtl qtlbim
   crOb <- qb.genoprob(crOb, step = 5)
   qbData <- qb.data(crOb, pheno.col = 1, trait = "ordinal", rancov = 2)
@@ -106,7 +108,7 @@ if (pop == "ELR") {
   dev.off()
   
   png("/home/jmiller1/public_html/elr_scan_diagnost.so.png", width = 2000)
-  plot(qb.hpdone(mc))
+  plot(qb.hpdone(mc, chr = c(2, 8, 13), level = 0.9, scan = "sum"))
   dev.off()
   
   ### qtlbim markers

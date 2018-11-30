@@ -1,6 +1,5 @@
 #!/bin/R
 ### first run combine pops for multi-pop cross objects
-
 debug.cross <- T
 source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library("ggridges")
@@ -16,6 +15,7 @@ AHR.bed$str <- as.numeric(AHR.bed$str)
 AHR.bed$stp <- as.numeric(AHR.bed$stp)
 AHR.notmap <- AHR.bed[is.na(AHR.bed$chrom), ]
 AHR.bed <- AHR.bed[!is.na(AHR.bed$chrom), ]
+AHR.bed$gene <- gsub(':158640','',AHR.bed$gene)
 # add arnts (forgot to scan for them)
 
 #######
@@ -42,9 +42,6 @@ cross.new <- sim.geno(cross.NEW, n.draws = 500, step = 5, off.end = 10, error.pr
 cross.elr <- sim.geno(cross.ELR, n.draws = 500, step = 5, off.end = 10, error.prob = 0.05,
   map.function = "kosambi", stepwidth = "fixed")
 #################
-plotInfo(hyper)
-
-
 sex <- read.table(file = file.path(dirso, "sex.txt"))
 rownames(sex) <- sex$ID
 cross.nbh$pheno$sex <- sex[as.character(cross.nbh$pheno$ID), 2]
@@ -71,8 +68,6 @@ themelt.elr <- scan.norm.imp.ELR
 themelt.nbh$pop <- 'NBH'
 themelt.new$pop <- 'NEW'
 themelt.elr$pop <- 'ELR'
-
-##save.image('/home/jmiller1/public_html/QTL_plot.Rsave')
 
 ### ggplot format AHR genes
 cnv.ahrs <- function(cross2,AHRdf,EXP){
@@ -198,7 +193,7 @@ qtlminor  <- allmelt[which(allmelt$chr %in% c(8,13,23,24)),]
 #### Subest for only qtl plots
 ##qtl.rank <- nbh.rank[which(nbh.rank$chr %in% c(1,2,5,8,10,12,13,18,24)),]
 
-#save.image('/home/jmiller1')
+##save.image('/home/jmiller1/public_html/QTL_plot.Rsave')
 
 # All chr Not scaled either
 png("/home/jmiller1/public_html/ridges_accurate map_length.qtl.png", width = 3000)
@@ -390,6 +385,22 @@ png("/home/jmiller1/public_html/minor_qtl_only.png", width = 2000)
 dev.off()
 
 
+### Entropy
+
+NBH <- subset(cross.NBH,ind=cross.NBH$pheno$gt==1)
+png("/home/jmiller1/public_html/nbh_entropy.png", width = 3000)
+  plotInfo(NBH, chr=c(1:24),main= "NBH",method="both", include.genofreq=T)
+dev.off()
+
+NEW <- subset(cross.NEW,ind=cross.NEW$pheno$gt==1)
+png("/home/jmiller1/public_html/new_entropy.png", width = 3000)
+  plotInfo(NEW, chr=c(1:24), main= "NEW",method="both", include.genofreq=T)
+dev.off()
+
+ELR <- subset(cross.ELR,ind=cross.ELR$pheno$gt==1)
+png("/home/jmiller1/public_html/elr_entropy.png", width = 3000)
+  plotInfo(ELR, chr=c(1:24), main= "ELR",method="both", include.genofreq=T)
+dev.off()
 
 
 
@@ -421,11 +432,51 @@ plot(as.numeric(colnames(disto)),disto[1,])
 sapply(2:24, function(X){ points(as.numeric(colnames(disto)),disto[X,])})
 dev.off()
 
+############ TRY TO MAP ADDnl AHRs #####3
 
 
+cross.18 <- read.cross(file = file.path(indpops, paste(pop, ".um.unmapped.f2.csvr",
+  sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
+
+cross.18 <- subset(cross.18, chr= c('NW_012227451.1','NW_012234311.1'))
+
+### Pull names from plinkfile
+path <- file.path(indpops, paste(pop, ".ped", sep = ""))
+popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
+indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
+cross.18$pheno$ID <- paste(popname, indname, sep = "_")
 
 
+sex <- read.table(file = file.path(dirso, "sex.txt"))
+rownames(sex) <- sex$ID
+cross.18$pheno$sex <- sex[as.character(cross.18$pheno$ID), 2]
+cross.18$pheno$binary <- as.numeric(cross.18$pheno$pheno >= 3)
 
+
+## Subset and drop parents
+cross.pars <- subset(cross.18, ind = is.na(cross.18$pheno$Phen))
+
+## Remove problematic individuals (found by kinship analysis)
+con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
+keepers <- readLines(con)
+close(con)
+
+print("Dropping kinship outliers")
+cross.18 <- subset(cross.18, ind = cross.18$pheno$ID %in% keepers)
+cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$Phen))
+
+print("Dropping all chromosomes except the one to map")
+## Map each QTL chro independently
+if (mapped.only == T) {
+  allbut <- c(1:24)[-X]
+  subset.qtl <- chrnames(cross.18)[!chrnames(cross.18) %in% allbut]
+  cross.18 <- subset(cross.18, chr = subset.qtl)
+  cross.pars <- subset(cross.pars, chr = subset.qtl)
+  marker.warning()
+}
+
+
+toadd <- subset(cross.18,chr=scafs)
 
 
 
