@@ -824,6 +824,192 @@ repRipple.jm<-function(cross, chr = NULL, window = 5,method = "countxo", verbose
   }
   return(cross)
 }
+
+
+qb.BayesFactor.jm <- function(qbObject,
+                           items = c("nqtl","pattern","chrom","pairs"),
+                           cutoff.pattern = ifelse(epistasis, 0.25, 0.5),
+                           cutoff.pairs = 1, nmax = 15,
+                           epistasis = TRUE, ...)
+{
+  qtlbim:::qb.exists(qbObject)
+
+  assess <- list()
+
+  if(any(pmatch(tolower(items), "nqtl", nomatch = 0)))
+    assess$nqtl <- qtlbim:::qb.numqtl(qbObject, ...)
+
+  if(any(pmatch(tolower(items), "pattern", nomatch = 0)))
+    assess$pattern <- qb.pattern.jm(qbObject, cutoff.pattern, nmax, epistasis, ...)
+
+  if(any(pmatch(tolower(items), "chrom", nomatch = 0)))
+    assess$chrom <- qtlbim:::qb.chrom(qbObject, ...)
+
+  if(any(pmatch(tolower(items), "pairs", nomatch = 0)))
+    assess$pairs <- qtlbim:::qb.pairs(qbObject, cutoff.pairs, nmax, ...)
+
+  class(assess) <- c("qb.BayesFactor", "list")
+  assess
+}
+
+
+
+###
+qb.pattern.jm <- function(qbObject, cutoff = 1, nmax = 15, epistasis = TRUE, ...)
+{
+  iterdiag <- qtlbim:::qb.get(qbObject, "iterdiag", ...)
+  n.iter <- qtlbim:::qb.niter(qbObject)
+
+  mainloci <- qtlbim:::qb.get(qbObject, "mainloci", ...)
+  pairloci <- qtlbim:::qb.get(qbObject, "pairloci", ...)
+  pattern <- qtlbim:::qb.makepattern(qbObject, epistasis, iterdiag = iterdiag,
+                            mainloci = mainloci, pairloci = pairloci)
+
+  posterior <- rev(sort(table(pattern)))
+  posterior <- posterior / sum(posterior)
+  tmp <- posterior >= cutoff / 100
+  if(sum(tmp))
+    posterior <- posterior[tmp]
+  else {
+    cat("warning: pattern posterior cutoff", cutoff,
+        "is too large and is ignored\n",
+        "posterior range is", range(posterior), "\n")
+  }
+  if(length(posterior) > nmax)
+    posterior <- posterior[1:nmax]
+  ucount <- match(names(posterior), pattern)
+
+  ## prior for pattern
+  rng <- max(iterdiag$nqtl)
+  pr <- qtlbim:::qb.prior(qbObject, 0:rng)
+  bf <- posterior
+  map <- pull.map(qtlbim:::qb.cross(qbObject, genoprob = FALSE))
+  chrlen <- unlist(lapply(map, max))
+  nchrom <- length(chrlen)
+  chrlen <- chrlen / sum(chrlen)
+
+  fact <- rep(1, rng)
+  for(i in 2:(rng+1))
+    fact[i] <- fact[i-1] * i
+
+  ## New plan. Use only subset of mainloci matching ucount's.
+  ## bundle table and for loop into one.
+
+  ## Set up prior using null.
+  prior <- rep(pr[1], length(posterior))
+  names(prior) <- names(posterior)
+
+  ## Find prior proportional to qb.prior and lengths of chromosomes.
+  ## Use factorial adjustments for multiple linked QTL.
+  tmpfn <- function(x, chrlen, fact) {
+    ct <- c(table(x))
+    prod(chrlen[names(ct)] ^ ct) * fact[sum(ct)] / prod(fact[ct])
+  }
+
+  ## Subset on non-null iterations corresponding to posterior.
+  sub.post <- iterdiag$niter[ucount]
+  is.depen <- qtlbim:::qb.get(qbObject, "depen")
+  if(epistasis & is.depen)
+    tmp <- !is.na(match(pairloci$niter, sub.post))
+  sub.post <- !is.na(match(mainloci$niter, sub.post))
+
+  ## Adjust for epistatic effects.
+  ## For now only considering hierarchical model case.
+  ## That is epistasis only if main effects.
+  ## In order to handle epistasis with 1 or no main effect
+  ## we would need to compute probabilities for each iteration.
+  ## This will be a lot more work!
+  if(epistasis) {
+    if(is.depen) {
+      ## Epistatic priors depend on number of main loci.
+      ## Not correct yet when c1 or c0 > 0.
+      ## Find number of possible epistatic pairs of main loci.
+      tbl.main <- c(table(mainloci[sub.post, "niter"]))
+      tmp2 <- tbl.main * (tbl.main - 1) / 2
+
+      tmp <- c(table(pairloci[tmp,"niter"]))
+      prop <- qtlbim:::qb.get(qbObject, "prop")
+      if(sum(prop[-1]) > 0)
+        warning("Bayes factor computations assume all QTL are main (may not be correct)")
+
+      ## Epistasis with two main QTL.
+      tmp2[names(tmp)] <- (prop[1] ^ tmp) *
+        ((1 - prop[1]) ^ (tmp2[names(tmp)] - tmp))
+      tmp2[is.na(match(names(tmp2), names(tmp)))] <-
+        (1 - prop[1]) ^ tmp2[is.na(match(names(tmp2), names(tmp)))]
+      tbl.main <- pr[1 + tbl.main] * tmp2
+    }
+    else {
+      ## Independent prior for epistasis.
+      ## Product of prior for main QTL * prior for epis-only QTL.
+
+      ## Find mainloci entries matching patterns with high posterior.
+      ## Kludge to catch iterations with 0 QTL.
+      tmp <- rep(0, nrow(iterdiag))
+      names(tmp) <- iterdiag$niter
+      tmp2 <- c(table(mainloci[, "niter"]))
+      tmp[names(tmp2)] <- tmp2
+      tmp2 <- rep(!is.na(match(pattern, names(posterior))), tmp)
+
+      ## Sum up main loci variance components and tally those not zero.
+      tmp <- mainloci[tmp2, "varadd"]
+      is.bc <- (qtlbim:::qb.cross.class(qbObject) == "bc")
+      if(!is.bc)
+        tmp <- tmp + mainloci[tmp2, "vardom"]
+      tmp <- tapply(tmp, mainloci[tmp2, "niter"], function(x) sum(x > 0))
+      ## Table number of total QTL per iteration.
+      tbl.main <- c(table(mainloci[tmp2, "niter"]))
+
+      ## Product of priors for main and epis-only QTL.
+      main.nqtl <- qtlbim:::qb.get(qbObject, "main.nqtl")
+      mean.nqtl <- qtlbim:::qb.get(qbObject, "mean.nqtl")
+      ## Average product of poisson probabilities by pattern.
+      pr.main <- qtlbim:::qb.prior(qbObject, seq(0, max(tmp)), main.nqtl)
+      pr <- qtlbim:::qb.prior(qbObject, seq(0, max(tbl.main - tmp)), mean.nqtl - main.nqtl)
+      tbl.main <- tapply(pr.main[1 + tmp] * pr[1 + tbl.main - tmp],
+                         pattern[names(tbl.main)], mean)
+      ## Rearrange in order to match calculations below.
+      tbl.main <- tbl.main[pattern[as.character(sort(iterdiag$niter[ucount]))]]
+      names(tbl.main) <- sort(iterdiag$niter[ucount])
+      tbl.main <- tbl.main[!is.na(tbl.main)]
+    }
+  }
+  else
+    tbl.main <- pr[1 + c(table(mainloci[sub.post, "niter"]))]
+
+  geno.names <- names(map)
+  tmp <- c(tapply(ordered(geno.names[mainloci[sub.post, "chrom"]], geno.names),
+                  mainloci[sub.post, "niter"],
+                  tmpfn, chrlen, fact))
+  tmp <- tmp * tbl.main
+
+  prior[pattern[names(tmp)]] <- tmp
+
+  ## Bayes factor ratio = rescaled version of posterior / prior.
+  bf <- posterior / prior
+  ## rescale bf so smallest value is 1 (avoid NA, 0/0)
+  minbf <- bf[!is.na(bf)]
+  if(length(minbf))
+    bf <- bf / min(minbf)
+
+  ## bfse = approximate Monte Carlo standard error for bf
+  ## (actually binomial error)
+  ## note that this is rescaled since bf[1] forced to be 1
+  tmp <- names(posterior)
+  nqtl <- sapply(strsplit(tmp, ","),length)
+  names(nqtl) <- tmp
+  bf <- as.data.frame(bf)$Freq
+  names(bf) <- tmp
+  posterior  <- as.data.frame(posterior )$Freq
+  names(posterior ) <- tmp
+
+  data.frame(nqtl = nqtl,
+             posterior = posterior, prior = prior, bf = bf,
+             bfse = sqrt((1 - posterior) / (posterior * n.iter)) * bf)
+}
+
+
+
 environment(plot.draws) <- asNamespace('qtl')
 environment(read.cross.jm) <- asNamespace('qtl')
 environment(parallel.droponemarker) <- asNamespace('qtl')

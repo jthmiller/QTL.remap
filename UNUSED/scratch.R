@@ -1,7 +1,26 @@
+################################
+rabbit hole
+i <- 1
+disto <- sapply(1:24,function(X){
+length(which(all.rank$chr==X & all.rank$rank<(max(all.rank$rank)*i)))
+})
 
+for (i in seq.int(0.01,0.99,.025)){
 
+  bindo <- sapply(1:24,function(X){
+  length(which(all.rank$chr==X & all.rank$rank<(max(all.rank$rank)*i)))
+})
+  disto <- rbind(disto,bindo)
+}
 
+disto <- t(disto)
+colnames(disto) <- c(1,seq.int(0.01,0.99,.025))
+rownames(disto) <- 1:24
 
+png('/home/jmiller1/public_html/rabithole.png')
+plot(as.numeric(colnames(disto)),disto[1,])
+sapply(2:24, function(X){ points(as.numeric(colnames(disto)),disto[X,])})
+dev.off()
 
 ### ln model between position and bp for each chrm
 models <- lapply(cross2.map, function(x) {
