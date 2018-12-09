@@ -47,7 +47,7 @@ dirso <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/data/"
 
 ## Funtions for processing rQTL map data
 source(file.path(basedir, "rQTL/scripts/QTL_remap/MAP/source_file.R"))
-source(file.path(basedir, "rQTL/scripts/QTL_remap/QTL/model_source_file.R"))
+# source(file.path(basedir, 'rQTL/scripts/QTL_remap/QTL/model_source_file.R'))
 
 ## Libraries
 flib <- "/share/apps/rmodules"
