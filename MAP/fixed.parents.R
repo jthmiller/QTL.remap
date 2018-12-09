@@ -133,7 +133,39 @@ writeLines(justdrop, fileConn)
 close(fileConn)
 
 
-
-
+SOc <- subset(cross.pars, ind = "BLI_BI1124M")
+gtp <- geno.table(SOc)
+swit <- rownames(gtp[gtp$AA == 1, ])
+cross.18 <- switchAlleles(cross.18, markers = swit)
 
 #### done####
+
+
+
+cross.18 <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr", 
+  sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
+
+### Pull names from plinkfile
+path <- file.path(indpops, paste(pop, ".ped", sep = ""))
+popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
+indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
+cross.18$pheno$ID <- paste(popname, indname, sep = "_")
+cross.pars <- subset(cross.18, ind = "BLI_BI1124M")
+gtp <- geno.table(cross.pars)
+swit <- rownames(gtp[gtp$AA == 1, ])
+
+cross.pars <- switchAlleles(cross.pars, markers = swit)
+cross.18 <- switchAlleles(cross.18, markers = swit)
+gtp <- geno.table(cross.pars)
+cross.check <- subset(cross.18, ind = "ELR_10876")
+gtc <- geno.table(cross.check)
+BB_10876 <- intersect(rownames(gtc[gtc$BB == 1, ]), rownames(gtp[gtp$BB == 1, ]))
+gtm <- geno.table(subset(crOb, ind = "ELR_10876"))
+gtp <- gtp[which(gtp$BB == 1), ]
+swits <- rownames(gtp[which(gtp$BB == 1), ])
+
+sapply(1:24, function(X) {
+  
+  c(sum(rownames(gtm[which(gtm$chr == X), ]) %in% rownames(gtp))/length(rownames(gtm[which(gtm$chr == 
+    X), ])), sum(rownames(gtm[which(gtm$chr == X), ]) %in% rownames(gtp)))
+})

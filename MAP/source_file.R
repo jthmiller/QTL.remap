@@ -1007,7 +1007,100 @@ qb.pattern.jm <- function(qbObject, cutoff = 1, nmax = 15, epistasis = TRUE, ...
              posterior = posterior, prior = prior, bf = bf,
              bfse = sqrt((1 - posterior) / (posterior * n.iter)) * bf)
 }
+cnv.popgen <- function(cross2, popgen, top) {
+  nbhmap <- convert2cross2(cross2)
+  nbhmap$pmap <- nbhmap$gmap
+  nbhmap$pmap <- lapply(nbhmap$pmap, function(X) {
+    return(as.numeric(gsub("[0-9]+:", "", names(X))))
+  })
+  for (i in 1:24) {
+    names(nbhmap$pmap[[i]]) <- names(nbhmap$gmap[[i]])
+  }
 
+  popgen$chrom <- gsub("chr", "", popgen$chrom)
+  colnames(popgen)[1] <- "chr"
+  pop.list <- split(popgen, popgen$chr)
+  pop.list <- pop.list[as.character(c(1:24))]
+  popgen.pos1 <- lapply(pop.list, "[[", 2)
+  popgen.pos2 <- lapply(pop.list, "[[", 3)
+  popgen.pos1 <- lapply(popgen.pos1, as.numeric)
+  popgen.pos2 <- lapply(popgen.pos2, as.numeric)
+  pos1 <- interp_map(popgen.pos1, nbhmap$pmap, nbhmap$gmap)
+  pos2 <- interp_map(popgen.pos2, nbhmap$pmap, nbhmap$gmap)
+  pop.list <- mapply(cbind, pop.list, pos1 = pos1, SIMPLIFY = FALSE)
+  pop.list <- mapply(cbind, pop.list, pos = pos2, SIMPLIFY = FALSE)
+  fraps <- ldply(pop.list, data.frame, .id = NULL)
+  fraps$chr <- factor(fraps$chr, levels = as.character(1:24))
+  fraps <- fraps[which(fraps$rank < top), ]
+  fraps$lod <- rescale(fraps$rank, to = c(20, 0))
+  fraps$sz <- rescale(fraps$rank, to = c(4, 1))
+  return(fraps)
+}
+cnv.premap <- function(cross2, tomap) {
+  nbhmap <- convert2cross2(cross2)
+  nbhmap$pmap <- nbhmap$gmap
+  nbhmap$pmap <- lapply(nbhmap$pmap, function(X) {
+    return(as.numeric(gsub("[0-9]+:", "", names(X))))
+  })
+  for (i in 1:24) {
+    names(nbhmap$pmap[[i]]) <- names(nbhmap$gmap[[i]])
+  }
+  map <- map2table(pull.map(tomap))
+  map$pos <- gsub("^[[:digit:]]+:", "", rownames(map))
+  map.list <- split(map, map$chr)
+  map.list <- map.list[as.character(c(1:24))]
+  map.pos <- lapply(map.list, "[[", 2)
+  map.pos <- lapply(map.pos, as.numeric)
+  pos <- interp_map(map.pos, nbhmap$pmap, nbhmap$gmap)
+  map.list <- mapply(cbind, map.list, pos = pos, SIMPLIFY = FALSE)
+  fraps <- ldply(map.list, data.frame, .id = NULL)
+  fraps$chr <- factor(fraps$chr, levels = as.character(1:24))
+  rownames(fraps) <- rownames(map)
+  for (i in 1:24) {
+    ord <- order(fraps$pos.1[which(fraps$chr == i)])
+    tomap <- switch.order(tomap, chr = i, ord, error.prob = 0.1, map.function = "kosambi",
+      maxit = 1, tol = 0.1, sex.sp = F)
+  }
+  fraps$pos <- fraps$pos.1
+
+  fraps <- fraps[, -3]
+  rownames(fraps) <- rownames(map2table(pull.map(tomap)))
+  map <- table2map(fraps)
+  brp.newmap <- replacemap(tomap, map)
+  brp.newmap
+
+}
+cnv.ahrs <- function(cross2, AHRdf, EXP) {
+  mapo <- convert2cross2(cross2)
+  mapo$pmap <- mapo$gmap
+
+  mapo$pmap <- lapply(mapo$pmap, function(X) {
+    return(as.numeric(gsub("[0-9]+:", "", names(X))))
+  })
+  for (i in 1:24) {
+    names(mapo$pmap[[i]]) <- names(mapo$gmap[[i]])
+  }
+  AHR.list <- split(AHRdf, AHRdf$chrom)
+  AHR.pos1 <- lapply(AHR.list, "[[", 2)
+  AHR.pos2 <- lapply(AHR.list, "[[", 3)
+  AHR.pos1 <- lapply(AHR.pos1, as.numeric)
+  AHR.pos2 <- lapply(AHR.pos2, as.numeric)
+  pos1 <- interp_map(AHR.pos1, mapo$pmap, mapo$gmap)
+  pos2 <- interp_map(AHR.pos2, mapo$pmap, mapo$gmap)
+  AHR.list <- mapply(cbind, AHR.list, pos1 = pos1, SIMPLIFY = FALSE)
+  AHR.list <- mapply(cbind, AHR.list, pos = pos2, SIMPLIFY = FALSE)
+  ah.gens <- ldply(AHR.list, data.frame, .id = NULL)
+  ah.gens$chrom <- factor(ah.gens$chrom, levels = as.character(1:24))
+  colnames(ah.gens)[1] <- "chr"
+  # ah.gens$lod <- rep_len(c(-1:-10), length(ah.gens[,1]))
+  ah.gens$lod <- 0
+  if (EXP == F) {
+    ah.gens <- ah.gens[which(!ah.gens$gene == "EXPRESSED"), ]
+  }
+  ah.gens <- ah.gens[!grepl("*many*", ah.gens$gene), ]
+  ah.gens <- ah.gens[!grepl("*many*", ah.gens$gene), ]
+  return(ah.gens)
+}
 
 
 environment(plot.draws) <- asNamespace('qtl')

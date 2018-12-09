@@ -108,10 +108,10 @@ if (pop == "NBH") {
   finLod <- 12  ## Higher final ELR LOD
   grpRf <- 0.3
   finRf <- 0.15
-  cutoff <- 0.001  ## Higher, need more power to detect seg distortion
-  miss <- 12
+  cutoff <- 1e-04  ## Higher, need more power to detect seg distortion
+  miss <- 10
   miss1 <- 10
-  miss2 <- 8
+  miss2 <- 10
   droppo <- 15
 } else if (pop == "NEW") {
   ns <- "North"

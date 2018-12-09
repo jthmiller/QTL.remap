@@ -11,9 +11,9 @@ scriptdir='/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP'
 
 pop=$1
 
-if [ $pop = "BRP" ]; then
-  Rscript $scriptdir/manymarks2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+if [ $pop = "ELR" ]; then
+	Rscript $scriptdir/manymarks2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 else
-  Rscript $scriptdir/manymarks2_bp.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
+	Rscript $scriptdir/manymarks2_elr.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK
 fi
 ####Rscript $scriptdir/manymarks2.R --vanilla $pop $SLURM_ARRAY_TASK_ID $SLURM_CPUS_PER_TASK

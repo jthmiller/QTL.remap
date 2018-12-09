@@ -1,4 +1,3 @@
-#!/bin/R
 debug.cross <- T
 source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library("qtlbim")
@@ -18,6 +17,10 @@ if (genotyped.only == T) cross.18 <- subset(cross.18, ind = cross.18$pheno$gt ==
   1)
 popdir <- "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/BRP/REMAPS"
 popq <- "BRP"
+mak <- markernames(cross.18)
+cross.18 <- switchAlleles(cross.18, markers = mak)
+# mak <- markernames(cross.18, chr = 18) cross.18 <- switchAlleles(cross.18,
+# markers = mak)
 
 
 # popdir <- '/home/jmiller1/QTL_Map_Raw/popgen/rQTL/BRP/REMAPS' cross.18 <-
@@ -28,36 +31,38 @@ popq <- "BRP"
 # sex <- read.table(file = file.path(dirso, 'sex.txt')) rownames(sex) <- sex$ID
 # cross.18$pheno$sex <- sex[as.character(cross.18$pheno$ID), 2]
 cross.18$pheno$binary <- as.numeric(cross.18$pheno$pheno >= 3)
-crOb <- cross.18
 
 # rqtl binary scan for prior
 cross.18$pheno$nqrank <- nqrank(cross.18$pheno$pheno)
 ### only for brp
-cross.18 <- sim.geno(cross.18, error.prob = 0.1, step = 5, n.draws = 250)
-scan.norm.imp <- scanone(cross.18, model = "normal", pheno.col = 1, method = "imp")
-scan.bin.mr <- scanone(cross.18, method = "mr", model = "binary", pheno.col = 5)
+cross.18 <- sim.geno(cross.18, error.prob = 0.1, step = 5, n.draws = 500)
 
-perms.norm.imp <- scanone(cross.18, method = "imp", model = "normal", n.perm = 50, 
+scan.norm.imp <- scanone(cross.18, model = "normal", pheno.col = 1, method = "imp", 
+  addcovar = cross.18$pheno$sex)
+perms.norm.imp <- scanone(cross.18, method = "imp", model = "normal", n.perm = 500, 
   pheno.col = 1, perm.strata = as.character(cross.18$pheno$gt))
-
-perms.norm.mr <- scanone(cross.18, method = "mr", model = "binary", n.perm = 50, 
-  perm.strata = cross.18$pheno$gt, pheno.col = 5)
-
 norm.qtl <- summary(scan.norm.imp, perms = perms.norm.imp, alpha = 0.05)
-bin.qtl <- summary(scan.bin.mr, perms = perms.norm.mr, alpha = 0.05)
 qtl.uns <- makeqtl(cross.18, chr = norm.qtl$chr, pos = norm.qtl$pos)
-qtl.mr <- makeqtl(cross.18, chr = bin.qtl$chr, pos = bin.qtl$pos)
+
+## n.cluster = slurmcore removed. Farm not working
+cross.18 <- calc.genoprob(cross.18, error.prob = 0.1)
+scan.bin.mr <- scanone(cross.18, method = "mr", model = "binary", pheno.col = 5)
+perms.norm.mr <- scanone(cross.18, method = "mr", model = "binary", n.perm = 5000, 
+  perm.strata = cross.18$pheno$gt, pheno.col = 5)
+bin.qtl <- summary(scan.bin.mr, perms = perms.norm.mr, alpha = 0.05)
+qtl.mr <- makeqtl(cross.18, chr = bin.qtl$chr, pos = bin.qtl$pos, what = "prob")
+
+fit.mr <- fitqtl(cross.18, pheno.col = 5, qtl.mr, method = "hk", model = "binary", 
+  dropone = TRUE, get.ests = TRUE, run.checks = TRUE, tol = 1e-04, maxit = 10000)
 
 # full <- stepwiseqtl(cross.18, additive.only = T, method = 'imp', pheno.col = 1,
 # scan.pairs = T)
-fit <- fitqtl(cross.18, pheno.col = 5, qtl.uns, method = "imp", model = "binary", 
-  dropone = TRUE, get.ests = TRUE, run.checks = TRUE, tol = 1e-04, maxit = 10000)
-
-qtl <- find.marker(cross.18, qtl.uns$chr, qtl.uns$pos)
 qtl.mr <- find.marker(cross.18, qtl.mr$chr, qtl.mr$pos)
 
-### Reg and interval mapping
+qtl <- find.marker(cross.18, qtl.uns$chr, qtl.uns$pos)
 
+### Reg and interval mapping
+pop <- "BRP"
 png("/home/jmiller1/public_html/brp_bin_regression.png", width = 2000)
 plot(scan.bin.mr, main = pop, bandcol = "gray70", cex.lab = 2, cex.axis = 2, cex.main = 2, 
   cex.sub = 2)
@@ -89,26 +94,32 @@ for (i in 1:length(qtl)) {
   dev.off()
 }
 
-### qtlbim
 crOb <- cross.18
 crOb <- qb.genoprob(crOb, step = 10)
+########### 
+qbData.b <- qb.data(crOb, pheno.col = 5, trait = "binary")
+qbModel <- qb.model(crOb, epistasis = T, main.nqtl = 2, mean.nqtl = 2, depen = FALSE, 
+  max.qtl = 0)
+mc.b <- qb.mcmc(crOb, qbData.b, qbModel, pheno.col = 5, n.iter = 30000)
+so <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
+best <- qb.BayesFactor.jm(mc.b, items = c("pattern", "nqtl"))
+two <- qb.scantwo(mc.b, scan, type.scan = "2logBF")
+####### 
 qbData <- qb.data(crOb, pheno.col = 1, trait = "ordinal", rancov = 2)
-qbModel <- qb.model(crOb, epistasis = T, main.nqtl = 4, mean.nqtl = 4, depen = FALSE)
 mc <- qb.mcmc(crOb, qbData, qbModel, pheno.col = 1, n.iter = 30000)
-so <- qb.scanone(mc, epistasis = T, type = "2logBF")
-so.LPD <- qb.scanone(mc, epistasis = T, type = "LPD")
-scan <- list(upper = "main", lower = "epistasis")
-st <- qb.scantwo(mc, scan, type.scan = "nqtl", chr = c(1, 2, 6, 8, 13, 18, 20, 23, 
-  24), epistasis = TRUE)
+qbModel <- qb.model(crOb, epistasis = T, main.nqtl = 3, mean.nqtl = 3, depen = FALSE, 
+  max.qtl = 0, interval = 20)
+# chr.nqtl = rep.int(3, 24))
+so <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
+best <- qb.BayesFactor.jm(mc.b, items = c("pattern", "nqtl"))
+two <- qb.scantwo(mc.b, scan, type.scan = "2logBF")
 
-best <- qb.BayesFactor.jm(mc, items = "pattern")
 
 save.image("/home/jmiller1/public_html/BRP.bim.Rsave")
-png("/home/jmiller1/public_html/nbh.qbBayes.png", width = 3000)
-plot(nbh.models, chr = c(1:24), cex = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, 
-  cex.sub = 2.5, xlab = NA)
-dev.off()
 
+png("/home/jmiller1/public_html/brp.qbBayes.png", width = 3000)
+plot(best)
+dev.off()
 
 png("/home/jmiller1/public_html/brp.scanone.so.png", width = 1000)
 plot(so, chr = c(1:24), cex = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5, 
@@ -132,8 +143,8 @@ png("/home/jmiller1/public_html/brp_scan_diagnost.so.png", width = 2000)
 plot(qb.hpdone(mc))
 dev.off()
 
-qtl.bm <- as.character(summary(qb.hpdone(mc))$chr)
-bimqtl <- summary(qb.scanone(mc, type = "heritability", chr = qtl.bm))
+# qtl.bm <- as.character(summary(qb.hpdone(mc))$chr)
+bimqtl <- summary(qb.scanone(mc, type = "heritability", chr = c(2, 18)))
 qtl.bm <- find.marker(cross.18, rownames(bimqtl), bimqtl$pos)
 
 # cross2 <- argmax.geno(crOb, step = 5, off.end = 5, err = 0.1) cross2 <-
@@ -157,9 +168,8 @@ for (i in 1:length(qtl.bm)) {
   print(table(cross2$geno[[as.character(chr)]][, mark]))
 }
 
-cross.nomis <- subset(cross.18, ind = cross.18$pheno$gt == 1)
-fit.nomis <- fitqtl(cross.nomis, pheno.col = 1, qtl.uns, method = "imp", model = "normal", 
+fit.bm <- fitqtl(cross.18, pheno.col = 1, qtl.uns, method = "imp", model = "normal", 
   dropone = TRUE, get.ests = TRUE, run.checks = TRUE, tol = 1e-04, maxit = 10000)
 
-capture.output(c(summary(fit), summary(fit.nomis)), file = "/home/jmiller1/public_html/brp_out.txt")
+capture.output(c(summary(fit), summary(fit.bm), summary(best), summary(so)), file = "/home/jmiller1/public_html/BRP_out.txt")
 save.image("/home/jmiller1/public_html/brp.rsave")
