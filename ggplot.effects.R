@@ -1,0 +1,12 @@
+a <- find.marker(cross.18, 2, 180)
+b <- find.marker(cross.18, 18, 110)
+png("/home/jmiller1/public_html/NBH_2_18.png")
+effectplot(crOb, pheno.col = 1, mname1 = a, mname2 = b, ylim = c(0, 5), main = "Genotype interaction \nChrs 2 at 27MB (AIP) and 18 (AHRb) at 20MB")
+dev.off()
+
+png("/home/jmiller1/public_html/NBH_2_pxg.png")
+plotPXG(cross.18, a, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = a)
+dev.off()
+png("/home/jmiller1/public_html/NBH_18_pxg.png")
+plotPXG(cross.18, b, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = b)
+dev.off()

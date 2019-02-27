@@ -92,7 +92,7 @@ dev.off()
 
 png(paste("/home/jmiller1/public_html/1_3_nbh_effectplot", pop, qtl[1], "_", qtl[3],
   "_pxg.png"))
-effectplot(cross.18, mname1 = qtl[1], mname2 = qtl[3], var.flag = "pooled", main = "Genotype interaction \nChrs 2 at 36MB (AIP) and 18 (AHRb) at 18MB")
+effectplot(cross.18, mname1 = qtl[1], mname2 = qtl[3], var.flag = "pooled", main = "Genotype interaction \nChrs 2 at 27MB (AIP) and 18 (AHRb) at 20MB")
 dev.off()
 
 
@@ -105,15 +105,19 @@ for (i in 1:length(qtl.mr)) {
 
 ### qtlbim
 crOb <- cross.18
+#crOb <- switchAlleles(crOb, markers = swits)
 crOb <- qb.genoprob(crOb, step = 10)
 ###########
-qbData.b <- qb.data(crOb, pheno.col = 5, trait = "binary")
-qbModel <- qb.model(crOb, epistasis = T, main.nqtl = 4, mean.nqtl = 4, depen = FALSE,
-  max.qtl = 0)
-mc.b <- qb.mcmc(crOb, qbData.b, qbModel, pheno.col = 5, n.iter = 30000)
-so <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
-best <- qb.BayesFactor.jm(mc.b, items = c("pattern", "nqtl"))
-two <- qb.scantwo(mc.b, scan, type.scan = "2logBF")
+qbData.b <- qb.data(crOb, pheno.col = 5, trait = "binary",rancov = 2)
+qbModel.b <- qb.model(crOb, epistasis = T, main.nqtl = 5, mean.nqtl = 6, depen = FALSE,
+  max.qtl = 8,interval=rep(5,24), chr.nqtl = rep(2,nchr(crOb)))
+mc.b <- qb.mcmc(crOb, qbData.b, qbModel.b, pheno.col = 5, n.iter = 300000,genoupdate=FALSE)
+so.b <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
+so.b.bf <- qb.scanone(mc.b, epistasis = T, type.scan = "2logBF", chr = 1:24)
+best.b <- qb.BayesFactor.jm(mc.b,items = c("pattern", "nqtl"))
+two.b <- qb.scantwo(mc.b, chr = c(1,3,2,7,8,9,13,18,20,22,23))
+close.b <- qb.close(mc.b)
+
 #######
 qbData <- qb.data(crOb, pheno.col = 1, trait = "ordinal", rancov = 2)
 mc <- qb.mcmc(crOb, qbData, qbModel, pheno.col = 1, n.iter = 30000)
@@ -133,19 +137,51 @@ slice <- qb.sliceone(mc, type = "cellmean", chr = c(2, 8, 18, 19, 24))
 so <- qb.scanone(mc, epistasis = F, type.scan = "heritability", chr = 1:24)
 best <- qb.BayesFactor.jm(mc.b, items = c("pattern", "nqtl"))
 
-# save.image('/home/jmiller1/public_html/NBH.bim.Rsave')
+#save.image('/home/jmiller1/public_html/NBH.bim.Rsave')
+
+#### FOR FIGURE IN MS
+
+a <- find.marker(cross.18,2,180 )
+b <- find.marker(cross.18, 18, 110)
+png("/home/jmiller1/public_html/NBH_2_18.png")
+effectplot(crOb,pheno.col=1, mname1 = a, mname2 = b,ylim=c(0,5),main = "Genotype interaction \nChrs 2 at 27MB (AIP) and 18 (AHRb) at 20MB")
+dev.off()
+
+png("/home/jmiller1/public_html/NBH_2_pxg.png")
+plotPXG(cross.18, a, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = a)
+dev.off()
+png("/home/jmiller1/public_html/NBH_18_pxg.png")
+plotPXG(cross.18, b, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = b)
+dev.off()
+
+
+#slice on 24
+temp <- qb.sliceone(mc.b, slice =3,center.type ='mode',sum.scan = "only",type.scan = "cellmean")
+png("/home/jmiller1/public_html/slice.png")
+plot(temp,chr=c(1,3:17,19:24))
+dev.off()
+
+slice <- qb.slicetwo(mc.b,chr = c(2,18),pos=c(180 ,80),type.scan = "LPD",width = 100,smooth=50)
+png("/home/jmiller1/public_html/nbh_slice.two_2_18.png", width = 1000)
+plot(slice)
+dev.off()
+
+
+
+
+
 
 png("/home/jmiller1/public_html/nbh.qbBayes.png", width = 600)
-plot(best)
+plot(best.b)
 dev.off()
 
 png("/home/jmiller1/public_html/nbh.scanone.so.png", width = 3000)
-plot(so, chr = c(1:24), cex = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5,
+plot(so.b, chr = c(1:24), cex = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5,
   cex.sub = 2.5, xlab = NA)
 dev.off()
 
 png("/home/jmiller1/public_html/nbh.scantwo.slice.png", width = 3000)
-plot(two, chr = c(1:24), slice = 2)
+plot(two.b, chr = c(1:24), slice = 1)
 dev.off()
 
 png("/home/jmiller1/public_html/nbh.scantwo.so.slice.png", width = 300)
@@ -154,7 +190,7 @@ dev.off()
 
 png("/home/jmiller1/public_html/nbh.model.png", width = 2000)
 # plot(qb.close(mc, target = so))
-plot(so.LPD, c(1:24))
+plot(so.b, c(1:24))
 dev.off()
 
 png("/home/jmiller1/public_html/nbh.scanone.st.png", width = 2000, height = 2000)
@@ -212,3 +248,17 @@ capture.output(c(summary(fit), summary(fit.bm), summary(best), summary(so), summ
 
 
 need fit for mr, imp, binary, bayes (and bayes with binary) all with and without added gts
+
+
+a <- find.marker(cross.18, 1,20 )
+b <- find.marker(cross.18, 13, 105)
+png("/home/jmiller1/public_html/nbh_13x1.check.png")
+effectplot(crOb, mname1 = a, mname2 = b,ylim=c(0,5))
+dev.off()
+
+png("/home/jmiller1/public_html/nbh_13_pxg.png")
+plotPXG(cross.18, b, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = b)
+dev.off()
+png("/home/jmiller1/public_html/nbh_1_pxg.png")
+plotPXG(cross.18, a, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = a)
+dev.off()

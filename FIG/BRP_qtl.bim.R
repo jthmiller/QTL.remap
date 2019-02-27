@@ -140,7 +140,7 @@ plot(qb.coda(mc, variables = c("nqtl")))
 dev.off()
 
 png("/home/jmiller1/public_html/brp_scan_diagnost.so.png", width = 2000)
-plot(qb.hpdone(mc))
+plot(qb.hpdone(mc.b))
 dev.off()
 
 # qtl.bm <- as.character(summary(qb.hpdone(mc))$chr)

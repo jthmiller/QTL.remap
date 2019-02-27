@@ -45,9 +45,9 @@ cross.new <- sim.geno(cross.NEW, n.draws = 500, step = 5, off.end = 10, error.pr
   map.function = "kosambi", stepwidth = "fixed")
 cross.elr <- sim.geno(cross.ELR, n.draws = 500, step = 5, off.end = 10, error.prob = 0.05,
   map.function = "kosambi", stepwidth = "fixed")
-cross.brp <- sim.geno(brp.newmap, n.draws = 500, step = 5, off.end = 10, error.prob = 0.1,
+cross.brp <- sim.geno(brp.remap, n.draws = 500, step = 5, off.end = 10, error.prob = 0.1,
   map.function = "kosambi", stepwidth = "fixed")
-
+brp.remap
 #################
 sex <- read.table(file = file.path(dirso, "sex.txt"))
 rownames(sex) <- sex$ID
@@ -96,6 +96,8 @@ brp.gens <- cnv.ahrs(cross.brp, AHRdf = AHR.bed, EXP = F)
 qtl.gens <- nbh.gens[which(nbh.gens$chr %in% c(1, 2, 5, 8, 10, 12, 13, 18, 24)),]
 minor.gens <- nbh.gens[which(nbh.gens$chr %in% c(8, 13, 23, 24)), ]
 incompat.gens <- nbh.gens[which(nbh.gens$chr %in% c(8, 13)), ]
+qtl_pg <- c(2,8, 13, 18, 24)
+ol.gens <- nbh.gens[which(nbh.gens$chr %in% qtl_pg), ]
 
 ### ggplot popgen locations
 dir <- "/home/jmiller1/QTL_Map_Raw/popgen/tables"
@@ -124,6 +126,9 @@ qtl.rank <- all.rank[which(all.rank$chr %in% c(1, 2, 5, 8, 10, 12, 13, 18, 23, 2
   ]
 minor.rank <- all.rank[which(all.rank$chr %in% c(8, 13, 23, 24)), ]
 incompat.rank <- all.rank[which(all.rank$chr %in% c(8, 13)), ]
+
+qtl_pg <- c(2,8, 13, 18, 24)
+ol.rank <- all.rank[which(all.rank$chr %in% qtl_pg), ]
 
 ### GGriges plot
 melted.nbh <- data.frame(pop = "NBH", chr = scan.norm.imp.NBH$chr, pos = scan.norm.imp.NBH$pos,
@@ -176,14 +181,21 @@ qtlmelt <- allmelt[which(allmelt$chr %in% c(1, 2, 5, 8, 10, 12, 13, 18,19, 23, 2
   ]
 qtlminor <- allmelt[which(allmelt$chr %in% c(8, 13,19, 23, 24)), ]
 incompat <- allmelt[which(allmelt$chr %in% c(8, 13)), ]
+
+qtl_pg <- c(2,8, 13, 18, 24)
+ol.melt <- allmelt[which(allmelt$chr %in% qtl_pg), ]
+
 #### Subest for only qtl plots qtl.rank <- nbh.rank[which(nbh.rank$chr %in%
 #### c(1,2,5,8,10,12,13,18,24)),]
 
-## save.image('/home/jmiller1/public_html/QTL_plot.Rsave')
 
 #### MAP BRP to NBH before simcross
 brp.remap <- cnv.premap(cross.nbh, cross.BRP)
-save.image("/home/jmiller1/public_html/BRP_remap.Rsave")
+##save.image("/home/jmiller1/public_html/BRP_remap.Rsave")
+
+
+save.image('/home/jmiller1/public_html/QTL_plot.Rsave')
+
 
 p <- ggplot(themelt.nbh, aes(x = pos, y = lod))
 png("/home/jmiller1/public_html/all_popgen_rank_scaled.qtl.png", width = 3000)
@@ -348,6 +360,98 @@ p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 9) +
   y = "LOD", linetype = "")
 dev.off()
 
+### QTL only
+
+p <- ggplot(ol.melt, aes(x = pos, y = lod, colour = pop))
+png("/home/jmiller1/public_html/ol_qtl_only.png", width = 2000)
+p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 9) +
+scale_color_manual(values = popcol) +
+  scale_y_continuous(limits = c(-1, 8)) +
+  theme_minimal() + geom_label_repel(aes(x = pos,
+  y = 0.1, label = gene), color = "black", segment.size = 1, label.padding = unit(0.2,
+  "lines"), data = minor.gens, direction = "y", size = 5, seed = 666, nudge_y = 2,
+  ylim = c(5, 20), segment.alpha = 0.5) +
+  geom_line(size = 2, alpha = 0.5) +
+  geom_label_repel(aes(x = pos,y = 0.1, label = gene),
+  color = "black", label.padding = unit(0.2, "lines"),
+  ylim = c(5, 20), segment.size = 0, max.iter = 6000, nudge_y = 2, data = minor.gens,
+  direction = "y", size = 5, seed = 666) +
+  geom_label_repel(aes(x = pos, y = 0,color = pop, label = rank),
+  data = minor.rank, size = 5, segment.size = 1, force = 4,
+  min.segment.length = 0.1, point.padding = unit(0.4, "lines"), direction = "both",
+  ylim = c(0, -8), seed = 666, box.padding = 0.1) +
+  geom_label_repel(aes(x = pos,y = 0, label = rank),
+  fontface = "bold", data = minor.rank, size = 5, segment.size = 0,
+  force = 4, min.segment.length = 0.1, point.padding = unit(0.4, "lines"), direction = "both",
+  ylim = c(0, -8), seed = 666, box.padding = 0.1) +
+  theme(axis.title.x = element_blank(),
+  axis.text.x = element_blank(), axis.ticks.x = element_blank(), legend.position = "none") +
+  labs(x = "Chromosome", y = "LOD", linetype = "")
+dev.off()
+
+
+names(popcol)[2] <- 'BRP'
+
+p <- ggplot(ol.melt, aes(x = pos, y = lod, colour = pop))
+pdf("/home/jmiller1/public_html/OL_chr.qtl.pdf")
+p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 24) +
+  scale_color_manual(values = popcol) +
+  scale_y_continuous(limits = c(-5, 22)) +
+  geom_label_repel(aes(x = pos, y = 0.1,label = gene),data = ol.gens,
+    color = "black", segment.size = 1, label.padding = unit(0.2, "lines"),
+    direction = "y", size = 3, seed = 666, ylim = c(5, 20), segment.alpha = 0.5) +
+  geom_line(size = 2, alpha = 0.5) +
+  geom_label_repel(aes(x = pos, y = 0.1, label = gene), data = ol.gens,
+    color = "black", label.padding = unit(0.2, "lines"), ylim = c(5, 20), segment.size = 0,
+    max.iter = 6000, nudge_y = 2, direction = "y", size = 3.5, seed = 666) +
+  geom_label_repel(aes(x = pos, y = 0, fill = pop, label = rank), data = ol.rank,
+    size = 3.5, segment.size = 1, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
+      "lines"), direction = "both", ylim = c(0, -8), seed = 666, box.padding = 0.1) +
+  geom_label_repel(aes(x = pos, y = 0, label = rank, ), fontface = "bold", data = ol.rank,
+    size = 3.5, segment.size = 0, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
+      "lines"), direction = "both", ylim = c(0, -8), seed = 666, box.padding = 0.1) +
+  theme(axis.title.y = element_text(face='bold',size = 12),
+    strip.text.x = element_text(face='bold',size = 12),
+    axis.text.x = element_text(face='bold', size = 12),
+    axis.text.y = element_text(face='bold', size = 12),
+    legend.position = "none") +
+  labs(x = "Chromosome", y = "LOD", linetype = "")
+dev.off()
+
+
+qtl_pg <- c(1,5, 10, 12, 23)
+ol.rank <- all.rank[which(all.rank$chr %in% qtl_pg), ]
+ol.melt <- allmelt[which(allmelt$chr %in% qtl_pg), ]
+ol.gens <- nbh.gens[which(nbh.gens$chr %in% qtl_pg), ]
+
+
+p <- ggplot(ol.melt, aes(x = pos, y = lod, colour = pop))
+pdf("/home/jmiller1/public_html/OL_noQTL_chr.qtl.pdf")
+p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 24) +
+  scale_color_manual(values = popcol) +
+  scale_y_continuous(limits = c(-5, 22)) +
+  geom_label_repel(aes(x = pos, y = 0.1,label = gene),data = ol.gens,
+    color = "black", segment.size = 1, label.padding = unit(0.2, "lines"),
+    direction = "y", size = 3, seed = 666, ylim = c(5, 20), segment.alpha = 0.5) +
+  geom_line(size = 2, alpha = 0.5) +
+  geom_label_repel(aes(x = pos, y = 0.1, label = gene), data = ol.gens,
+    color = "black", label.padding = unit(0.2, "lines"), ylim = c(5, 20), segment.size = 0,
+    max.iter = 6000, nudge_y = 2, direction = "y", size = 3.5, seed = 666) +
+  geom_label_repel(aes(x = pos, y = 0, fill = pop, label = rank), data = ol.rank,
+    size = 3.5, segment.size = 1, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
+      "lines"), direction = "both", ylim = c(0, -8), seed = 666, box.padding = 0.1) +
+  geom_label_repel(aes(x = pos, y = 0, label = rank, ), fontface = "bold", data = ol.rank,
+    size = 3.5, segment.size = 0, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
+      "lines"), direction = "both", ylim = c(0, -8), seed = 666, box.padding = 0.1) +
+  theme(axis.title.y = element_text(face='bold',size = 12),
+    strip.text.x = element_text(face='bold',size = 12),
+    axis.text.x = element_text(face='bold', size = 12),
+    axis.text.y = element_text(face='bold', size = 12),
+    legend.position = "none") +
+  labs(x = "Chromosome", y = "LOD", linetype = "")
+dev.off()
+
+
 ### Entropy
 
 NBH <- subset(cross.NBH, ind = cross.NBH$pheno$gt == 1)
@@ -378,39 +482,3 @@ pheno$pop_all <- factor(pheno$pop_all, levels = rev(c('NBH','BRP','NEW','ELR')))
 pheno$pheno_all <- factor(pheno$pheno_all, levels = c(NA,0:5))
 pheno$gtd <- pheno$pheno_all
 pheno[which(pheno$GT_NG_ALT=='NG'),6] <- NA
-
-
-
-
-  png("/home/jmiller1/public_html/pheno_density.png", width = 300,height=400)
-    ggplot(pheno,aes(x=pheno_all,y = pop_all,color = pop_all, height = ..density..)) +
-
-    scale_color_manual(values = popcol) +
-    #geom_density_ridges2(pheno_all, stat = "density") +
-    geom_density_ridges2(aes(y = pop_all, x = pheno_all , group = pop_all),bandwidth=.5) +
-    geom_density_ridges2(aes(y = pop_all, x = gtd , group = pop_all),bandwidth=.5,na.rm=T) +
-
-    #geom_density_ridges2(aes(y = pop_all, x = gtd, group = pop_all) , bandwidth=.5) +
-    #geom_density_ridges2(aes(y = pop_all ,x=as.factor(gtd)),bandwidth=.5) +
-
-    #geom_density_ridges2(aes(y = pop_all ,x=as.factor(pheno_all),group=pop_all)) +
-
-    #stat_density_ridges(aes(y = gtd,x=as.factor(pheno_all),group=pop_all)) +
-    #geom_density(aes(y = pop_all, x = pheno_all)) +
-    #geom_density_ridges2() +
-    #scale_x_discrete(breaks = c(0,1,2,3,4,5), limits=c(0,1,2,3,4,5), drop=FALSE) +
-    xlab("Phenotype Score") +
-    ylab("Density") +
-    theme(text = element_text(size=20)) +
-    #xlim(0, 5)+
-    theme(axis.title.x = element_blank(),axis.text.y = element_blank(),legend.position = "none")
-    #facet_wrap(~as.factor(pop_all), scales = "free_y", nrow = 4, ncol = 1, strip.position = NULL)
-    # scale_x_continuous('pos') + scale_y_continuous('lod') +
-    #scale_y_discrete(expand=c(0,0))
-dev.off()
-
-
-aes(y = pop_all,x=as.factor(gtd),color=pop_all,group=pop_all)
-
-aes(as.character(x), y)
-from = NULL, to = NULL,

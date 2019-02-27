@@ -17,8 +17,8 @@ pheno <- read.csv("~/QTL_Map_Raw/popgen/rQTL/data/PhenoDist.csv")
 rownames(pheno) <- paste(pheno$pop_all, pheno$Sample, sep = "_")
 cross.18$pheno$gt <- pheno[as.character(cross.18$pheno$ID), 6]
 
-mak <- markernames(cross.18, chr = flips)
-cross.18 <- switchAlleles(cross.18, markers = mak)
+# mak <- markernames(cross.18, chr = flips)
+cross.18 <- switchAlleles(cross.18, markers = markernames(cross.18))
 
 
 #### IF GENOTYPED IND ONLY
@@ -90,16 +90,48 @@ for (i in 1:length(qtl)) {
     pop))
   dev.off()
 }
-###### 
+
+
 crOb <- cross.18
+# crOb <- switchAlleles(crOb, markers = swits)
 crOb <- qb.genoprob(crOb, step = 10)
-###### bin
+########### 
 qbData.b <- qb.data(crOb, pheno.col = 5, trait = "binary")
-qbModel <- qb.model(crOb, epistasis = T, main.nqtl = 2, mean.nqtl = 2, depen = FALSE, 
+qbModel.b <- qb.model(crOb, epistasis = T, main.nqtl = 2, mean.nqtl = 3, depen = FALSE, 
   max.qtl = 0)
-mc.b <- qb.mcmc(crOb, qbData.b, qbModel, pheno.col = 5, n.iter = 30000)
-so <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
-best <- qb.BayesFactor.jm(mc.b, items = c("pattern", "nqtl"))
+mc.b <- qb.mcmc(crOb, qbData.b, qbModel.b, pheno.col = 5, n.iter = 30000)
+so.b <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
+so.b.bf <- qb.scanone(mc.b, epistasis = T, type.scan = "2logBF", chr = 1:24)
+best.b <- qb.BayesFactor.jm(mc.b, items = c("pattern", "nqtl"))
+two.b <- qb.scantwo(mc.b, chr = c(1, 2, 7, 8, 9, 13, 18, 22, 23))
+close.b <- qb.close(mc.b)
+# try <- qb.BestPattern(mc.b, epistasis = TRUE,include ='exact', category =
+# 'nqtl', level = 5)
+
+slice <- qb.sliceone(mc.b, slice = 3, smooth = 5, type.scan = "cellmean")
+png("/home/jmiller1/public_html/slice.png")
+plot(temp, chr = c(12, 13, 24))
+dev.off()
+
+#### FOR FIGURE
+
+a <- find.marker(cross.18, 2, 100)
+b <- find.marker(cross.18, 18, 90)
+png("/home/jmiller1/public_html/NEW_2_18.png")
+effectplot(crOb, pheno.col = 1, mname1 = a, mname2 = b, ylim = c(0, 5), main = NULL)
+dev.off()
+
+png("/home/jmiller1/public_html/NEW_2_pxg.png")
+plotPXG(cross.18, a, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = a)
+dev.off()
+png("/home/jmiller1/public_html/NEW_18_pxg.png")
+plotPXG(cross.18, b, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = b)
+dev.off()
+
+
+
+
+
 #### norm chr.nqtl = rep.int(2, 24))
 mc <- qb.mcmc(crOb, qbData, qbModel, pheno.col = 1, n.iter = 30000)
 so <- qb.scanone(mc, epistasis = T, type = "2logBF")

@@ -3,7 +3,8 @@
 
 library(RColorBrewer)
 library(ggplot2)
-pheno.dist <- read.csv("~/Dropbox/QTL_Paper/METADATA/ALL_pheno-ALL_phenotype.csv", header=T)
+library(grid)
+pheno.dist <- read.csv("~/Dropbox/QTL_Paper/METADATA/PhenoDist.csv", header=T)
 str(pheno.dist)
 
 ###
@@ -81,9 +82,11 @@ p <- ggplot(df, aes(x=phenotype, y=ngt,width = 1 ))+
         panel.grid.major.y = element_blank(),
         panel.grid.minor.y = element_blank(),
         panel.grid.major.x = element_blank(),
-        strip.text.y = element_text(size=12, face="bold"))
+        strip.text.y = element_text(size=16, face="bold", color = 'white'))
 
 
+pdf('~/Dropbox/QTL_Paper/FIGURES/phenotypes.pdf')
+p
 g <- ggplot_gtable(ggplot_build(p))
 strip_both <- which(grepl('strip-', g$layout$name))
 fills <-as.vector(popcol[c(1,2,4,3)])
@@ -94,6 +97,4 @@ for (i in strip_both) {
   k <- k+1
 }
 grid.draw(g)
-
-
-
+dev.off()
