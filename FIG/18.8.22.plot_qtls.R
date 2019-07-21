@@ -99,6 +99,7 @@ incompat.gens <- nbh.gens[which(nbh.gens$chr %in% c(8, 13)), ]
 qtl_pg <- c(2,8, 13, 18, 24)
 ol.gens <- nbh.gens[which(nbh.gens$chr %in% qtl_pg), ]
 
+
 ### ggplot popgen locations
 dir <- "/home/jmiller1/QTL_Map_Raw/popgen/tables"
 nbh.popgen <- read.table(file.path(dir, "outliersNBH.txt.ncbi.lifted"), sep = "\t",
@@ -289,27 +290,47 @@ p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 24) + scale_color_manua
     legend.position = "none") + labs(x = "Chromosome", y = "LOD", linetype = "")
 dev.off()
 
+
+qtlmelt <- allmelt[which(allmelt$chr %in% c( 2, 13, 18)),]
+qtl.rank <- qtl.rank[which(qtl.rank$rank <21),]
+
+qtl.rank <- all.rank[which(all.rank$chr %in% c(2, 13, 18)),]
+qtl.gens <- nbh.gens[which(nbh.gens$chr %in% c( 2, 13, 18)),]
+qtl.gens <- qtl.gens[as.character(c(1,3,4,5,6,7,8,24,26,45,46,56,70,96,94,57)),]
+qtl.gens <- qtl.gens[c(1,3,4,5,6,7),]
+qtl.gens <- qtl.gens[-5,]
+
 p <- ggplot(qtlmelt, aes(x = pos, y = lod, colour = pop))
-png("/home/jmiller1/public_html/all_pop_qtl_only.png", width = 2000)
-p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 10) + scale_color_manual(values = popcol) +
+pdf("/home/jmiller1/public_html/all_pop_qtl_only.pdf",width=15,height=11)
+p + facet_wrap(~chr, nrow = 1, scales = "free_x", ncol = 10) +
+  scale_color_manual(values = popcol) +
   scale_y_continuous(limits = c(-5, 22)) +
   ### gene line
-  geom_label_repel(aes(x = pos, y = 0.1, label = gene), color = "black", segment.size = 1,
+  geom_label_repel(aes(x = pos, y = 0.1, label = gene),fill='white', color = "black", segment.size = 1,
     label.padding = unit(0.2, "lines"), data = qtl.gens, direction = "y", size = 5,
     seed = 666, nudge_y = 2, ylim = c(5, 20), segment.alpha = 0.5) + ## plot lines
+
   geom_line(size = 2, alpha = 0.75) + ### gene label
+
   geom_label_repel(aes(x = pos, y = 0.1, label = gene), color = "black", segment.size = 0,
-  label.padding = unit(0.2, "lines"), data = qtl.gens, direction = "y", size = 5,
-  seed = 666, nudge_y = 2, ylim = c(5, 20), max.iter = 6000, ) + ### Rank line
+    label.padding = unit(0.2, "lines"), data = qtl.gens, direction = "y", size = 5,
+    seed = 666, nudge_y = 2, ylim = c(5, 20), max.iter = 6000, ) + ### Rank line
+
   geom_label_repel(aes(x = pos, y = 0, color = pop, label = rank), data = qtl.rank,
     size = 5, segment.size = 1, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
     "lines"), direction = "both", ylim = c(0, -8), seed = 666, box.padding = 0.1) +
     ### Rank label
-  geom_label_repel(aes(x = pos, y = 0, label = rank), fontface = "bold", data = qtl.rank,
-  size = 5, segment.size = 0, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
+
+  geom_label_repel(aes(x = pos, y = 0, color = pop,label = rank), fontface = "bold", data = qtl.rank,
+    size = 5, segment.size = 0, force = 4, min.segment.length = 0.1, point.padding = unit(0.4,
     "lines"), direction = "both", ylim = c(0, -8), seed = 666, box.padding = 0.1) +
 
-  theme(axis.title.x = element_blank(), axis.text.x = element_blank(), axis.ticks.x = element_blank(),
+  theme(axis.title.x = element_blank(),
+    axis.title.y = element_text(face = "bold", color = "black", size = 16),
+    axis.text.y=element_text(face = "bold", color = "black", size = 16),
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    strip.text.x = element_text(face = "bold", color = "black",size=16),
     legend.position = "none") +
   labs(x = "Chromosome", y = "LOD", linetype = "")
 dev.off()

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/R
 
 library(qtl)
 

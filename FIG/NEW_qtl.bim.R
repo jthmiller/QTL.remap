@@ -115,8 +115,8 @@ dev.off()
 
 #### FOR FIGURE
 
-a <- find.marker(cross.18, 2, 100)
-b <- find.marker(cross.18, 18, 90)
+a <- find.marker(cross.18, 2, 107)
+b <- find.marker(cross.18, 18, 106)
 png("/home/jmiller1/public_html/NEW_2_18.png")
 effectplot(crOb, pheno.col = 1, mname1 = a, mname2 = b, ylim = c(0, 5), main = NULL)
 dev.off()

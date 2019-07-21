@@ -110,8 +110,8 @@ crOb <- cross.18
 crOb <- qb.genoprob(crOb, step = 10)
 ###########
 qbData.b <- qb.data(crOb, pheno.col = 5, trait = "binary",rancov = 2)
-qbModel.b <- qb.model(crOb, epistasis = T, main.nqtl = 2, mean.nqtl = 3, depen = FALSE,
-  max.qtl = 6,interval=rep(5,24), chr.nqtl = rep(2,nchr(cross)))
+qbModel.b <- qb.model(crOb, epistasis = T, main.nqtl = 3, mean.nqtl = 6, depen = FALSE,
+  max.qtl = 8,interval=rep(5,24), chr.nqtl = rep(2,nchr(cross)))
 mc.b <- qb.mcmc(crOb, qbData.b, qbModel.b, pheno.col = 5, n.iter = 300000,genoupdate=FALSE)
 so.b <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
 so.lpd <- qb.scanone(mc.b, epistasis = T, type.scan = "LPD", chr = 1:24)
@@ -249,17 +249,22 @@ dev.off()
 
 cross.18 <- switchAlleles(cross.18,markernames(cross.18,chr=13))
 
+
+
+
+
 d <- find.marker(cross.18, 13, 35.72)
 b <- find.marker(cross.18, 18, 123.4)
+e <- find.marker(cross.18, 8, 49.75)
 png("/home/jmiller1/public_html/ARNT13_AHRb_elr.check.png")
-effectplot(crOb, mname1 = b, mname2 = d,ylim=c(0,5))
+effectplot(crOb, mname1 = b, mname2 = d,ylim=c(0,5),var.flag='group')
 dev.off()
 
 
 d <- find.marker(cross.18, 13, 33.3)
 b <- find.marker(cross.18, 8, 49.75)
 png("/home/jmiller1/public_html/ARNT13_ARNT8_elr.check.png")
-effectplot(crOb, mname1 = b, mname2 = d,ylim=c(0,5))
+effectplot(crOb, mname1 = b, mname2 = d,ylim=c(0,5),var.flag='group')
 dev.off()
 
 
@@ -386,7 +391,7 @@ plot(two.b, cex = 1.5, cex.lab = 1.5, cex.axis = 1.5, cex.main = 1.5,
   cex.sub = 2.5, xlab = NA)
 dev.off()
 
-save.image("/home/jmiller1/public_html/ELR.bim.Rsave")
+#save.image("/home/jmiller1/public_html/ELR.bim.Rsave")
 
 
 

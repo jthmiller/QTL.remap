@@ -32,6 +32,9 @@ cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$phen))
 
 # rqtl binary scan for prior
 cross.18 <- sim.geno(cross.18, error.prob = 0.025, step = 5, n.draws = 500)
+cross.18 <- calc.genoprob(cross.18, error.prob = 0.025, step = 5)
+save.image('/home/jmiller1/public_html/NBH.bim.Rsave')
+
 scan.norm.imp <- scanone(cross.18, model = "normal", pheno.col = 1, method = "imp",
   addcovar = cross.18$pheno$sex)
 perms.norm.imp <- scanone(cross.18, method = "imp", model = "normal", n.perm = 500,
@@ -111,12 +114,14 @@ crOb <- qb.genoprob(crOb, step = 10)
 qbData.b <- qb.data(crOb, pheno.col = 5, trait = "binary",rancov = 2)
 qbModel.b <- qb.model(crOb, epistasis = T, main.nqtl = 5, mean.nqtl = 6, depen = FALSE,
   max.qtl = 8,interval=rep(5,24), chr.nqtl = rep(2,nchr(crOb)))
-mc.b <- qb.mcmc(crOb, qbData.b, qbModel.b, pheno.col = 5, n.iter = 300000,genoupdate=FALSE)
+mc.b <- qb.mcmc(crOb, qbData.b, qbModel.b, pheno.col = 5, n.iter = 30000,genoupdate=FALSE)
 so.b <- qb.scanone(mc.b, epistasis = T, type.scan = "heritability", chr = 1:24)
 so.b.bf <- qb.scanone(mc.b, epistasis = T, type.scan = "2logBF", chr = 1:24)
 best.b <- qb.BayesFactor.jm(mc.b,items = c("pattern", "nqtl"))
 two.b <- qb.scantwo(mc.b, chr = c(1,3,2,7,8,9,13,18,20,22,23))
 close.b <- qb.close(mc.b)
+two.bf <- qb.scantwo(mc.b, chr = c(1,2,3,4,7,8,13,14,18,22,23),type.scan = "2logBF")
+two.lpd <- qb.scantwo(mc.b, chr = c(1,2,3,7,8,9,13,14,18,22,23),type.scan = "LPD")
 
 #######
 qbData <- qb.data(crOb, pheno.col = 1, trait = "ordinal", rancov = 2)
