@@ -5,17 +5,17 @@ source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_fil
 marker_dens <- list()
 
 # Table of Chroms with sig QTLs
-test.QTLs <- read.table(file.path(basedir, "rQTL/metadata/QTLs.txt"), sep = "\t", 
+test.QTLs <- read.table(file.path(basedir, "rQTL/metadata/QTLs.txt"), sep = "\t",
   header = T)
 
 ## Get chrom number vector
 test.QTLs$chrm.n <- gsub("chr", "", test.QTLs$chrom)
 
 print(paste(pop, X, sep = " "))
-############ 
+############
 
 ## read in the QTL cross
-cross.18 <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr", 
+cross.18 <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
   sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
 
 ### Pull names from plinkfile
@@ -26,6 +26,7 @@ cross.18$pheno$ID <- paste(popname, indname, sep = "_")
 
 ## Subset and drop parents
 cross.pars <- subset(cross.18, ind = is.na(cross.18$pheno$Phen))
+cross.pars.BI <- subset(cross.18, ind = 'BLI_BI1124M')
 
 ## Remove problematic individuals (found by kinship analysis)
 con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
@@ -49,20 +50,78 @@ if (mapped.only == T) {
 }
 
 print("Removing duplicates")
-dups <- findDupMarkers(cross.18, exact.only = F, adjacent.only = F)
-cross.18 <- drop.markers(cross.18, unlist(dups))
+##dups <- findDupMarkers(cross.18, exact.only = F, adjacent.only = F)
+##cross.18 <- drop.markers(cross.18, unlist(dups))
+##confirm ahr2a 343745   343931 AHR2a
+##mid is 343835
+
 
 marker.warning()
 
 gt.missing <- geno.table(cross.18)
 
-gt.cross.pars <- geno.table(cross.pars)
+
+##############################
+##############################
+pos <- as.numeric(gsub(".*:","",rownames(gt.missing)))
+names(pos) <- rownames(gt.missing)
+head(sort(abs(pos -  343835)))
+
+1:317181
+
+1:363497
+
+chr1gts <- pull.geno(cross.18, 1)
+
+chr1phn <- pull.pheno(cross.18, 1)
+
+AHR <- cbind(chr1phn,chr1gts[,'1:317181'],chr1gts[,'1:363497'])
+AHR <- AHR[order(AHR[,1]),]
+
+table(AHR[AHR[,1]<2,3])
+table(AHR[AHR[,1]>2,3])
+
+table(AHR[AHR[,1]==0,3])
+table(AHR[AHR[,1]==1,3])
+table(AHR[AHR[,1]==4,3])
+table(AHR[AHR[,1]==5,3])
+
+chr1.pars <- pull.geno(cross.pars, 1)
+rbind(chr1.pars[,'1:317181'], chr1.pars[,'1:363497'])
+
+TAKE THE HOMZYGOUS GENOTYPES FOR THE ONE PARENT AND SEE IF THEY TEND TOWARD 1:2:1 compared to
+het in parent.
+
+AHR[,1] <- as.factor(AHR[,1])
+AHR[,2] <- as.factor(AHR[,2])
+AHR[,3] <- as.factor(AHR[,3])
+
+png('~/public_html/ER_AHR.png')
+plot(table(AHR[AHR[,1]<2,2]))
+dev.off()
+
+for(
+table(AHR[,1])
+
+##############################
+##############################
+
+gt.cross.BI <- geno.table(cross.pars.BI)
+keep.BI <- rownames(gt.cross.BI)[which(gt.cross.BI$AA==1 | gt.cross.BI$BB==1)]
+
+
+
+
+
+
+
+
 
 cutoff <- 1e-04
 
 print("pval filter")
 gt.missing <- geno.table(cross.18)
-cross.18 <- drop.markers(cross.18, rownames(gt.missing[gt.missing$P.value < cutoff, 
+cross.18 <- drop.markers(cross.18, rownames(gt.missing[gt.missing$P.value < cutoff,
   ]))
 
 marker.warning()
@@ -84,7 +143,7 @@ close(fileConn)
 print("estimating map with markers at physical positions")
 ord <- order(as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18, chr = X))))
 
-cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.01, map.function = "kosambi", 
+cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.01, map.function = "kosambi",
   maxit = 1000, tol = 0.001, sex.sp = F)
 
 swit <- checkAlleles(cross.18, threshold = 6, verbose = F)
@@ -97,7 +156,7 @@ names(cross.18$geno) <- X
 print("estimating map with markers at physical positions")
 ord <- order(as.numeric(gsub(paste(X, ":", sep = ""), "", markernames(cross.18, chr = X))))
 
-cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.01, map.function = "kosambi", 
+cross.18 <- switch.order(cross.18, chr = X, ord, error.prob = 0.01, map.function = "kosambi",
   maxit = 1000, tol = 0.001, sex.sp = F)
 
 marker.warning()
@@ -109,7 +168,7 @@ cross.18 <- drop.missing(cross.18, miss)
 
 marker.warning()
 
-POS.map.18 <- est.map(cross.18, error.prob = 0.1, map.function = "kosambi", chr = X, 
+POS.map.18 <- est.map(cross.18, error.prob = 0.1, map.function = "kosambi", chr = X,
   maxit = 1000)
 
 cross.18 <- replace.map(cross.18, POS.map.18)
@@ -117,5 +176,5 @@ cross.18 <- replace.map(cross.18, POS.map.18)
 print(summary(pull.map(cross.18))[as.character(X), ])
 
 print("Writing the markers to rQTL format")
-write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, ".manymarks.QTLmap", 
+write.cross(cross.18, filestem = paste(popdir, "/chr", X, "_", outname, ".manymarks.QTLmap",
   sep = ""), format = "csv", chr = X)

@@ -193,3 +193,21 @@ dev.off()
 png("/home/jmiller1/public_html/NEW_18_pxg.png")
 plotPXG(cross.18, b, pheno.col = 1, jitter = 1.5, infer = F, pch = 19, main = b)
 dev.off()
+
+
+
+
+
+
+
+
+confirm ahr2a 343745   343931 AHR2a
+mid is 343835
+
+
+
+
+module load bcftools
+bcftools view -r 1:340000-345000 SOMM.vcf.gz | less -S
+
+vcftools --gzvcf SOMM.vcf.gz --chr 'chr1' --from-bp 340000 --to-bp 345000 --stdout | less -S
