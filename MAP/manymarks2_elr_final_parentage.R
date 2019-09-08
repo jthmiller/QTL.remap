@@ -15,119 +15,240 @@ test.QTLs$chrm.n <- gsub("chr", "", test.QTLs$chrom)
 print(paste(pop, X, sep = " "))
 ############
 
+################################################################################
 ## read in the QTL cross
-cross.18 <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
+cross <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
   sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
+################################################################################
 
+################################################################################
 ### Pull names from plinkfile
 path <- file.path(indpops, paste(pop, ".ped", sep = ""))
 popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
 indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
-cross.18$pheno$ID <- paste(popname, indname, sep = "_")
-pullgts <- pull.geno(cross.18)
-rownames(pullgts) <- cross.18$pheno$ID
+cross$pheno$ID <- paste(popname, indname, sep = "_")
+################################################################################
 
-#### PHENO ################################
-cross.18$pheno$bin <- ifelse(cross.18$pheno$Pheno > 2, 1 , 0)
-cross.18$pheno$bin <- ifelse(cross.18$pheno$Pheno > 2, 1 , 0)
-cross.18$pheno$pheno_norm <- nqrank(cross.18$pheno$Pheno)
-####################################################
-totmar(cross.18)
-### Switch phase and keep only parent conf markers
+#### PHENO #####################################################################
+cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
+cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
+cross$pheno$pheno_norm <- nqrank(cross$pheno$Pheno)
+################################################################################
+
+################################################################################
+pullgts <- pull.geno(cross)
+rownames(pullgts) <- cross$pheno$ID
+gts <- geno.table(cross)
+pos <- as.numeric(gsub(".*:",'',rownames(gts)))
+################################################################################
+
+################################################################################
+## FILTER TABLES
+filter_1 <- markernames(cross)
+marks_filt <- data.frame(filter_1=filter_1 %in% markernames(cross))
+rownames(marks_filt) <- markernames(cross)
+
+ind_filt <- data.frame(parents_1=!is.na(cross$pheno$Phen))
+rownames(ind_filt) <- cross$pheno$ID
+################################################################################
+
+################################################################################
+### Switch phase and keep only parent conf markers##############################
 swit <- colnames(pullgts)[which(pullgts['BLI_BI1124M',]==1)]
-cross.18 <- switchAlleles(cross.18, markers = swit)
-length(swit)
-totmar(cross.18)
-## Drop hets
-drop <- colnames(pullgts)[which(pullgts['BLI_BI1124M',]==2)]
-cross.18 <- drop.markers(cross.18,drop)
-totmar(cross.18)
-## Drop no par GT
-drop <- colnames(pullgts)[is.na(pullgts['BLI_BI1124M',])]
-cross.18 <- drop.markers(cross.18,drop)
-totmar(cross.18)
-###################################################
+cross <- switchAlleles(cross, markers = swit)
+################################################################################
 
-###########################################################
-cross.18.withpars <- cross.18
-###########################################################
-cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$Phen))
-###################################################
+################################################################################
+#### FILTER BY PARENT ALLELES ##################################################
+marks_filt$drop_hets_02 <- TRUE
+marks_filt[which(pullgts['BLI_BI1124M',]==2),'drop_hets_02'] <- FALSE
+marks_filt$drop_parNA_03 <- !is.na(pullgts['BLI_BI1124M',])
+################################################################################
 
+################################################################################
+### TEST SAMPLE GT SIMILARITY ##################################################
+drop <- rownames(marks_filt)[rowSums(marks_filt)==3]
+#cross.1 <- subset(drop.markers(cross,drop), ind = ind_index)
+cross.1 <- drop.markers(cross,drop)
 
-
-### RELATIONSHIP ###############################################################
-cpgt <- comparegeno(cross.18)
-colnames(cpgt) <- cross.18$pheno$ID
-rownames(cpgt) <- cross.18$pheno$ID
+cpgt <- comparegeno(cross.1)
+colnames(cpgt) <- cross.1$pheno$ID
+rownames(cpgt) <- cross.1$pheno$ID
 cpgt[cpgt==NaN] <- NA
 diag(cpgt) <- NA
-cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.18),colSums(is.na(cpgt)) < nind(cross.18)]
+cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.1),colSums(is.na(cpgt)) < nind(cross.1)]
+################################################################################
 
-### Hist plot
+################################################################################
+## ### Hist plot
 png('~/public_html/cg.elr.png')
 hist(cpgt[lower.tri(cpgt)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
 rug(cpgt[lower.tri(cpgt)])
 dev.off()
+## #############################################################################
 
-wh <- which(cpgt > 0.60, arr=TRUE)
+################################################################################
+###### Remove the samples related by more than 60% of genotypes #####
+wh <- which(cpgt > 0.75 | cpgt < 0.25, arr=TRUE)
 wh <- wh[wh[,1] < wh[,2],]
-
 mats <- cbind(rownames(wh),colnames(cpgt)[as.numeric(wh[,2])])
 
 toss.missing <- apply(mats,1,function(X){
- X[which.max(c(nmissing(cross.18)[X[1]],
-  nmissing(cross.18)[X[2]]))]
+ X[which.max(c(nmissing(cross.1)[X[1]],nmissing(cross.1)[X[2]]))]
 })
 
-drop.ind <- !cross.18$pheno$ID %in% toss.missing
-cross.18 <- subset(cross.18, ind=drop.ind)
-#### Dups Dropped################################################################
-#### Dups Dropped################################################################
-
-
-### RELATIONSHIP after drops ########################################################
-cpgt <- comparegeno(cross.18)
-colnames(cpgt) <- cross.18$pheno$ID
-rownames(cpgt) <- cross.18$pheno$ID
-cpgt[cpgt==NaN] <- NA
-diag(cpgt) <- NA
-cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.18),colSums(is.na(cpgt)) < nind(cross.18)]
-
-### Hist plot
-png('~/public_html/cg.elr.png')
-hist(cpgt[lower.tri(cpgt)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
-rug(cpgt[lower.tri(cpgt)])
-dev.off()
+###### SAME GENOS FILTER #######################################################
+ind_filt$same_geno_2 <- !cross$pheno$ID %in% toss.missing
 ################################################################################
 
-#### RATIO OF HETS TO HOM. SOMETHING IS OFF IN SOME SAMPLES ####################
-pullgts <- pull.geno(cross.18)
-rownames(pullgts) <- cross.18$pheno$ID
-hom <- apply(pullgts,1,function(X){ sum(X==1, na.rm=T) + sum(X==3, na.rm=T) })
+### RELATIONSHIP after drops ###################################################
+#cpgt <- comparegeno(cross.18)
+#colnames(cpgt) <- cross.18$pheno$ID
+#rownames(cpgt) <- cross.18$pheno$ID
+#cpgt[cpgt==NaN] <- NA
+#diag(cpgt) <- NA
+#cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.18),colSums(is.na(cpgt)) < nind(cross.18)]
+#
+#### Hist plot
+#png('~/public_html/cg.elr.png')
+#hist(cpgt[lower.tri(cpgt)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
+#rug(cpgt[lower.tri(cpgt)])
+#dev.off()
+#################################################################################
 
+################################################################################
+## marks_filt$filter_2 <- filter_0 %in% markernames(cross.18)
+################################################################################
+
+################################################################################
+#### RATIO OF HETS TO HOM. SOMETHING IS OFF IN SOME SAMPLES. Remove them #######
+################################################################################
+mar_index <- rownames(marks_filt)[rowSums(marks_filt)==3]
+ind_index <- rowSums(ind_filt)==2
+cross.1 <- subset(drop.markers(cross,drop), ind = ind_index)
+
+pullgts <- pull.geno(cross.1)
 homb <- apply(pullgts,1,function(X){sum(X==3, na.rm=T) })
-names(homb) <- cross.18$pheno$ID
 homa <- apply(pullgts,1,function(X){ sum(X==1, na.rm=T) })
-names(homa) <- cross.18$pheno$ID
 het <- apply(pullgts,1,function(X){ sum(X==2, na.rm=T)})
-names(het) <- cross.18$pheno$ID
-rat <- hom/het
-names(rat) <- cross.18$pheno$ID
+rat <- (homa + homb)/het
+names(rat) <- cross.1$pheno$ID
 
-ord <- names(sort(rat))
+ind_filt$het_ratio_2 <- rownames(ind_filt) %in% names(rat)[rat < 2.55]
 
-png(paste0('~/public_html/ER_hom_het_rat.png'))
-plot(het[ord])
-points(homa[ord],col='red')
-points(homb[ord],col='blue')
+##ord <- names(sort(rat))
+##png(paste0('~/public_html/ER_hom_het_rat.png'))
+##plot(het[ord])
+##points(homa[ord],col='red')
+##points(homb[ord],col='blue')
+##dev.off()
+##cross.18.bk <- cross.18
+##cross.18.many_homz <- subset(cross.18, ind=rat > 2.55)
+##cross.18 <- subset(cross.18, ind=rat < 2.55)
+################################################################################
+
+
+################################################################################
+### POTENTIAL INCOMPATABILITY ON 3,17,21 ######
+################################################################################
+### gts <- geno.table(cross.18)
+################################################################################
+rownames(ind_filt)[rowSums(ind_filt)==2]
+
+png(paste0('~/public_html/ER_phys_pos_coverage.png'),width=1000)
+plot(pos,gts$chr)
 dev.off()
 
-cross.18.bk <- cross.18
-cross.18.many_homz <- subset(cross.18, ind=rat > 2.55)
-cross.18 <- subset(cross.18, ind=rat < 2.55)
+for(i in 1:24){
+tchr <- i
+png(paste0('~/public_html/ER_phys_pos_dist_',i,'.png'),width=1000)
+plot(pos[gts$chr==tchr],-log10(gts[gts$chr==tchr,'P.value']),pch=16)
+points(pos[gts$chr==tchr & gts$missing<3],-log10(gts[gts$chr==tchr & gts$missing<3,'P.value']),pch=16, col='green')
+points(pos[gts$chr==tchr & gts$AA<3],-log10(gts[gts$chr==tchr & gts$AA<3,'P.value']),pch=16, col='blue')
+points(pos[gts$chr==tchr & gts$BB<3],-log10(gts[gts$chr==tchr & gts$BB<3,'P.value']),pch=16, col='red')
+abline(h=2, col='red')
+dev.off()
+}
+
+gts <- geno.table(cross.18)
+
+keep_2.25 <- rownames(gts)[gts$missing<3 & -log(gts$P.value) < 2.25]
+keep_2.75 <- rownames(gts)[gts$missing<3 & -log(gts$P.value) < 2.75]
+
+drop_2.25 <- rownames(gts)[!rownames(gts) %in% keep_2.25]
+drop_2.75 <- rownames(gts)[!rownames(gts) %in% keep_2.75]
+
+cross.18_2.25 <- drop.markers(cross.18,drop_2.25)
+cross.18_2.75 <- drop.markers(cross.18,drop_2.75)
+
+y25 <- as.numeric(gsub(".*:",'',colnames(pull.geno(cross.18_2.25))))
+x25 <- as.numeric(gsub(":.*",'',colnames(pull.geno(cross.18_2.25))))
+
+x75 <- as.numeric(gsub(":.*",'',colnames(pull.geno(cross.18_2.75))))
+y75 <- as.numeric(gsub(".*:",'',colnames(pull.geno(cross.18_2.75))))
+
+png(paste0('~/public_html/ER_phys.png'),height=1000)
+plot(x0,y0)
+points(x75,y75,col='purple',pch=16)
+points(x25,y25,col='green',pch=16)
+dev.off()
+
+png(paste0('~/public_html/ER_phys.png'),height=1000)
+plot(x0,y0)
+points(x1,y1,col='purple',pch=16)
+points(x2,y2,col='blue',pch=16)
+points(x3,y3,col='green',pch=16)
+dev.off()
+
+
+
+# "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP"
+save.image('ELR_final_markerset_unmapped.rsave')
+######################################################################################################
+# FINAL MARKER SET ABOVE ###
+######################################################################################################
+
+
+pullgts <- pull.geno(cross.18)
+yp18 <- as.numeric(gsub(".*:",'',colnames(pullgts)))
+xp18 <- as.numeric(gsub(":.*",'',colnames(pullgts)))
+
+
+#### FIXING PHASE AND MAPPING LGS WITH CANDIDATES ####################################################
+inchr <- 1
+cross.18.reorg <- subset(cross.18, chr=inchr)
+
+rf <- pull.rf(cross.18.reorg)
+lod <- pull.rf(cross.18.reorg, what="lod")
+
+png(paste0('~/public_html/RF_LOD_ER',inchr,'.png'))
+plot(as.numeric(rf), as.numeric(lod), xlab="Recombination fraction", ylab="LOD score")
+dev.off()
+
+cross.18.reorg.lg <- formLinkageGroups(cross.18.reorg, max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
+cross.18.reorg.lg <- subset(cross.18.reorg.lg, chr=1)
+
+pullgts <- pull.geno(cross.18.reorg.lg)
+yf <- as.numeric(gsub(".*:",'',colnames(pullgts)))
+xf <- as.numeric(gsub(":.*",'',colnames(pullgts)))
+
+png(paste0('~/public_html/ER_phys.png'))
+plot(xp18,yp18)
+points(xf,yf,col='green',pch=16)
+dev.off()
+
+
+
+
+png('~/public_html/RF_ER1.png')
+plotRF(cross.18.reorg.lg,chr=1:4)
+dev.off()
+print(inchr)
+
+#switch8 <- markernames(cross.18.reorg.lg,chr=2)
+##cross.18.reorg.lg <- switchAlleles(cross.18.reorg.lg, switch)
+chr8 <- markernames(cross.18.reorg.lg,chr=1)
 ################################################################################
-################################################################################
 
 
 
@@ -138,7 +259,12 @@ cross.18 <- subset(cross.18, ind=rat < 2.55)
 
 
 
-
+######################################################################################################
+### QUICKSCAN MARKER REGRESSION
+cross.18$pheno$bin <- ifelse(cross.18$pheno$Pheno > 2, 1 , 0)
+scan.bin.mr <- scanone(cross.18, method = "mr", model = "binary", pheno.col = 4)
+mr <- summary(scan.bin.mr)
+mr[order(mr$lod),]
 ######################################################################################################
 ######################################################################################################
 ######################################################################################################
