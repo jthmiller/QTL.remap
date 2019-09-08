@@ -12,9 +12,6 @@ test.QTLs <- read.table(file.path(basedir, "rQTL/metadata/QTLs.txt"), sep = "\t"
 ## Get chrom number vector
 test.QTLs$chrm.n <- gsub("chr", "", test.QTLs$chrom)
 
-print(paste(pop, X, sep = " "))
-############
-
 ################################################################################
 ## read in the QTL cross
 cross <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
@@ -36,20 +33,20 @@ cross$pheno$pheno_norm <- nqrank(cross$pheno$Pheno)
 ################################################################################
 
 ################################################################################
+## FILTER TABLES
+################################################################################
 pullgts <- pull.geno(cross)
 rownames(pullgts) <- cross$pheno$ID
+
+filter_01 <- colnames(pullgts)
+marks_filt <- data.frame(filter_01=filter_01 %in% markernames(cross))
+rownames(marks_filt) <- colnames(pullgts)
+
+ind_filt <- data.frame(parents_01=!is.na(cross$pheno$Phen))
+rownames(ind_filt) <- cross$pheno$ID
+
 gts <- geno.table(cross)
 pos <- as.numeric(gsub(".*:",'',rownames(gts)))
-################################################################################
-
-################################################################################
-## FILTER TABLES
-filter_1 <- markernames(cross)
-marks_filt <- data.frame(filter_1=filter_1 %in% markernames(cross))
-rownames(marks_filt) <- markernames(cross)
-
-ind_filt <- data.frame(parents_1=!is.na(cross$pheno$Phen))
-rownames(ind_filt) <- cross$pheno$ID
 ################################################################################
 
 ################################################################################
@@ -60,17 +57,14 @@ cross <- switchAlleles(cross, markers = swit)
 
 ################################################################################
 #### FILTER BY PARENT ALLELES ##################################################
-marks_filt$drop_hets_02 <- TRUE
-marks_filt[which(pullgts['BLI_BI1124M',]==2),'drop_hets_02'] <- FALSE
-marks_filt$drop_parNA_03 <- !is.na(pullgts['BLI_BI1124M',])
+marks_filt$drop_hets_02 <- rownames(marks_filt) %in% colnames(pullgts)[pullgts['BLI_BI1124M',]==3 | pullgts['BLI_BI1124M',]==1]
+marks_filt$drop_parNA_03 <- rownames(marks_filt) %in% colnames(pullgts)[!is.na(pullgts['BLI_BI1124M',])]
 ################################################################################
 
 ################################################################################
 ### TEST SAMPLE GT SIMILARITY ##################################################
-drop <- rownames(marks_filt)[rowSums(marks_filt)==3]
-#cross.1 <- subset(drop.markers(cross,drop), ind = ind_index)
-cross.1 <- drop.markers(cross,drop)
-
+drop <- rownames(marks_filt)[rowSums(marks_filt[,1:3])==3]
+cross.1 <- subset(drop.markers(cross,drop), ind = ind_filt[,1])
 cpgt <- comparegeno(cross.1)
 colnames(cpgt) <- cross.1$pheno$ID
 rownames(cpgt) <- cross.1$pheno$ID
@@ -85,133 +79,146 @@ png('~/public_html/cg.elr.png')
 hist(cpgt[lower.tri(cpgt)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
 rug(cpgt[lower.tri(cpgt)])
 dev.off()
-## #############################################################################
+################################################################################
 
 ################################################################################
 ###### Remove the samples related by more than 60% of genotypes #####
-wh <- which(cpgt > 0.75 | cpgt < 0.25, arr=TRUE)
+wh <- which(cpgt > 0.75, arr=TRUE)
 wh <- wh[wh[,1] < wh[,2],]
 mats <- cbind(rownames(wh),colnames(cpgt)[as.numeric(wh[,2])])
-
 toss.missing <- apply(mats,1,function(X){
  X[which.max(c(nmissing(cross.1)[X[1]],nmissing(cross.1)[X[2]]))]
 })
+keep.missing <- apply(mats,1,function(X){
+ X[which.min(c(nmissing(cross.1)[X[1]],nmissing(cross.1)[X[2]]))]
+})
+
+## apply(mats,1,function(X){
+## c(nmissing(cross.1)[X[1]],nmissing(cross.1)[X[2]])
+## })
+## nmissing(cross.1)[toss.missing]
+## nmissing(cross.1)[keep.missing]
 
 ###### SAME GENOS FILTER #######################################################
-ind_filt$same_geno_2 <- !cross$pheno$ID %in% toss.missing
+ind_filt$same_geno_02 <- !cross$pheno$ID %in% toss.missing
 ################################################################################
 
-### RELATIONSHIP after drops ###################################################
-#cpgt <- comparegeno(cross.18)
-#colnames(cpgt) <- cross.18$pheno$ID
-#rownames(cpgt) <- cross.18$pheno$ID
-#cpgt[cpgt==NaN] <- NA
-#diag(cpgt) <- NA
-#cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.18),colSums(is.na(cpgt)) < nind(cross.18)]
-#
-#### Hist plot
-#png('~/public_html/cg.elr.png')
-#hist(cpgt[lower.tri(cpgt)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
-#rug(cpgt[lower.tri(cpgt)])
-#dev.off()
-#################################################################################
-
-################################################################################
-## marks_filt$filter_2 <- filter_0 %in% markernames(cross.18)
-################################################################################
 
 ################################################################################
 #### RATIO OF HETS TO HOM. SOMETHING IS OFF IN SOME SAMPLES. Remove them #######
 ################################################################################
-mar_index <- rownames(marks_filt)[rowSums(marks_filt)==3]
-ind_index <- rowSums(ind_filt)==2
-cross.1 <- subset(drop.markers(cross,drop), ind = ind_index)
+mar_index <- rownames(marks_filt)[rowSums(marks_filt[,c(1:3)])==3]
+cross.1 <- subset(drop.markers(cross,drop), ind = ind_filt[,1])
 
-pullgts <- pull.geno(cross.1)
-homb <- apply(pullgts,1,function(X){sum(X==3, na.rm=T) })
-homa <- apply(pullgts,1,function(X){ sum(X==1, na.rm=T) })
-het <- apply(pullgts,1,function(X){ sum(X==2, na.rm=T)})
+pullgts.1 <- pull.geno(cross.1)
+homb <- apply(pullgts.1,1,function(X){sum(X==3, na.rm=T) })
+homa <- apply(pullgts.1,1,function(X){ sum(X==1, na.rm=T) })
+het <- apply(pullgts.1,1,function(X){ sum(X==2, na.rm=T)})
 rat <- (homa + homb)/het
 names(rat) <- cross.1$pheno$ID
 
-ind_filt$het_ratio_2 <- rownames(ind_filt) %in% names(rat)[rat < 2.55]
-
-##ord <- names(sort(rat))
-##png(paste0('~/public_html/ER_hom_het_rat.png'))
-##plot(het[ord])
-##points(homa[ord],col='red')
-##points(homb[ord],col='blue')
-##dev.off()
-##cross.18.bk <- cross.18
-##cross.18.many_homz <- subset(cross.18, ind=rat > 2.55)
-##cross.18 <- subset(cross.18, ind=rat < 2.55)
+## HET v HOMZ RATIO FILTER #####################################################
+ind_filt$het_ratio_3 <- rownames(ind_filt) %in% names(rat)[rat < 2.55]
 ################################################################################
 
+################################################################################
+### Pvalue FILTER and PLOT #####################################################
+################################################################################
+mar_index <- rownames(marks_filt)[rowSums(marks_filt)==3]
+ind_index <- rowSums(ind_filt[,c(1:3)])==3
+cross.1 <- subset(drop.markers(cross,drop), ind = ind_index)
 
-################################################################################
-### POTENTIAL INCOMPATABILITY ON 3,17,21 ######
-################################################################################
-### gts <- geno.table(cross.18)
-################################################################################
-rownames(ind_filt)[rowSums(ind_filt)==2]
-
-png(paste0('~/public_html/ER_phys_pos_coverage.png'),width=1000)
-plot(pos,gts$chr)
-dev.off()
+gts.1 <- geno.table(cross.1)
+pos.1 <- as.numeric(gsub(".*:",'',rownames(gts.1)))
 
 for(i in 1:24){
 tchr <- i
 png(paste0('~/public_html/ER_phys_pos_dist_',i,'.png'),width=1000)
 plot(pos[gts$chr==tchr],-log10(gts[gts$chr==tchr,'P.value']),pch=16)
-points(pos[gts$chr==tchr & gts$missing<3],-log10(gts[gts$chr==tchr & gts$missing<3,'P.value']),pch=16, col='green')
-points(pos[gts$chr==tchr & gts$AA<3],-log10(gts[gts$chr==tchr & gts$AA<3,'P.value']),pch=16, col='blue')
-points(pos[gts$chr==tchr & gts$BB<3],-log10(gts[gts$chr==tchr & gts$BB<3,'P.value']),pch=16, col='red')
-abline(h=2, col='red')
+points(pos.1[gts.1$chr==tchr & gts.1$missing<3],-log10(gts.1[gts.1$chr==tchr & gts.1$missing<3,'P.value']),pch=16, col='green')
+points(pos.1[gts.1$chr==tchr & gts.1$AA<3],-log10(gts.1[gts.1$chr==tchr & gts.1$AA<3,'P.value']),pch=16, col='blue')
+points(pos.1[gts.1$chr==tchr & gts.1$BB<3],-log10(gts.1[gts.1$chr==tchr & gts.1$BB<3,'P.value']),pch=16, col='red')
+abline(h=3, col='red')
 dev.off()
 }
 
-gts <- geno.table(cross.18)
+######SET MISSING AND PVALU FILTER #############################################
+keep_2 <- rownames(gts.1)[gts.1$missing<3 & -log(gts.1$P.value) < 2]
+################################################################################
 
-keep_2.25 <- rownames(gts)[gts$missing<3 & -log(gts$P.value) < 2.25]
-keep_2.75 <- rownames(gts)[gts$missing<3 & -log(gts$P.value) < 2.75]
+## PVAL and MISSING FITER ######################################################
+marks_filt$miss_pval2_04 <- rownames(marks_filt) %in% keep_2
+################################################################################
+################################################################################
 
-drop_2.25 <- rownames(gts)[!rownames(gts) %in% keep_2.25]
-drop_2.75 <- rownames(gts)[!rownames(gts) %in% keep_2.75]
-
-cross.18_2.25 <- drop.markers(cross.18,drop_2.25)
-cross.18_2.75 <- drop.markers(cross.18,drop_2.75)
-
-y25 <- as.numeric(gsub(".*:",'',colnames(pull.geno(cross.18_2.25))))
-x25 <- as.numeric(gsub(":.*",'',colnames(pull.geno(cross.18_2.25))))
-
-x75 <- as.numeric(gsub(":.*",'',colnames(pull.geno(cross.18_2.75))))
-y75 <- as.numeric(gsub(".*:",'',colnames(pull.geno(cross.18_2.75))))
-
-png(paste0('~/public_html/ER_phys.png'),height=1000)
-plot(x0,y0)
-points(x75,y75,col='purple',pch=16)
-points(x25,y25,col='green',pch=16)
-dev.off()
-
-png(paste0('~/public_html/ER_phys.png'),height=1000)
-plot(x0,y0)
-points(x1,y1,col='purple',pch=16)
-points(x2,y2,col='blue',pch=16)
-points(x3,y3,col='green',pch=16)
-dev.off()
-
-
-
-# "/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP"
 save.image('ELR_final_markerset_unmapped.rsave')
-######################################################################################################
+
+################################################################################
+## FINAL TABLES ##
+################################################################################
+mar_index <- rownames(marks_filt)[rowSums(marks_filt)==4]
+ind_index <- rowSums(ind_filt[,c(1:3)])==3
+cross.1 <- subset(drop.markers(cross,drop), ind = ind_index)
+
+gts.1 <- geno.table(cross.1)
+pos.1 <- as.numeric(gsub(".*:",'',rownames(gts.1)))
+
+pullgts.2 <- pull.geno(cross.1)
+rownames(pullgts.2) <- cross.1$pheno$ID
+
+post_filt_01 <- rownames(marks_filt) %in% colnames(pullgts.2)
+names(post_filt_01) <- rownames(marks_filt)
+final_marks <- data.frame(post_filt_01)
+
+post_filt_01 <- cross$pheno$ID %in% cross.1$pheno$ID
+names(post_filt_01) <- rownames(cross$pheno$ID)
+final_ind <- data.frame(post_filt_01)
+################################################################################
+
+################################################################################
 # FINAL MARKER SET ABOVE ###
-######################################################################################################
+################################################################################
+
+################################################################################
+### PREMAP MARKERS #####
+
+f2ind <- rowSums(marks_filt[,c('filter_01','drop_hets_02')])==2
+f3ind <- rowSums(marks_filt[,c('filter_01','drop_hets_02','drop_parNA_03')])==3
+f4ind <- rowSums(marks_filt[,c('filter_01','drop_hets_02','drop_parNA_03','miss_pval2_04')])==4
+
+f2 <- rownames(marks_filt)[f2ind]
+f3 <- rownames(marks_filt)[f3ind]
+f4 <- rownames(marks_filt)[f4ind]
+
+y0 <- as.numeric(gsub(".*:",'',colnames(pull.geno(cross))))
+x0 <- as.numeric(gsub(":.*",'',colnames(pull.geno(cross))))
+
+xf2 <- as.numeric(gsub(":.*",'',f2))
+yf2 <- as.numeric(gsub(".*:",'',f2))
+
+xf3 <- as.numeric(gsub(":.*",'',f3))
+yf3 <- as.numeric(gsub(".*:",'',f3))
+
+xf4 <- as.numeric(gsub(":.*",'',f4))
+yf4 <- as.numeric(gsub(".*:",'',f4))
+
+png(paste0('~/public_html/ER_phys.png'),height=1000,width=1000)
+plot(x0-0.75,y0)
+points(xf2-0.5,yf2,col='purple',pch=16)
+points(xf3-0.25,yf3,col='blue',pch=16)
+points(xf4,yf4,col='green',pch=16)
+dev.off()
+
+## ALL PHYS POS COVERED TO HERE WITH 0.01 pvalue filter ####
+################################################################################
 
 
-pullgts <- pull.geno(cross.18)
-yp18 <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xp18 <- as.numeric(gsub(":.*",'',colnames(pullgts)))
+
+
+
+
+
+
 
 
 #### FIXING PHASE AND MAPPING LGS WITH CANDIDATES ####################################################
