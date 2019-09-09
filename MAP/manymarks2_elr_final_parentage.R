@@ -161,832 +161,118 @@ final_ind <- data.frame(post_filt_01, stringsAsFactors=T)
 # FINAL MARKER SET ABOVE #######################################################
 # ALL PHYS POS COVERED TO HERE #################################################
 ################################################################################
-
-#### FIXING PHASE AND MAPPING LGS WITH CANDIDATES ##############################
-inchr <- 1
-cross.18.reorg <- subset(cross.4, chr=inchr)
-
-rf <- pull.rf(cross.18.reorg)
-lod <- pull.rf(cross.18.reorg, what="lod")
-
-png(paste0('~/public_html/RF_LOD_ER',inchr,'.png'))
-plot(as.numeric(rf), as.numeric(lod), xlab="Recombination fraction", ylab="LOD score")
-dev.off()
-
-cross.18.reorg.lg <- formLinkageGroups(cross.18.reorg, max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
-cross.18.reorg.lg <- subset(cross.18.reorg.lg, chr=1)
-
-pullgts <- pull.geno(cross.18.reorg.lg)
-yf <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xf <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-png(paste0('~/public_html/ER_phys.png'))
-plot(xp18,yp18)
-points(xf,yf,col='green',pch=16)
-dev.off()
-
-
-
-
-png('~/public_html/RF_ER1.png')
-plotRF(cross.18.reorg.lg,chr=1:4)
-dev.off()
-print(inchr)
-
-#switch8 <- markernames(cross.18.reorg.lg,chr=2)
-##cross.18.reorg.lg <- switchAlleles(cross.18.reorg.lg, switch)
-chr8 <- markernames(cross.18.reorg.lg,chr=1)
 ################################################################################
 
-
-
-
-
-
-
-
-
-
-######################################################################################################
-### QUICKSCAN MARKER REGRESSION
-cross.18$pheno$bin <- ifelse(cross.18$pheno$Pheno > 2, 1 , 0)
-scan.bin.mr <- scanone(cross.18, method = "mr", model = "binary", pheno.col = 4)
-mr <- summary(scan.bin.mr)
-mr[order(mr$lod),]
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
-######################################################################################################
-
-
-
-matc <- sapply(as.numeric(wh[,2]),function(X){
- k <- arrayInd(X, dim(cpgt))
- colnames(cpgt)[k[,2]]
-})
-
-cbind(rownames(wh),matc)
-
-s2 <- colnames(cpgt)[k[,2]]
-
-
-s1 <- rownames(cpgt)[k[,1]]
-### Drop same ind ran twice
-d1 <- names(which.max(nmissing(cross.18)[c('ELR_10978','ELR_10987')]))
-d2 <- names(which.max(nmissing(cross.18)[c('ELR_10982','ELR_10972')]))
-d3 <- names(which.max(nmissing(cross.18)[c('ELR_10986','ELR_10977')]))
-d4 <- names(which.max(nmissing(cross.18)[c('ELR_10973','ELR_10983')]))
-drop.ind <- !cross.18$pheno$ID %in% c(d1,d2,d3,d4)
-
-cross.18.d <- subset(cross.18, ind=drop.ind)
-gts <- geno.table(cross.18.d)
-pos <- as.numeric(gsub(".*:",'',rownames(gts)))
-
-png(paste0('~/public_html/ER_pval8.png'),width=1000)
-plot(pos[gts$chr==8], -log10(gts[gts$chr==8,'P.value']),pch=16)
-dev.off()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-pullgts <- pull.geno(cross.18)
-
-hom <- apply(pullgts,1,function(X){ sum(X==1, na.rm=T) + sum(X==3, na.rm=T) })
-
-homb <- apply(pullgts,1,function(X){sum(X==3, na.rm=T) })
-names(homb) <- cross.18$pheno$ID
-homa <- apply(pullgts,1,function(X){ sum(X==1, na.rm=T) })
-names(homa) <- cross.18$pheno$ID
-het <- apply(pullgts,1,function(X){ sum(X==2, na.rm=T)})
-names(het) <- cross.18$pheno$ID
-rat <- hom/het
-names(rat) <- cross.18$pheno$ID
-
-ord <- names(sort(rat))
-
-png(paste0('~/public_html/ER_hom_het_rat.png'))
-plot(het[ord])
-points(homa[ord],col='red')
-points(homb[ord],col='blue')
-dev.off()
-
-cross.18.b <- subset(cross.18, ind=rat < 2.55)
-
-pullgts <- pull.geno(cross.18.b)
-yf <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xf <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-pullgts <- pull.geno(cross.18)
-yp18 <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xp18 <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-png(paste0('~/public_html/ER_phys.png'))
-plot(xp18,yp18)
-points(xf,yf,col='red')
-dev.off()
-
-gts <- geno.table(cross.18.b)
-pos <- as.numeric(gsub(".*:",'',rownames(gts))
-
-png(paste0('~/public_html/ER_phys.png'),width=1000)
-plot(pos[gts$chr==8],gts[gts$chr==8,'missing'],pch=16)
-dev.off()
-
-png(paste0('~/public_html/ER_phys.png'),width=1000)
-plotMissing(cross.18.b,chr=2)
-dev.off()
-
-cross.18.b <- subset(cross.18.b, ind = !is.na(cross.18.b$pheno$Phen))
-gts <- geno.table(cross.18.b)
-pos <- as.numeric(gsub(".*:",'',rownames(gts))
-
-png(paste0('~/public_html/ER_pval8.png'),width=1000)
-plot(pos[gts$chr==8], -log10(gts[gts$chr==8,'P.value']),pch=16)
-dev.off()
-
-cutoff <- 1e-02
-cross.18 <- drop.markers(cross.18.b, rownames(gts[gts$P.value < cutoff,]))
-gts <- geno.table(cross.18.c)
-pos <- as.numeric(gsub(".*:",'',rownames(gts)))
-
-png(paste0('~/public_html/ER_pval8.png'),width=1000)
-plot(pos[gts$chr==8], -log10(gts[gts$chr==8,'P.value']),pch=16)
-dev.off()
-
-
-#### FIXING PHASE OF EACH LG ####################################################
-inchr <- 8
-cross.18.reorg <- subset(cross.18.d, chr=inchr)
-
-rf <- pull.rf(cross.18.reorg)
-lod <- pull.rf(cross.18.reorg, what="lod")
-
-png('~/public_html/RF_LOD_ER8.png')
-plot(as.numeric(rf), as.numeric(lod), xlab="Recombination fraction", ylab="LOD score")
-dev.off()
-
-cross.18.reorg.lg <- formLinkageGroups(cross.18.reorg, max.rf = 0.15, min.lod = 12, reorgMarkers = TRUE)
-
-png('~/public_html/RF_ER1.png')
-plotRF(cross.18.reorg.lg,chr=1:4)
-dev.off()
-print(inchr)
-
-#switch8 <- markernames(cross.18.reorg.lg,chr=2)
-##cross.18.reorg.lg <- switchAlleles(cross.18.reorg.lg, switch)
-chr8 <- markernames(cross.18.reorg.lg,chr=1)
-################################################################################
-
-cross.18.d$pheno$bin <- ifelse(cross.18.d$pheno$Pheno > 2, 1 , 0)
-
-scan.bin.mr <- scanone(cross.18.d, method = "mr", model = "binary", pheno.col = 4)
-mr <- summary(scan.bin.mr)
-mr[order(mr$lod),]
-
-
-#### FIXING PHASE OF EACH LG ####################################################
-inchr <- 1
-cross.18.reorg <- subset(cross.18.d, chr=inchr)
-
-rf <- pull.rf(cross.18.reorg)
-lod <- pull.rf(cross.18.reorg, what="lod")
-
-png('~/public_html/RF_LOD_ER1.png')
-plot(as.numeric(rf), as.numeric(lod), xlab="Recombination fraction", ylab="LOD score")
-dev.off()
-
-cross.18.reorg.lg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 12, reorgMarkers = TRUE)
-
-png('~/public_html/RF_ER1.png')
-plotRF(cross.18.reorg.lg, chr=1:5)
-dev.off()
-print(inchr)
-
-#switch8 <- markernames(cross.18.reorg.lg,chr=2)
-##cross.18.reorg.lg <- switchAlleles(cross.18.reorg.lg, switch)
-chr1 <- markernames(cross.18.reorg.lg,chr=1)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-## Subset and drop parents
-cross.pars <- subset(cross.18, ind = is.na(cross.18$pheno$Phen))
-cross.pars.BI <- subset(cross.18, ind = 'BLI_BI1124M')
-
-## Remove problematic individuals (found by kinship analysis)
-#con <- file(file.path(popdir, "kinship.keep.ind.txt"), open = "r")
-#keepers <- readLines(con)
-#close(con)
-
-#print("Dropping kinship outliers")
-#cross.18 <- subset(cross.18, ind = cross.18$pheno$ID %in% keepers)
-
-cross.18 <- subset(cross.18, ind = !is.na(cross.18$pheno$Phen))
-gt.8 <- geno.table(cross.18,chr=8)
-
-##############################
-## Get parent fixed gts
-cross.pars.BI <- subset(cross.pars, ind = 'BLI_BI1124M')
-gt.cross.BI <- geno.table(cross.pars.BI)
-drop.BI <- rownames(gt.cross.BI)[which(gt.cross.BI$AA==1 | gt.cross.BI$BB==1)]
-
-## Drop everything not fixed in BI
-gt.missing <- geno.table(cross.18)
-drop.BI <- rownames(gt.missing)[!rownames(gt.missing) %in% drop.BI]
-cross.18 <- drop.markers(cross.18, drop.BI)
-
-## Drop from parent cross
-cross.pars.BI <- drop.markers(cross.pars.BI, drop.BI)
-gt.cross.BI <- geno.table(cross.pars.BI)
-gt.missing <- geno.table(cross.18)
-
-## Switch AA BI genotypes to Bs (BI phase is now B)
-gt.cross.pars <- geno.table(cross.pars.BI)[markernames(cross.18), ]
-swit <- rownames(gt.cross.pars[gt.cross.pars$AA == 1, ])
-
-cross.pars.BI <- switchAlleles(cross.pars.BI, markers = swit)
-cross.18 <- switchAlleles(cross.18, markers = swit)
-
-gt.cross.BI <- geno.table(cross.pars.BI)
-gt.missing <- geno.table(cross.18)
-
-apply(gt.cross.BI[gt.cross.BI$chr==8,c(3:5)],2,table)
-
-##############################
-table(gt.cross.BI$chr
-
-
-par.gts <- pull.geno(cross.18)
-
-
-
-
-
-
-
-
-
-pullgts <- pull.geno(cross.18)
-yp18 <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xp18 <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-pullgts <- pull.geno(cross.pars.BI)
-yp <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xp <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-pullgts <- pull.geno(crs.bk)
-yf <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xf <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-
-png(paste0('~/public_html/ER_phys.png'))
-plot(xp18,yp18)
-points(xf,yf,col='red')
-points(xp,yp,col='green')
-dev.off()
-
-
-g
-
-png(paste0('~/public_html/ER_phys.png'))
-plot(xp,yp)
-dev.off()\]
-
-save.image('~/ER_toss_many.rsave')
-
-## how related are samples to the BI founder
-cpgt <- comparegeno(cross.18)
-colnames(cpgt) <- cross.18$pheno$ID
-rownames(cpgt) <- cross.18$pheno$ID
-cpgt[cpgt==NaN] <- NA
-diag(cpgt) <- NA
-cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.18),colSums(is.na(cpgt)) < nind(cross.18)]
-
-drops <- names(which(cpgt['BLI_BI1124M',] > .6 | cpgt['BLI_BI1124M',] < .4))
-
-cross.18 <- subset(cross.18, ind = cross.18$pheno$ID[!cross.18$pheno$ID %in% drops])
-############################################################
-## missing
-##gt.missing <- geno.table(cross.18)
-
-png('~/public_html/ER_missing.png')
-hist(gt.missing$missing, breaks=20)
-dev.off()
-
-cross.18 <- drop.markers(cross.18, rownames(gt.missing)[gt.missing$missing > 2])
-gt.missing <- geno.table(cross.18)
-############################################################
-
-cutoff <- 1e-03
-
-cross.18 <- drop.markers(cross.18, rownames(gt.missing[gt.missing$P.value < cutoff,
-  ]))
-
-
-
-dups <- findDupMarkers(cross.18, exact.only = F, adjacent.only = F)
-cross.18.nodup <- drop.markers(cross.18, unlist(dups))
-
-
-
-
-
-
-rela <- cpgt
-name <- paste(pop, "_kinship_mapped_markers.pdf", sep = "")
-main <- paste(pop, "kinship of good markers (proportion of shared genotypes, 0-1)")
-
-feet <- function(X,Y,Z){
-  pdf(file.path('~/public_html/',Y),width = 26, height = 21)
-  heatmap.2(X,symm=T,main=NA,notecol="black",labRow=NULL,na.rm=T,cexRow=2,labCol=NULL,key.title=NA,key.xlab=NA,key.ylab=NA,
-  cellnote = round(rela,digits=2),notecex=1.2,srtCol=45,cexCol=2,dendrogram="row", margins = c(15,10),trace="none",keysize=.5,col=my_palette,breaks=col_breaks)
-  title(Z,cex.main=3, line = -1)
-  dev.off()
-}
-feet(rela[stricter_keep,stricter_keep], name, main)
-
-
-png('~/public_html/ER_parent.png')
-plot(sort(cpgt['BLI_BI1124M',]))
-dev.off()
-
-
-strict_toss <- rownames(cpgt)[!rownames(cpgt) %in% strict_keep]
-
-rela[strict_keep,strict_keep]
-rela[strict_keep,strict_toss]
-rela[strict_toss,strict_toss]
-
-head(gt.missing,100)
-
-chr1 <- pull.geno(cross.18,chr=1)
-which(chr1[,'1:1230855']==2)
-
-
-stricter_keep <- names(which(rat < 1.2))
-
-
-
-
-
-
-
-
-
-
-cross.18 <- subset(cross.18, ind=strict_keep)
-
-png('~/public_html/ER_missing.png')
-hist(gt.missing$missing, breaks=20)
-dev.off()
-
-cross.18 <- drop.markers(cross.18, rownames(gt.missing)[gt.missing$missing > 2])
-gt.missing <- geno.table(cross.18)
-
-png('~/public_html/pval.png')
-hist(log10(gt.missing$P.value),breaks=100)
-dev.off()
-
-cross.18.bk <- cross.18
-
-gt.cross.pars <- geno.table(cross.pars.BI)[markernames(cross.18), ]
-swit <- rownames(gt.cross.pars[gt.cross.pars$AA == 1, ])
-
-cross.pars.BI <- switchAlleles(cross.pars.BI, markers = swit)
-cross.18 <- switchAlleles(cross.18, markers = swit)
-
-gt.swit <- geno.table(cross.18)
-
-### PARENT IS CONSIDERED BB
-
-chr1 <- pull.geno(cross.18,chr=1)
-which(chr1[,'1:1230855']==2)
-###############
-test
-drop_I <- cross.18$pheno$ID[which(chr1[,'1:1230855']==2)]
-cross.no <- subset(cross.18, ind=strict_keep[!strict_keep %in% drop_I])
-gt.dp <- geno.table(cross.no,chr=1)
-
-###############
-cutoff <- 1e-01
-
-cross.18 <- drop.markers(cross.18, rownames(gt.missing[gt.missing$P.value < cutoff,
-  ]))
-
-marker.warning()
-
-gt.cross.pars <- geno.table(cross.pars.BI)[markernames(cross.18), ]
-swit <- rownames(gt.cross.pars[gt.cross.pars$AA == 1, ])
-
-cross.pars.BI <- switchAlleles(cross.pars.BI, markers = swit)
-cross.18 <- switchAlleles(cross.18, markers = swit)
-
-gt.cross.pars <- geno.table(cross.pars.BI)[markernames(cross.18), ]
-gt.missing <- geno.table(cross.18)
-
-cross.18.bk <- cross.18
-
-##########################################
-
-## cross.18.reorg1 <- subset(cross.18, chr=1)
-## cross.18.reorg1 <- formLinkageGroups(cross.18.reorg1, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-## ##ELR_11592   ELR_10981   ELR_10980   ELR_10971   ELR_10990   ELR_10869
-## sort(countXO(cross.18.reorg1))
-##
-## cross.18.reorg2 <- subset(cross.18, chr=2)
-## cross.18.reorg2 <- formLinkageGroups(cross.18.reorg2, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-## sort(countXO(cross.18.reorg2))
-## ## ELR_ER1124F   ELR_11592   ELR_11115   ELR_10967   ELR_11593   ELR_10869
-##
-## ## drop ELR_10869
-## pullgts <- pull.geno(cross.18)
-## rownames(pullgts) <- cross.18$pheno$ID
-## gt.table <- apply(pullgts,1,table)
-##
-## homs <- gt.table[1,] + gt.table[3,]
-## rat <- homs/gt.table[2,]
-##
-## strict_keep <- names(which(rat < 1.5))
-## cross.18.strict <- subset(cross.18, ind=strict_keep)
-
-inchr <- 1
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER1.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-
-inchr <- 2
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER2.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-
-inchr <- 3
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER3.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-
-inchr <- 4
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER4.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-
-inchr <- 5
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER5.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-
-##6
-inchr <- 6
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER6.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-
-##7
-inchr <- 7
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER7.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-##8
-inchr <- 8
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER8.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2,3))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-
-inchr <- 9
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER9.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=2)
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 10
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER10.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2,3))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 11
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER11.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2,3))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 12
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER12.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-
-inchr <- 13
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER13.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 14
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER14.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 15
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER15.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 16
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER16.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2,3))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-cross.18.strict.bk <- cross.18.strict
-
-inchr <- 17
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER17.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2,4))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 18
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER18.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 19
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER19.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 20
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER20.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 21
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER21.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2,4))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 22
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER22.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-cross.18.strict.bk.2 <- cross.18.strict
-
-
-inchr <- 23
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER23.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-inchr <- 24
-cross.18.reorg <- subset(cross.18.strict, chr=inchr)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.05, min.lod = 8, reorgMarkers = TRUE)
-png('~/public_html/RF_ER24.png')
-plotRF(cross.18.reorg,chr=1:4)
-dev.off()
-print(inchr)
-switch <- markernames(cross.18.reorg,chr=c(2))
-cross.18.strict <- switchAlleles(cross.18.strict, switch)
-print(paste(inchr, 'switched'))
-
-cross.18.strict.bk.2 <- cross.18.strict
-
-save.image('~/ER_fix.rsave')
-
-cross.18.strict.drop <- cross.18.strict
+final_marks <- data.frame(post_filt_01, stringsAsFactors=T)
+y18 <- as.numeric(gsub(".*:",'',rownames(final_marks)))
+x18 <- as.numeric(gsub(":.*",'',rownames(final_marks)))
 
 for(i in 1:24){
-cross.18.reorg <- subset(cross.18.strict, chr=i)
-cross.18.reorg <- formLinkageGroups(cross.18.reorg, max.rf = 0.03, min.lod = 10, reorgMarkers = TRUE)
-todrop <- markernames(cross.18.reorg,chr=c(2:nchr(cross.18.reorg)))
-cross.18.strict.drop <<- drop.markers(cross.18.strict.drop,todrop)
+ inchr <- i
+ reorg.lg <- formLinkageGroups(subset(cross.4, chr=inchr), max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
+
+ png(paste0('~/public_html/ER_RF_LG_',i,'.png'))
+ plotRF(reorg.lg,chr=1:4)
+ dev.off()
+
+ nms <- markernames(reorg.lg, chr=1)
+ mark <- data.frame(rownames(final_marks) %in% nms, stringsAsFactors=F)
+ cur.chr <- paste0('chr',i)
+ colnames(mark) <- cur.chr
+
+ final_marks <- cbind(final_marks,mark)
+
+ save.image('ELR_final_markerset_unmapped.rsave')
+
+ print(i)
+
+ yf <- as.numeric(gsub(".*:",'',rownames(final_marks)[final_marks[,cur.chr]]))
+ xf <- as.numeric(gsub(":.*",'',rownames(final_marks)[final_marks[,cur.chr]]))
+
+ png(paste0('~/public_html/ER_physLG_',i,'.png'))
+ plot(x18[x18==i],y18[x18==i])
+ points(xf,yf,col='green',pch=16)
+ dev.off()
+
 }
+################################################################################
+## FIX BY HAND ####
+################################################################################
+## Flip Chr 2 on 18
 
-save.image('~/ER_fix.rsave')
+inchr <- 18
+reorg.lg <- formLinkageGroups(subset(cross.4, chr=inchr), max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
+swit_18 <- markernames(reorg.lg, chr=2)
+cross.4 <- switchAlleles(cross.4, markers = swit_18)
 
-png('~/public_html/RF_ER18_F.png')
-plotRF(cross.18.strict.drop,chr=c(1))
+reorg.lg <- formLinkageGroups(subset(cross.4, chr=18), max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
+nms <- markernames(reorg.lg, chr=1)
+mark <- data.frame(rownames(final_marks) %in% nms, stringsAsFactors=F)
+colnames(mark) <- 'chr18'
+final_marks[,'chr18'] <- mark
+reorg.lg <- formLinkageGroups(subset(cross.4, chr=18), max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
+png(paste0('~/public_html/ER_RF_LG_',i,'.png'))
+plotRF(reorg.lg, chr=18)
 dev.off()
 
-
-save.image('~/ER_fix.rsave')
-
-cross.18.strict.drop.order <- cross.18.strict.drop
-
-for(X in 1:24){
-  cross.18.strict.drop.order <<- orderMarkers(cross.18.strict.drop.order, chr = X, window = 5, use.ripple = T, error.prob = 0.05,
-    map.function = "kosambi", sex.sp = F, maxit = 3000, tol = 0.001)
-save.image('~/ER_loopsave.rsave')
-}
-
-
-load('~/ER_fix.rsave')
-
-crs.bk <- cross.18.strict.drop
-
-for (i in 1:24){
-
-ord <- order(as.numeric(gsub(paste(i, ":", sep = ""), "", markernames(crs.bk, chr = i))))
-
-crs.bk <<- switch.order(crs.bk, chr = i, ord, error.prob = 0.05, map.function = "kosambi",
-  maxit = 1000, tol = 0.001, sex.sp = F)
-
-save.image('~/ER_loopsave_physical_position.rsave')
-
-print(i)
-}
+################################################################################
+## Lower CHR 10 linkage
+################################################################################
+inchr <- 10
+reorg.lg <- formLinkageGroups(subset(cross.4, chr=inchr), max.rf = 0.1, min.lod = 12, reorgMarkers = TRUE)
+nms <- markernames(reorg.lg, chr=1)
+mark <- data.frame(rownames(final_marks) %in% nms, stringsAsFactors=F)
+colnames(mark) <- 'chr10'
+final_marks[,'chr10'] <- mark
 
 
-load('~/ER_loopsave_physical_position.rsave')
+################################################################################
+### BADSAMPLE SCAN
+ind_bool_badsamp <- cross$pheno$ID %in% rownames(ind_filt)[!rowSums(ind_filt[,c(1:3)])==3]
+cross.badsamps <- subset(cross, ind = ind_bool_badsamp)
+gt.badsamp <- geno.table(cross.badsamps)
+drops <- rownames(gt.badsamp[-log10(gt.badsamp$P.value) > 6,])
+cross.badsamps <- drop.markers(cross.badsamps,drops)
 
-for (i in 1:24){
+scan.bin.mr <- scanone(cross.badsamps, method = "mr", model = "binary", pheno.col = 4)
+mr <- summary(scan.bin.mr)
+mr[order(mr$lod),]
+################################################################################
 
-png(paste0('~/public_html/ER_phys_',i,'_F.png'))
-plotRF(crs.bk,chr=i)
-dev.off()
+################################################################################
+### QUICKSCAN MARKER REGRESSION
+drop <- rownames(final_marks)[!rowSums(final_marks[,c(2:25)])==1]
+ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
+cross.5 <- subset(drop.markers(cross,drop), ind = ind_bool)
 
-print(i)
-}
+scan.bin.mr <- scanone(cross.5, method = "mr", model = "binary", pheno.col = 4)
+mr <- summary(scan.bin.mr)
+mr[order(mr$lod),]
+######################################################################################################
+######################################################################################################
 
 
 
-pullgts <- pull.geno(crs.bk)
-yp <- as.numeric(gsub(".*:",'',colnames(pullgts)))
-xp <- as.numeric(gsub(":.*",'',colnames(pullgts)))
-
-
-png(paste0('~/public_html/ER_phys.png'))
-plot(xp,yp)
-dev.off()
-
-
-
-##dups <- findDupMarkers(cross.18, exact.only = F, adjacent.only = F)
-##cross.18 <- drop.markers(cross.18, unlist(dups))
-
-
-
-pullgts <- pull.geno(crs.bk)
-rownames(pullgts) <- crs.bk$pheno$ID
-gt.table <- apply(pullgts,1,table)
-
-homs <- gt.table[1,] + gt.table[3,]
-rat <- homs/gt.table[2,]
+######################################################################################################
+######################################################################################################
+######################################################################################################
+cross.final <- switchAlleles(cross, markers = swit_18)
+drops <- rownames(final_marks)[!rowSums(final_marks[,c(2:25)])==1]
+ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
+cross.final <- subset(drop.markers(cross.final,drop), ind = ind_bool)
 
 
 
 
+dups <- findDupMarkers(cross.final, exact.only = T, adjacent.only = F)
+cross.final.nodups <- drop.markers(cross.final, unlist(dups))
 
+
+
+
+###################
+## QTL
+####################
 crs.bk <- removeDoubleXO(crs.bk, verbose = T)
 dups <- findDupMarkers(crs.bk, exact.only = F, adjacent.only = F)
 crs.bk <- drop.markers(crs.bk, unlist(dups))
