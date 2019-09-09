@@ -940,7 +940,7 @@ mr <- summary(scan.bin.mr)
 mr[order(mr$lod),]
 
 ### interactions?
-> data(hyper)
+
 hyper <- sim.geno(cross.18.nodup, step=1, n.draws=256, err=0.01)
 qtl <- makeqtl(hyper, chr=14, pos=106.9, what="draws")
 
