@@ -45,8 +45,11 @@ perms.bin.em <- scanone(cross.r, method = "em", model = "binary", maxit = 1000,
 scan.bin.mr.18 <- scanone(cross.18, method = "mr", model = "binary", pheno.col = 4)
 scan.np.em.18 <- scanone(cross.18, method = "em", model = "np", pheno.col = 3, maxit = 5000)
 
-perms.bin.em <- scanone(cross.r, method = "em", model = "binary", maxit = 1000,
-  n.perm = 500, pheno.col = 4, n.cluster = 1)
+perms.bin.em <- scanone(cross.final.nodups, method = "em", model = "binary", maxit = 1000,
+  n.perm = 500, pheno.col = 4, n.cluster = 4)
+
+save.image('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_permutations.rsave')
+
 
 dups <- findDupMarkers(cross.final, exact.only = T, adjacent.only = F)
 cross.final.nodups <- drop.markers(cross.final, unlist(dups))
