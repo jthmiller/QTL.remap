@@ -226,135 +226,28 @@ colnames(mark) <- 'chr10'
 final_marks[,'chr10'] <- mark
 
 
-################################################################################
-### BADSAMPLE SCAN
-ind_bool_badsamp <- cross$pheno$ID %in% rownames(ind_filt)[!rowSums(ind_filt[,c(1:3)])==3]
-cross.badsamps <- subset(cross, ind = ind_bool_badsamp)
-gt.badsamp <- geno.table(cross.badsamps)
-drops <- rownames(gt.badsamp[-log10(gt.badsamp$P.value) > 6,])
-cross.badsamps <- drop.markers(cross.badsamps,drops)
 
-scan.bin.mr <- scanone(cross.badsamps, method = "mr", model = "binary", pheno.col = 4)
-mr <- summary(scan.bin.mr)
-mr[order(mr$lod),]
-################################################################################
 
 ################################################################################
-### QUICKSCAN MARKER REGRESSION
-drop <- rownames(final_marks)[!rowSums(final_marks[,c(2:25)])==1]
-ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
-cross.5 <- subset(drop.markers(cross,drop), ind = ind_bool)
-
-scan.bin.mr <- scanone(cross.5, method = "mr", model = "binary", pheno.col = 4)
-mr <- summary(scan.bin.mr)
-mr[order(mr$lod),]
-######################################################################################################
-######################################################################################################
-
-
-
-######################################################################################################
-######################################################################################################
-######################################################################################################
 cross.final <- switchAlleles(cross, markers = swit_18)
 drops <- rownames(final_marks)[!rowSums(final_marks[,c(2:25)])==1]
 ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
 cross.final <- subset(drop.markers(cross.final,drop), ind = ind_bool)
+mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
+for (i in 1:24){
 
+ filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_chr_',i)
 
+ write.cross(cross.final,chr=i,filestem=filename,format="csv")
+
+}
 
 dups <- findDupMarkers(cross.final, exact.only = T, adjacent.only = F)
 cross.final.nodups <- drop.markers(cross.final, unlist(dups))
+################################################################################
 
 
-
-
-###################
-## QTL
-####################
-crs.bk <- removeDoubleXO(crs.bk, verbose = T)
-dups <- findDupMarkers(crs.bk, exact.only = F, adjacent.only = F)
-crs.bk <- drop.markers(crs.bk, unlist(dups))
-
-crs.bk$pheno$bin <- ifelse(crs.bk$pheno$Pheno > 2, 1 , 0)
-cross.18.nodup$pheno$bin <- ifelse(cross.18.nodup$pheno$Pheno > 2, 1 , 0)
-crs.bk$pheno$pheno_norm <- nqrank(crs.bk$pheno$Pheno)
-
-scan.norm.em <- scanone(crs.bk, method = "em", model = "normal", maxit = 5000,
-  pheno.col = 5)
-em <- summary(scan.norm.em)
-em[order(em$lod),]
-
-scan.bin.em <- scanone(crs.bk, method = "em", model = "binary", pheno.col = 4,
-  maxit = 5000)
-bin.em <- summary(scan.bin.em )
-bin.em[order(bin.em$lod),]
-
-scan.np.em <- scanone(crs.bk, method = "em", model = "np", pheno.col = 4, maxit = 5000)
-np.em <- summary(scan.np.em)
-np.em[order(np.em$lod),]
-
-scan.bin.mr <- scanone(crs.bk, method = "mr", model = "binary", pheno.col = 4)
-mr <- summary(scan.bin.mr)
-mr[order(mr$lod),]
-
-### interactions?
-> data(hyper)
-hyper <- sim.geno(cross.18.nodup, step=1, n.draws=256, err=0.01)
-qtl <- makeqtl(hyper, chr=14, pos=106.9, what="draws")
-
-out.i <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp")
-out.a <- addqtl(hyper, qtl=qtl, formula=y~Q1+Q2, method="imp")
-
-png(paste0('~/public_html/one_v_two_modle_qtl.png'),width=1000)
-plot(out.i - out.a)
-dev.off()
-
-mname1 <- find.marker(cross.18.nodup, 1, 1)
-mname2 <- find.marker(cross.18.nodup, 18, 152.427)
-mname2 <- find.marker(cross.18.nodup, 14, 106.9) # marker D13Mit147
-
-cross.18.nodup <- switchAlleles(cross.18.nodup, markers = mname2)
-
-png(p
-ste0('~/public_html/pxg_18_14_qtl.png'))
-plotPXG(cross.18.nodup, c('18:18614940', mname1),pheno.col=4)
-dev.off()
-
-png(paste0('~/public_html/pxg_18_14_qtl.png'))
-plotPXG(cross.18.nodup, '1:39331705',pheno.col=4)
-dev.off()
-
-14:29488677"
-
-plotPXG(listeria, c(mname2, mname))
-
-
-out.a <- addqtl(hyper, qtl=qtl, formula=y~Q1, method="imp")
-png(paste0('~/public_html/one_modle_qtl.png'),width=1000)
-plot(out.a)
-dev.off()
-
-
-
-gt.missing <- geno.table(crs.bk,chr=1)
-
-perms.bin.em <- scanone(cross.18, method = "em", model = "binary", maxit = 2000,
-  n.perm = 500, pheno.col = 4, n.cluster = 5)
-
-perms.np.em <- scanone(cross.18, model = "np", pheno.col = 2, n.perm = 2000, method = "em",
-  perm.strata = cross.18$pheno$stata, n.cluster = slurmcore)
-
-
-
-
-
-
-th <- summary(perms.norm.imp)[1, ]
-norm.qtl <- summary(scan.norm.imp, perms = perms.norm.imp, alpha = 0.05)
-qtl.uns <- makeqtl(cross.18, chr = norm.qtl$chr, pos = norm.qtl$pos)
-full <- stepwiseqtl(cross.18, additive.only = T, method = "imp", pheno.col = 6, scan.pairs = T)
 
 
 
