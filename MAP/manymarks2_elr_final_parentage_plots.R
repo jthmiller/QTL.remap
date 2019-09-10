@@ -2,7 +2,7 @@
 
 ################################################################################
 ## ### Hist plot
-png('~/public_html/cg.elr.png')
+png('~/public_html/cg.nbh.png')
 hist(cpgt[lower.tri(cpgt)], breaks=seq(0, 1, len=101), xlab="No. matching genotypes")
 rug(cpgt[lower.tri(cpgt)])
 dev.off()
