@@ -14,9 +14,38 @@ test.QTLs$chrm.n <- gsub("chr", "", test.QTLs$chrom)
 
 ################################################################################
 ## read in the QTL cross
-cross <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
-  sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
+cross <- read.cross.jm(file = file.path(indpops, paste0(pop, ".unphased.f2.csvr"),
+format = "csvr", geno = c(1:3), estimate.map = FALSE)
+
+mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
+fl <- file.path(mpath,'ELR_unmapped_unfiltered')
+write.cross(cross,filestem=fl,format="csv")
 ################################################################################
+
+## ADD PCR GTS
+mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
+fl <- file.path(mpath,'ELR_unmapped_unfiltered.csv')
+cross.df <- read.csv(fl)
+gts <- cross.df[3:length(cross.df[,1]),]
+rownames(gts) <- gts$ID
+
+fla <-file.path(mpath, 'ER_ahr_aip_whoi_gts.csv')
+cross.df.ahr <- read.csv(fla)
+ahr.gts <- cross.df.ahr[3:length(cross.df.ahr[,1]),]
+rownames(ahr.gts) <- ahr.gts$ID
+
+gts.2 <- cbind(gts, ahr.gts[rownames(gts),c('AHR2a_del','AIP_252','AIP_261')])
+new <- rownames(ahr.gts)[!rownames(ahr.gts) %in% rownames(gts)]
+
+################################################################################
+
+mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
+
+AHRa_gts <- read.cross(
+ file = file.path(mpath, 'ER_ahr_aip_whoi_gts.csv'),
+ format = "csv", genotypes=c("AA","AB","BB"), alleles=c("A","B"),
+ estimate.map = FALSE
+)
 
 ################################################################################
 ### Pull names from plinkfile
