@@ -4,70 +4,6 @@
 #source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library('qtl')
 
-################################################################################
-## unmapped
-################################################################################
-mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
-fl <- file.path(mpath,'ELR_unmapped_filtered_added_markers.csv')
-
-cross <- read.cross(
- file = fl,
- format = "csv", genotypes=c("AA","AB","BB"), alleles=c("A","B"),
- estimate.map = FALSE
-)
-################################################################################
-
-cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
-cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
-
-## rf.1 <- est.rf(subset(cross,chr=1), maxit=1000, tol=1e-6)
-## rf.2 <- est.rf(subset(cross,chr=2), maxit=1000, tol=1e-6)
-## rf.8 <- est.rf(subset(cross,chr=8), maxit=1000, tol=1e-6)
-## rf.18 <- est.rf(subset(cross,chr=18), maxit=1000, tol=1e-6)
-## rf.13 <- est.rf(subset(cross,chr=13), maxit=1000, tol=1e-6)
-## save.image(file.path(mpath,'ER_chrFR.rsave'))
-
-##################################################################################
-#### read in the QTL cross
-##################################################################################
-##mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
-##fl <- file.path(mpath,'ELR_unmapped_filtered.csv')
-##
-##cross <- read.cross(
-## file = fl,
-## format = "csv", genotypes=c("AA","AB","BB"), alleles=c("A","B"),
-## estimate.map = FALSE
-##)
-##################################################################################
-
-## UNFILTERED
-##################################################################################
-#### read in the QTL cross
-## cross <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
-##  sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
-##################################################################################
-##################################################################################
-##### Pull names from plinkfile
-##path <- file.path(indpops, paste(pop, ".ped", sep = ""))
-##popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
-##indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
-##cross$pheno$ID <- paste(popname, indname, sep = "_")
-##################################################################################
-##
-###### PHENO #####################################################################
-##cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
-##cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
-##################################################################################
-##
-## #### FITER ########################################################################
-## marks <- read.table('/home/jmiller1/QTL_Map_Raw/ELR_final_map/goodmarks.rtable',stringsAsFactors=F)
-## inds <- read.table('/home/jmiller1/QTL_Map_Raw/ELR_final_map/goodsamps.rtable',stringsAsFactors=F)
-## ####################################################################################
-## drops <- markernames(cross)[!markernames(cross) %in%  marks[,1]]
-## cross <- drop.markers(cross,drops)
-## cross <- subset(cross, ind= !is.na(cross$pheno$Pheno))
-##
-## ################################################################################
 dups <- findDupMarkers(cross, exact.only = F, adjacent.only = F)
 cross <- drop.markers(cross, unlist(dups))
 ##
@@ -83,18 +19,49 @@ scan.norm.em <- scanone(cross, method = "em", model = "normal", pheno.col = 5)
 scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
 scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 scan.norm.imp <- scanone(cross, method = "imp", model = "normal", pheno.col = 5)
-scan.bin.imp <- scanone(cross, method = "imp", model = "binary", pheno.col = 4)
+
+qtl <- makeqtl(hyper, chr=18, pos=1587.8,  what="draws")
+out.i.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",pheno.col=4)
+out.a.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1+Q2, method="imp",model="binary",pheno.col=4)
 
 
 cbind(summary(scan.bin.em),a=summary(scan.norm.em)[,3],b=summary(scan.bin.mr)[,3],c=summary(scan.np.mr )[,3])
 ################################################################################
 
-hyper <- sim.geno(cross.np)
 
-qtl <- makeqtl(hyper, chr=18, pos=1587.8,  what="draws")
 
-out.i.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",pheno.col=4)
-out.a.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1+Q2, method="imp",model="binary",pheno.col=4)
+
+png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
+plotPXG(cross,c('18:20273448','15:2483654') ,1,infer=F)
+dev.off()
+
+
+png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
+plotPXG(cross,c('18:20273448','AHR2a_del') ,1,infer=F, jitter=2, pch=18)
+dev.off()
+
+png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
+ effectplot(cross,pheno.col=1,mname1='AHR2a_del',mname2='18:20273448')
+dev.off()
+
+png(paste0('~/public_html/ELR_multi_interaction_lod.png'))
+ effectplot(cross, pheno.col=1,mname1='15:2483654', mname2='18:20273448')
+dev.off()
+
+png(paste0('~/public_html/ELR_multi_interaction_lod.png'))
+ effectplot(cross, pheno.col=4,mname1='9:26045359', mname2='18:20273448')
+dev.off()
+
+geno.crosstab(cross,"18:20273448",'15:2483654')
+
+png(paste0('~/public_html/ELR_multi_interaction_lod.png'),width=2000)
+effectscan(hyper,pheno.col=5)
+dev.off()
+
+
+png(paste0('~/public_html/ELR_multi_interaction_lod.png'),width=2000)
+plot(out.a.18)
+dev.off()
 
 out.i.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="normal",pheno.col=5)
 out.a.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1+Q2, method="imp",model="normal",pheno.col=5)
