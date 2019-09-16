@@ -52,3 +52,34 @@ final.gts <- rbind(row1,row2,row3,final.gts)
 
 fl <- file.path(mpath,'ELR_unmapped_filtered_added_markers.csv')
 write.table(final.gts, fl,col.names=F,row.names=F,quote=F,sep=',')
+
+################################################################################
+
+chr1 <- gsub("AHR2a_del","350000",markernames(cross,chr=1))
+ord <- order(as.numeric(gsub('.*:','',chr1)))
+cross <- switch.order(cross, chr = 1, ord, error.prob = 0.01, map.function = "kosambi",
+    maxit = 1000, tol = 0.001, sex.sp = F)
+
+chr2 <- gsub("AIP_252","37860632",markernames(cross,chr=2))
+ord <- order(as.numeric(gsub('.*:','',chr2)))
+cross <- switch.order(cross, chr = 2, ord, error.prob = 0.01, map.function = "kosambi",
+    maxit = 1000, tol = 0.001, sex.sp = F)
+
+for (i in 3:24){
+
+ ord <- order(as.numeric(gsub('.*:','', markernames(cross.reord,chr=i))))
+
+ cross.reord <- switch.order(cross.reord, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+     maxit = 1000, tol = 0.001, sex.sp = F)
+}
+
+save.image(file.path(mpath,'ER_chrFR.rsave'))
+
+
+for (i in 1:24){
+
+ cross <- est.map(cross, error.prob=0.01, map.function="kosambi",sex.sp=F,chr=i)
+ print(i)
+ save.image(file.path(mpath,'ER_chrFR.rsave'))
+
+}
