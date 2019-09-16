@@ -14,38 +14,16 @@ test.QTLs$chrm.n <- gsub("chr", "", test.QTLs$chrom)
 
 ################################################################################
 ## read in the QTL cross
-cross <- read.cross.jm(file = file.path(indpops, paste0(pop, ".unphased.f2.csvr"),
+cross <- read.cross.jm(file = file.path(indpops, paste0(pop, ".unphased.f2.csvr")),
 format = "csvr", geno = c(1:3), estimate.map = FALSE)
 
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 fl <- file.path(mpath,'ELR_unmapped_unfiltered')
 write.cross(cross,filestem=fl,format="csv")
 ################################################################################
-
-## ADD PCR GTS
-mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
-fl <- file.path(mpath,'ELR_unmapped_unfiltered.csv')
-cross.df <- read.csv(fl)
-gts <- cross.df[3:length(cross.df[,1]),]
-rownames(gts) <- gts$ID
-
-fla <-file.path(mpath, 'ER_ahr_aip_whoi_gts.csv')
-cross.df.ahr <- read.csv(fla)
-ahr.gts <- cross.df.ahr[3:length(cross.df.ahr[,1]),]
-rownames(ahr.gts) <- ahr.gts$ID
-
-gts.2 <- cbind(gts, ahr.gts[rownames(gts),c('AHR2a_del','AIP_252','AIP_261')])
-new <- rownames(ahr.gts)[!rownames(ahr.gts) %in% rownames(gts)]
-
+scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
+scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 ################################################################################
-
-mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
-
-AHRa_gts <- read.cross(
- file = file.path(mpath, 'ER_ahr_aip_whoi_gts.csv'),
- format = "csv", genotypes=c("AA","AB","BB"), alleles=c("A","B"),
- estimate.map = FALSE
-)
 
 ################################################################################
 ### Pull names from plinkfile
@@ -79,6 +57,7 @@ ind_filt <- data.frame(parents_01,stringsAsFactors=F)
 ### Switch phase and keep only parent conf markers##############################
 swit <- colnames(pullgts)[which(pullgts['BLI_BI1124M',]==1)]
 cross <- switchAlleles(cross, markers = swit)
+likely.parent.sites <- colnames(pull.geno(cross))[which(pullgts['BLI_BI1124M',]==2)]
 ################################################################################
 
 ################################################################################
@@ -106,7 +85,7 @@ cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.1),colSums(is.na(cpgt)) < nind(cr
 
 ################################################################################
 ###### Remove the samples related by more than 60% of genotypes #####
-wh <- which(cpgt > 0.6, arr=TRUE)
+wh <- which(cpgt > 0.90, arr=TRUE)
 wh <- wh[wh[,1] < wh[,2],]
 mats <- cbind(rownames(wh),colnames(cpgt)[as.numeric(wh[,2])])
 toss.missing <- apply(mats,1,function(X){
@@ -117,43 +96,64 @@ same_geno_02 <- !cross$pheno$ID %in% toss.missing
 ind_filt <- cbind(parents_01,same_geno_02)
 ################################################################################
 
-################################################################################
-#### RATIO OF HETS TO HOM. SOMETHING IS OFF IN SOME SAMPLES. Remove them #######
-################################################################################
-mar_index <- rownames(marks_filt)[rowSums(marks_filt[,c(1:3)])==3]
-ind_index <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1,2)])==2]
-
-drop <- markernames(cross)[markernames(cross) %in% mar_index]
-cross.2 <- subset( drop.markers(cross,drop), ind = ind_index)
-pullgts.2 <- pull.geno(cross.2)
-
-homb <- apply(pullgts.2,1,function(X){sum(X==3, na.rm=T) })
-homa <- apply(pullgts.2,1,function(X){ sum(X==1, na.rm=T) })
-het <- apply(pullgts.2,1,function(X){ sum(X==2, na.rm=T)})
-rat <- (homa + homb)/het
-names(rat) <- cross.2$pheno$ID
-
-## HET v HOMZ RATIO FILTER #####################################################
-het_ratio_3 <- rownames(ind_filt) %in% names(rat)[rat < 2.55]
-ind_filt <- cbind(parents_01,same_geno_02,het_ratio_3)
-################################################################################
+## ################################################################################
+## #### RATIO OF HETS TO HOM. SOMETHING IS OFF IN SOME SAMPLES. Remove them #######
+## ################################################################################
+## mar_index <- rownames(marks_filt)[rowSums(marks_filt[,c(1:3)])==3]
+## ind_index <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1,2)])==2]
+##
+## drop <- markernames(cross)[markernames(cross) %in% mar_index]
+## cross.2 <- subset( drop.markers(cross,drop), ind = ind_index)
+## pullgts.2 <- pull.geno(cross.2)
+##
+## homb <- apply(pullgts.2,1,function(X){sum(X==3, na.rm=T) })
+## homa <- apply(pullgts.2,1,function(X){ sum(X==1, na.rm=T) })
+## het <- apply(pullgts.2,1,function(X){ sum(X==2, na.rm=T)})
+## rat <- (homa + homb)/het
+## names(rat) <- cross.2$pheno$ID
+##
+## ## HET v HOMZ RATIO FILTER #####################################################
+## het_ratio_3 <- rownames(ind_filt) %in% names(rat)[rat < 2.55]
+## ind_filt <- cbind(parents_01,same_geno_02,het_ratio_3)
+## ################################################################################
 
 ################################################################################
 ### Pvalue FILTER and PLOT #####################################################
 ### Marker filters = 3, Inds = 3
 ################################################################################
-drop <- rownames(marks_filt)[!rowSums(marks_filt)==3]
-ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
-cross.3 <- subset(drop.markers(cross,drop), ind = ind_bool)
-pullgts.3 <- pull.geno(cross.3)
-gts.3 <- geno.table(cross.3)
+
+drop <- rownames(marks_filt)[!rowSums(marks_filt[,1:3])==3]
+ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:2)])==2]
+##ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:2)])==2]
+test.cross <- subset(drop.markers(cross,drop), ind = ind_bool)
+
+
+pullgts.3 <- pull.geno(test.cross)
+gts.3 <- geno.table(test.cross)
 pos.3 <- as.numeric(gsub(".*:",'',rownames(gts.3)))
 
+
+
+test.cross1 <- subset(test.cross,chr=1)
+gt.test1 <- geno.table(test.cross1)
+drop <- rownames(gt.test1)[gt.test1$missing > 30]
+test.cross1 <- drop.markers(test.cross1,drop)
+test.cross1 <- formLinkageGroups(test.cross1, max.rf = 0.01, reorgMarkers = TRUE)
+
+chr=c(1,3,4,6)
+
+
+swit_18 <- markernames(test.cross, chr=1)
+
+
+
+
 ######SET MISSING AND PVALU FILTER #############################################
-keep_all <- rownames(gts.3)[gts.3$missing<3 & -log(gts.3$P.value) < 2.5]
-keep_5 <- rownames(gts.3)[gts.3$chr==5 & gts.3$missing<5 & -log(gts.3$P.value) < 5]
-keep_11 <- rownames(gts.3)[gts.3$chr==11 & gts.3$missing<5 & -log(gts.3$P.value) < 5]
-keep_17 <- rownames(gts.3)[gts.3$chr==17 & gts.3$missing<5 & -log(gts.3$P.value) < 5]
+mis_tol <- 5
+keep_all <- rownames(gts.3)[gts.3$missing<mis_tol & -log(gts.3$P.value) < 2.5]
+keep_5 <- rownames(gts.3)[gts.3$chr==5 & gts.3$missing<mis_tol & -log(gts.3$P.value) < 5]
+keep_11 <- rownames(gts.3)[gts.3$chr==11 & gts.3$missing<mis_tol & -log(gts.3$P.value) < 5]
+keep_17 <- rownames(gts.3)[gts.3$chr==17 & gts.3$missing<mis_tol & -log(gts.3$P.value) < 5]
 keep_2.5 <- unique(c(keep_all,keep_5,keep_11,keep_17))
 ################################################################################
 
@@ -169,7 +169,8 @@ load('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_final_markerset_unmapped.rsav
 ## FINAL TABLES ##
 ################################################################################
 drop <- rownames(marks_filt)[!rowSums(marks_filt)==4]
-ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
+##ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
+ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:2)])==2]
 cross.4 <- subset(drop.markers(cross,drop), ind = ind_bool)
 
 gts.4 <- geno.table(cross.4)

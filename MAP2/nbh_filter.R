@@ -52,7 +52,11 @@ swit <- colnames(pullgts)[which(pullgts['NBH_NBH1M',]==1)]
 cross <- switchAlleles(cross, markers = swit)
 swit <- colnames(pullgts)[which(pullgts['NBH_NBH1F',]==3)]
 cross <- switchAlleles(cross, markers = swit)
-
+gtpar <- geno.table(subset(cross,ind=is.na(cross$pheno$Pheno)))
+likely.par.markers <- rownames(gtpar)[which(gtpar$AA==1 & gtpar$BB==1)]
+################################################################################
+scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
+scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 ################################################################################
 
 ################################################################################

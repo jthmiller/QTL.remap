@@ -76,6 +76,16 @@ out.i.1 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",p
 
 
 
+png(paste0('~/public_html/NBH_mr.png'))
+ effectplot(cross, pheno.col=5,mname1='19:2435634')
+dev.off()
+
+
+png(paste0('~/public_html/NBH_mr_lod.png'))
+plotPXG(cross,'19:2435634',infer=F, jitter=2, pch=18)
+dev.off()
+
+
 
 
 
