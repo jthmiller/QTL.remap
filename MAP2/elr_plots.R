@@ -80,17 +80,6 @@ out.i.1 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",p
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 geno <- c('AA','AB','BB')
 names(geno) <- c(1:3)
 
@@ -109,85 +98,15 @@ geno.crosstab(cross,"18:20273448",'1:20299408')
 
 pull.rf(rf, what="lod", chr=1 )["AHR2a_del",]
 sort(rf.1[,"AHR2a_del"])
-################################################################################
-##for i in ELR*.csv; do
-## cut -d',' -f6- $i > ${i%.csv}.nofirst
-##done
-##
-##paste *.nofirst > ELR_marks
-##cut -d',' -f1-5 ELR_chr_24.csv > ELR.info
-##
-##paste -d',' ELR.info ELR_marks > ELR.all.scv
-##awk -F',' '{print $0}' ELR.all.scv > ELR.all.csv
-################################################################################
-
-dups <- findDupMarkers(cross.final, exact.only = T, adjacent.only = F)
-cross.final.nodups <- drop.markers(cross.final, unlist(dups))
-cross.final.nodups$pheno$pheno_norm <- signif(cross.final.nodups$pheno$pheno_norm,5)
-
-### SCANS
-scan.bin.mr <- scanone(cross.final.nodups, method = "mr", model = "binary", pheno.col = 4)
-scan.bin.mr <- scanone(cross.final.nodups, method = "mr", model = "np", pheno.col = 4)
-
-
-
-scan.norm.mr <- scanone(cross.final.nodups, method = "mr", model = "normal", pheno.col = 5)
-scan.bin.imp <- scanone(cross.final.nodups, method = "imp",model = "normal", pheno.col = 5)
-scan.np.em <- scanone(cross.final.nodups, method = "em", model = "np", pheno.col = 1, maxit = 5000)
-scan.bin.em <- scanone(cross.final.nodups, method = "em", model = "binary", pheno.col = 4)
-
-
-scan.norm.ehk <- scanone(cross.final.nodups, method = "ehk", model = "normal", maxit = 5000, pheno.col = 5)
-
-
-scan.2p.imp <- scanone(cross.final.nodups, method = "em", model = "2part", pheno.col = 1)
-
-perms.bin.em <- scanone(cross.final.nodups, method = "em", model = "binary", maxit = 5000,
-  n.perm = 500, pheno.col = 4, n.cluster = 4)
-summary(perms.bin.em)
-
-
-save.image('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_permutations.rsave')
-
-
-chr18 <- orderMarkers(cross.final.nodups,chr=18, use.ripple=F,maxit=100,sex.sp=F)
-scan.np.em.18 <- scanone(chr18, method = "em", model = "np", pheno.col = 1, maxit = 5000)
-pull.map(chr18, chr=18)
-
-
-1:26531574
-
-hyper <-jittermap(chr18, amount=1e-6)
-hyper <- calc.genoprob(hyper, step=2.5, err=0.01)
-hyper <- sim.geno(hyper, step=2.5, n.draws=25, err=0.01)
-
-qtl <- makeqtl(hyper, chr=18, pos=608,  what="draws")
-out.i.18 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",pheno.col=4)
-
-qtl <- makeqtl(hyper, chr=1, pos=7.62e-04,  what="draws")
-out.i.1 <- addqtl(hyper, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",pheno.col=4)
-
-
-int_sum <- summary(out.i)
-int_sum[order(int_sum$lod),]
-
-out.a <- addqtl(hyper, qtl=qtl, formula=y~Q1+Q2, method="imp",model="binary")
-add_sum <- summary(out.i)
-add_sum[order(add_sum$lod),]
 
 png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
  plot(out.i - out.a)
 dev.off()
 
-
 scan_18 <- scanqtl(cross, pheno.col=4, chr=18, pos=608, covar=NULL, formula=y~Q1,
             method="imp", model="binary",
             incl.markers=T, verbose=TRUE, tol=1e-4, maxit=100,
             forceXcovar=FALSE)
-
-
-
-
 
 scan.norm.em <- scanone(cross.18, method = "em", model = "normal", maxit = 5000,
   pheno.col = 5)
