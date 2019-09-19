@@ -30,9 +30,6 @@ cross$pheno$ID <- paste(popname, indname, sep = "_")
 cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
 cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
 ################################################################################
-scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
-scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
-
 
 ################################################################################
 ## FILTER TABLES
@@ -61,7 +58,47 @@ likely.par.markers <- rownames(gtpar)[which(gtpar$AA==1 & gtpar$BB==1)]
 scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
 scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 ################################################################################
+cross.qtls <-
 
+gt14 <- geno.table(subset(cross,chr=14))
+gt8 <- geno.table(subset(cross,chr=8))
+
+
+8:12345508
+1:5540802
+14:12487649  missassembly
+5:1856088
+
+
+1:5540802
+
+ns19 <- gt19[which(gt19$P.value > 3.345965e-03),]
+which(rownames(ns19)=='19:2435634')
+islink <- rownames(ns19[1:200,])
+chr19qtls <- pull.markers(cross,islink)
+
+
+'14:12556225' -> '14:12487649'
+chr14 <- subset(cross,chr=14)
+gt14 <- geno.table(chr14)
+ns <- gt14[which(gt14$P.value >= 0.05),]
+chr14 <- pull.markers(cross,rownames(ns))
+chr14 <- formLinkageGroups(chr14, max.rf = 0.05, reorgMarkers = TRUE)
+gt14 <- geno.table(chr14)
+gt14['14:12487649',]
+
+scan.norm.mr14 <- scanone(chr14, method = "mr", model = "normal", pheno.col = 5)
+
+
+png(paste0('~/public_html/NBH_AHR2.png'))
+plotPXG(cross,c('18:17816908','1:5540802'),infer=F)
+dev.off()
+
+
+
+
+### NEED TO CHECH ON
+5:1856088
 ################################################################################
 #### FILTER BY PARENT ALLELES ##################################################
 pullgts <- pull.geno(cross)

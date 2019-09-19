@@ -21,11 +21,6 @@ mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 fl <- file.path(mpath,'ELR_unmapped_unfiltered')
 write.cross(cross,filestem=fl,format="csv")
 ################################################################################
-scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
-scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
-################################################################################
-
-################################################################################
 ### Pull names from plinkfile
 path <- file.path(indpops, paste(pop, ".ped", sep = ""))
 popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
@@ -37,7 +32,11 @@ cross$pheno$ID <- paste(popname, indname, sep = "_")
 cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
 cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
 ################################################################################
-
+################################################################################
+scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
+scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
+################################################################################
+poss.qtls <- c("8:34538018","13:4471004","18:20273448")
 ################################################################################
 ## FILTER TABLES
 ################################################################################
@@ -126,30 +125,12 @@ drop <- rownames(marks_filt)[!rowSums(marks_filt[,1:3])==3]
 ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:2)])==2]
 ##ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:2)])==2]
 test.cross <- subset(drop.markers(cross,drop), ind = ind_bool)
-
-
 pullgts.3 <- pull.geno(test.cross)
 gts.3 <- geno.table(test.cross)
 pos.3 <- as.numeric(gsub(".*:",'',rownames(gts.3)))
 
-
-
-test.cross1 <- subset(test.cross,chr=1)
-gt.test1 <- geno.table(test.cross1)
-drop <- rownames(gt.test1)[gt.test1$missing > 30]
-test.cross1 <- drop.markers(test.cross1,drop)
-test.cross1 <- formLinkageGroups(test.cross1, max.rf = 0.01, reorgMarkers = TRUE)
-
-chr=c(1,3,4,6)
-
-
-swit_18 <- markernames(test.cross, chr=1)
-
-
-
-
 ######SET MISSING AND PVALU FILTER #############################################
-mis_tol <- 5
+mis_tol <- 8
 keep_all <- rownames(gts.3)[gts.3$missing<mis_tol & -log(gts.3$P.value) < 2.5]
 keep_5 <- rownames(gts.3)[gts.3$chr==5 & gts.3$missing<mis_tol & -log(gts.3$P.value) < 5]
 keep_11 <- rownames(gts.3)[gts.3$chr==11 & gts.3$missing<mis_tol & -log(gts.3$P.value) < 5]
@@ -181,11 +162,11 @@ rownames(pullgts.4) <- cross.4$pheno$ID
 
 post_filt_marks <- rownames(marks_filt) %in% colnames(pullgts.4)
 names(post_filt_marks) <- rownames(marks_filt)
-final_marks <- data.frame(post_filt_01, stringsAsFactors=T)
+final_marks <- data.frame(post_filt_marks, stringsAsFactors=T)
 
 post_filt_ind <- cross$pheno$ID %in% cross.4$pheno$ID
 names(post_filt_ind) <- rownames(cross$pheno$ID)
-final_ind <- data.frame(post_filt_01, stringsAsFactors=T)
+final_ind <- data.frame(post_filt_ind, stringsAsFactors=T)
 ################################################################################
 
 ################################################################################
@@ -194,7 +175,7 @@ final_ind <- data.frame(post_filt_01, stringsAsFactors=T)
 ################################################################################
 ################################################################################
 
-final_marks <- data.frame(post_filt_01, stringsAsFactors=T)
+final_marks <- data.frame(post_filt_marks, stringsAsFactors=T)
 #y18 <- as.numeric(gsub(".*:",'',rownames(final_marks)))
 #x18 <- as.numeric(gsub(":.*",'',rownames(final_marks)))
 
@@ -244,7 +225,7 @@ colnames(mark) <- 'chr18'
 final_marks[,'chr18'] <- mark
 reorg.lg <- formLinkageGroups(subset(cross.4, chr=18), max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
 png(paste0('~/public_html/ER_RF_LG_redux',i,'.png'))
-plotRF(reorg.lg, chr=18)
+plotRF(reorg.lg)
 dev.off()
 
 ################################################################################
@@ -258,24 +239,16 @@ colnames(mark) <- 'chr10'
 final_marks[,'chr10'] <- mark
 
 ################################################################################
+### Subset the original cross
 cross.final <- switchAlleles(cross, markers = swit_18)
 drops <- rownames(final_marks)[!rowSums(final_marks[,c(2:25)])==1]
-ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[rowSums(ind_filt[,c(1:3)])==3]
+ind_bool <- cross$pheno$ID %in% rownames(ind_filt)[ind_filt[,2]==1]
 cross.final <- subset(drop.markers(cross.final,drop), ind = ind_bool)
 cross.final$pheno$pheno_norm <- signif(cross.final$pheno$pheno_norm,5)
 
-
-
-## for (i in 1:24){
-##
-##  filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_chr_',i)
-##
-##  write.cross(cross.final,chr=i,filestem=filename,format="csv")
-##
-## }
-
 write.table(markernames(cross.final),'/home/jmiller1/QTL_Map_Raw/ELR_final_map/goodmarks.rtable')
 write.table(cross.final$pheno$ID,'/home/jmiller1/QTL_Map_Raw/ELR_final_map/goodsamps.rtable')
+
 
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 fl <- file.path(mpath,'ELR_unmapped_filtered')
