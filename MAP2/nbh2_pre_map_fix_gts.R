@@ -58,52 +58,46 @@ ind_filt <- data.frame(parents_01,stringsAsFactors=F)
 cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
 cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
 ################################################################################
-
+### ENRICH FOR AAxBB
 gt.cp <- geno.table(cross)
 gt.cp <- rownames(gt.cp[which(gt.cp$P.value > 0.001),])
 cross.par <- subset(cross,ind=c('NBH_NBH1M','NBH_NBH1F'))
 cross.par <- pull.markers(cross.par,gt.cp)
 gt.cross.par <- geno.table(cross.par)
 
+## DROP DANGEROUS ABxAB cross
 DROP <- rownames(gt.cross.par)[which(gt.cross.par$AB==2)]
-
 cross <- drop.markers(cross,DROP)
 cross.par <- drop.markers(cross.par,DROP)
 
-crsplot <-
+### PHASE FROM PARENTS
+NBH_NBH1M <- geno.table(subset(cross.par, ind='NBH_NBH1M'))
+NBH_NBH1F <- geno.table(subset(cross.par, ind='NBH_NBH1F'))
 
+swit <- rownames(NBH_NBH1M)[which(NBH_NBH1M$AA==1 & NBH_NBH1F$BB==1)]
+cross <- switchAlleles(cross, markers = swit)
 
+## FROM THAT SET, DROP
+dp1 <- rownames(NBH_NBH1M)[which(NBH_NBH1M$AB==1 & NBH_NBH1F$AA==1)]
+dp2 <- rownames(NBH_NBH1F)[which(NBH_NBH1F$AB==1 & NBH_NBH1M$BB==1)]
+drops <- unique(c(dp1,dp2))
+cross <- drop.markers(cross,drops)
 
-ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.par)[[1]]))))
- cross.par <- switch.order(cross.par, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
- maxit = 10, tol = 0.001, sex.sp = F)
-
-cross.par <- calc.errorlod(cross.par, err=0.1)
-png(paste0('~/public_html/NBH_par_geno',i,'.png'),width=5000)
-plotGeno(cross.par, cex=2)
-dev.off()
-
-
-crs <- pull.markers(cross,gt.cp)
-ord <- order(as.numeric(gsub(".*:","",names(pull.map(crs)[[1]]))))
- crs<- switch.order(crs, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
- maxit = 10, tol = 0.001, sex.sp = F)
-
-
- loc.xocount <- crs$pheno$ID[order(countXO(crs))]
+##ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.par)[[1]]))))
+## cross.par <- switch.order(cross.par, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+## maxit = 10, tol = 0.001, sex.sp = F)
+##
+##cross.par <- calc.errorlod(cross.par, err=0.1)
+##png(paste0('~/public_html/NBH_par_geno',i,'.png'),width=5000)
+##plotGeno(cross.par, cex=2)
+##dev.off()
 
 png(paste0('~/public_html/NBH_noseg_geno',i,'.png'),width=5000,height=2000)
 plotGeno(crs ,ind=loc.xocount, cex=2)
 dev.off()
 
-
-
-
-fix.cross <- pull.geno(cross)[,gt.cp]
-one_pars <- cross$pheno$ID[order(rowSums(fix.cross==1 | fix.cross==3, na.rm=T))]
-
-cross$pheno$ID[9]
-
+pullgts <- pull.geno(cross)
+rownames(pullgts) <- cross$pheno$ID
 swit <- colnames(pullgts)[which(pullgts['NBH_NBH1M',]==1)]
 cross <- switchAlleles(cross, markers = swit)
 swit <- colnames(pullgts)[which(pullgts['NBH_NBH1F',]==3)]
@@ -113,6 +107,10 @@ likely.par.markers <- rownames(gtpar)[which(gtpar$AA==1 & gtpar$BB==1)]
 ################################################################################
 cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
 gts <- geno.table(cross)
+not_par <- gts[!rownames(gts) %in% likely.par.markers,]
+keep_seg <- rownames(not_par[-log(not_par$P.value) < 10,])
+keeps <- unique(c(likely.par.markers,keep_seg))
+cross <- pull.markers(cross,keeps)
 
  png(paste0('~/public_html/NBH_missing',i,'.png'))
  hist(gts$missing,breaks=30)
@@ -123,25 +121,18 @@ gts <- geno.table(cross)
  abline(v=5)
  dev.off()
 
-not_par <- gts[!rownames(gts) %in% likely.par.markers,]
-keep_seg <- rownames(not_par[-log(not_par$P.value) < 10,])
-keeps <- unique(c(likely.par.markers,keep_seg))
-cross <- pull.markers(cross,keeps)
+crossbk <- cross
+cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
+cross <- switchAlleles(cross, markers = markernames(cross,chr=2))
+cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
+cross <- switchAlleles(cross, markers = markernames(cross,chr=2))
+cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
 
-crs <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
-
-sum(likely.par.markers %in% markernames(crs,chr=3))
-
-crs <- switchAlleles(crs, markers = markernames(crs,chr=2))
-crs <- formLinkageGroups(crs, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
-crs <- switchAlleles(crs, markers = markernames(crs,chr=2))
-crs <- formLinkageGroups(crs, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
-
- crs <- subset(crs,chr=i)
- nmars <- nmar(crs)
+ cross <- subset(cross,chr=i)
+ nmars <- nmar(cross)
  ## initial order
- ord <- order(as.numeric(gsub(".*:","",names(pull.map(crs)[[1]]))))
- crs <- switch.order(crs, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+ ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
+ cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
   maxit = 10, tol = 0.001, sex.sp = F)
  ################################################################################
 
