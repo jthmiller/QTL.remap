@@ -181,7 +181,9 @@ final_marks <- data.frame(post_filt_marks, stringsAsFactors=T)
 
 for(i in 1:24){
  inchr <- i
- reorg.lg <- formLinkageGroups(subset(cross.4, chr=inchr), max.rf = 0.1, min.lod = 15, reorgMarkers = TRUE)
+ reorg.lg <- formLinkageGroups(subset(cross.4, chr=inchr), max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
+ reorg.lg <- switchAlleles(reorg.lg, markers = markernames(reorg.lg,chr=2))
+ reorg.lg <- formLinkageGroups(reorg.lg, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
 
  #png(paste0('~/public_html/ER_RF_LG_',i,'.png'))
  #plotRF(reorg.lg,chr=1:4)

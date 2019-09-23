@@ -61,7 +61,7 @@ drops <- unique(c(dp1,dp2))
 cross <- drop.markers(cross,drops)
 
 png(paste0('~/public_html/NBH_noseg_geno',i,'.png'),width=5000,height=2000)
-plotGeno(crs ,ind=loc.xocount, cex=2)
+plotGeno(cross ,ind=loc.xocount, cex=2)
 dev.off()
 
 pullgts <- pull.geno(cross)

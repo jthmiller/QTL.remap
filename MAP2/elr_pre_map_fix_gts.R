@@ -29,10 +29,22 @@ cross <- read.cross(
  cross <- subset(cross,chr=i)
  nmars <- nmar(cross)
  ## initial order
+
+if (i==1){
+ CHR1 <- colnames(pull.geno(cross))
+ CHR1[CHR1=="AHR2a_del"] <- 343745
+ ord <- order(as.numeric(gsub(".*:","",CHR1)))
+} else if (i==2){
+ CHR2 <- colnames(pull.geno(cross))
+ CHR2[CHR2=="AIP_261"] <- 29370504
+ CHR2[CHR2=="AIP_252"] <- 29370500
+ ord <- order(as.numeric(gsub(".*:","",CHR2)))
+} else {
  ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
+}
+
  cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
  maxit = 10, tol = 0.001, sex.sp = F)
-
 
  ################################################################################
  ################################################################################
@@ -84,7 +96,6 @@ cross <- read.cross(
 
  fl <- file.path(mpath,paste0(i,'ELR_unmapped_filtered_cleaned'))
  write.cross(cross,filestem=fl,format="csv")
-
 
 ################################################################################
 ### THIN MARKERS IF NEEDED #####################################################
