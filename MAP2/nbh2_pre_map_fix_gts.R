@@ -1,6 +1,5 @@
 #!/bin/R
-### Map QTLs 1 of 3
-debug.cross <- T
+
 pop <- 'NBH'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 
@@ -10,26 +9,19 @@ mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
 i <- commandArgs(TRUE)[commandArgs(TRUE) %in% c(1:24)]
 
-#cross <- read.cross.jm(file = file.path(indpops, paste0(pop, ".unphased.f2.csvr")),
-#format = "csvr", geno = c(1:3), estimate.map = FALSE)
-
-
 ################################################################################
 ## read in the QTL cross
 cross <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
   sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
 ################################################################################
 
-
-################################################################################
-################################################################################
 ################################################################################
  cross <- subset(cross,chr=i)
  #nmars <- nmar(cross)
  ### initial order
- #ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
- #cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
-#  maxit = 10, tol = 0.001, sex.sp = F)
+ ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
+ cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+  maxit = 10, tol = 0.001, sex.sp = F)
  #################################################################################
 
 ### Pull names from plinkfile
@@ -37,21 +29,6 @@ path <- file.path(indpops, paste(pop, ".ped", sep = ""))
 popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
 indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
 cross$pheno$ID <- paste(popname, indname, sep = "_")
-################################################################################
-
-################################################################################
-## FILTER TABLES
-################################################################################
-pullgts <- pull.geno(cross)
-rownames(pullgts) <- cross$pheno$ID
-
-filter_01 <- colnames(pullgts) %in% markernames(cross)
-names(filter_01) <- colnames(pullgts)
-marks_filt <- data.frame(filter_01, stringsAsFactors=F)
-
-parents_01 <- !is.na(cross$pheno$Phen)
-names(parents_01)  <- cross$pheno$ID
-ind_filt <- data.frame(parents_01,stringsAsFactors=F)
 ################################################################################
 
 #### PHENO #####################################################################
@@ -83,15 +60,6 @@ dp2 <- rownames(NBH_NBH1F)[which(NBH_NBH1F$AB==1 & NBH_NBH1M$BB==1)]
 drops <- unique(c(dp1,dp2))
 cross <- drop.markers(cross,drops)
 
-##ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.par)[[1]]))))
-## cross.par <- switch.order(cross.par, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
-## maxit = 10, tol = 0.001, sex.sp = F)
-##
-##cross.par <- calc.errorlod(cross.par, err=0.1)
-##png(paste0('~/public_html/NBH_par_geno',i,'.png'),width=5000)
-##plotGeno(cross.par, cex=2)
-##dev.off()
-
 png(paste0('~/public_html/NBH_noseg_geno',i,'.png'),width=5000,height=2000)
 plotGeno(crs ,ind=loc.xocount, cex=2)
 dev.off()
@@ -105,6 +73,7 @@ cross <- switchAlleles(cross, markers = swit)
 gtpar <- geno.table(subset(cross,ind=is.na(cross$pheno$Pheno)))
 likely.par.markers <- rownames(gtpar)[which(gtpar$AA==1 & gtpar$BB==1)]
 ################################################################################
+
 cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
 gts <- geno.table(cross)
 not_par <- gts[!rownames(gts) %in% likely.par.markers,]
@@ -128,30 +97,22 @@ cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TR
 cross <- switchAlleles(cross, markers = markernames(cross,chr=2))
 cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
 
- cross <- subset(cross,chr=i)
- nmars <- nmar(cross)
+cross <- subset(cross,chr=i)
+nmars <- nmar(cross)
  ## initial order
- ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
- cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
-  maxit = 10, tol = 0.001, sex.sp = F)
- ################################################################################
+ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
+cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+ maxit = 10, tol = 0.001, sex.sp = F)
+################################################################################
 
-
-geno.table(crs,chr=2)
-
-
-
-
-
-
- cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
+cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
 
  cross <- calc.errorlod(cross, err=0.01)
- png(paste0('~/public_html/ELR_gts_preclean',i,'.png'),height=2500,width=4500)
+ png(paste0('~/public_html/NBH_gts_preclean',i,'.png'),height=2500,width=4500)
  plotGeno(cross)
  dev.off()
 
- png(paste0('~/public_html/ELR_xo_a',i,'.png'))
+ png(paste0('~/public_html/NBH_xo_a',i,'.png'))
  hist(sort(table(unlist(locateXO(cross)))),breaks=30)
  dev.off()
 
@@ -170,7 +131,7 @@ geno.table(crs,chr=2)
  cross <- sim.geno(cross)
  cross <- calc.errorlod(cross, err=0.01)
 
- png(paste0('~/public_html/ELR_gts_preclean_droppedmark',i,'.png'),height=2500,width=4500)
+ png(paste0('~/public_html/NBH_gts_preclean_droppedmark',i,'.png'),height=2500,width=4500)
  plotGeno(cross)
  dev.off()
 
@@ -181,67 +142,79 @@ geno.table(crs,chr=2)
  cross <- cleanGeno_jm_2(cross, chr=i, maxdist=50, maxmark=4, verbose=TRUE)
  cross <- calc.errorlod(cross, err=0.025)
 
- png(paste0('~/public_html/ELR_clean.png'),height=2500,width=4000)
+ png(paste0('~/public_html/NBH_cleaned_',i,'.png'),height=2500,width=4000)
  plotGeno(cross,cex=3)
  dev.off()
 
- png(paste0('~/public_html/ELR_RF_clean',i,'.png'))
+ png(paste0('~/public_html/NBH_RF_clean',i,'.png'))
  plotRF(cross)
  dev.off()
 
- fl <- file.path(mpath,paste0(i,'ELR_unmapped_unfiltered'))
+ fl <- file.path(mpath,paste0(i,'NBH_unmapped_filtered_cleaned'))
  write.cross(cross,filestem=fl,format="csv")
 
 
 ################################################################################
 ### THIN MARKERS IF NEEDED #####################################################
 
-mp <- as.numeric(gsub(".*:",'',markernames(cross)))
-names(mp) <- markernames(cross)
-mp <- list(mp)
+cross.bk <- subset(cross,ind=!cross$pheno$ID %in% c())
+ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.bk)[[1]]))))
+cross.bk <- switch.order(cross.bk, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+maxit = 10, tol = 0.001, sex.sp = F)
+
+mp <- pull.map(cross.bk)
+vc <- as.numeric(gsub(".*:",'',names(mp[[as.character(i)]])))
+mp <- list(vc)
 names(mp) <- i
-cross <- replace.map(cross,mp)
 
-gts <- geno.table(cross)
-weight <- 1 - gts$missing/rowSums(gts[,c(3:5)])*10
+##attr(mp[[as.character(i)]], "loglik") <- -1028
+attr(mp[[as.character(i)]],"names") <- names(pull.map(cross.bk)[[as.character(i)]])
+attr(mp[[as.character(i)]],"class") <- "A"
+attr(mp, "class") <- "map"
 
-dwnsmpl <- pickMarkerSubset(pull.map(cross)[[1]],2000, weights=weight)
+cross.bk <- replace.map(cross.bk,mp)
 
-drops <- markernames(cross)[! markernames(cross) %in% dwnsmpl]
-cross.dwn <- drop.markers(cross,drops)
+gts <- geno.table(cross.bk)
+cross.bk <- calc.errorlod(cross.bk, err=0.01)
 
-cross.dwn <- calc.genoprob(cross.dwn)
-cross.dwn <- sim.geno(cross.dwn)
-cross.dwn <- calc.errorlod(cross.dwn, err=0.01)
+if( any( top.errorlod(cross.bk, cutoff=0)[,4] > 4)){
+ erlod <- top.errorlod(cross.bk)['errorlod']/10
+ erind <- !duplicated(top.errorlod(cross.bk)[,'marker'])
+ erlod <- erlod[erind,]
+ names(erlod) <- top.errorlod(cross.bk)[erind,'marker']
+ weight <- 1 - gts$missing/rowSums(gts[,c(3:5)])*10
+ weight[names(erlod)] <- weight[names(erlod)] - erlod
+} else {
+ weight <- 1 - gts$missing/rowSums(gts[,c(3:5)])*10
+}
 
-png(paste0('~/public_html/ELR_gts_CHR',i,'_downsmpl.png'),height=1500,width=4500)
-plotGeno(cross.dwn ,cex=3)
+dwnsmpl <- pickMarkerSubset(pull.map(cross.bk)[[1]],1000, weights=weight)
+
+################################################################################
+
+cross <- pull.markers(cross,dwnsmpl)
+cross <- calc.genoprob(cross)
+cross <- sim.geno(cross)
+cross <- calc.errorlod(cross, err=0.01)
+
+png(paste0('~/public_html/NBH_gts_CHR',i,'_downsmpl.unordered.png'),height=1500,width=4500)
+plotGeno(cross,cex=3)
 dev.off()
 
-#####MAP ########################################################################
+cross <- orderMarkers(cross, window=5,verbose=FALSE,chr=i,
+                 use.ripple=TRUE, error.prob=0.01, sex.sp=FALSE,
+                 map.function="kosambi",maxit=1000, tol=1e-4)
 
-cross.dwn <- subset(cross.dwn,ind=!cross$pheno$ID %in% c('ELR_10869','ELR_ER1124F','ELR_10977','ELR_10988','BLI_BI1124M'))
+cross <- calc.errorlod(cross, err=0.01)
 
-cross.dwn <- orderMarkers(cross.dwn, window=7,verbose=FALSE,chr=i,
-                 use.ripple=TRUE, error.prob=0.025, sex.sp=FALSE,
-                 map.function="kosambi",maxit=500, tol=1e-4)
+cross_map <-  est.map(cross,  error.prob=0.01,
+              map.function="kosambi",
+              maxit=10000, tol=1e-4, sex.sp=FALSE,
+              verbose=FALSE, omit.noninformative=TRUE, n.cluster=6)
 
-cross.dwn <- calc.genoprob(cross.dwn)
-cross.dwn <- sim.geno(cross.dwn)
-cross.dwn <- calc.errorlod(cross.dwn, err=0.01)
+cross <- qtl:::replace.map(cross,cross_map)
 
+filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/NBH_gts_CHR',i,'_downsmpl_map')
+write.cross(cross,chr=i,filestem=filename,format="csv")
 
-cross.dwn_map <-  est.map(cross.dwn,  error.prob=0.025,
-            map.function="kosambi",
-            maxit=10000, tol=1e-6, sex.sp=FALSE,
-            verbose=FALSE, omit.noninformative=TRUE, n.cluster=6)
-
- cross.dwn_map <- shiftmap(cross.dwn_map, offset=0)
-
-cross.dwn <- replace.map(cross, cross.dwn_map)
-
-filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_gts_CHR',i,'_downsmpl_map')
-write.cross(cross.dwn,chr=i,filestem=filename,format="csv")
-
-}
 ################################################################################

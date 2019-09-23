@@ -33,7 +33,7 @@ cross <- read.cross(
  cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
  maxit = 10, tol = 0.001, sex.sp = F)
 
- ##rm(cross.all)
+
  ################################################################################
  ################################################################################
 
@@ -89,19 +89,19 @@ cross <- read.cross(
 ################################################################################
 ### THIN MARKERS IF NEEDED #####################################################
 
-cross.bk.bk <- subset(cross.bk,ind=!cross.bk$pheno$ID %in% c('ELR_10869','ELR_ER1124F','ELR_10977','ELR_10988','BLI_BI1124M'))
+cross.bk <- subset(cross,ind=!cross$pheno$ID %in% c('ELR_10869','ELR_ER1124F','ELR_10977','ELR_10988','BLI_BI1124M'))
 ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.bk)[[1]]))))
 cross.bk <- switch.order(cross.bk, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
 maxit = 10, tol = 0.001, sex.sp = F)
 
 mp <- pull.map(cross.bk)
-vc <- as.numeric(gsub(".*:",'',names(mp$'3')))
+vc <- as.numeric(gsub(".*:",'',names(mp[[as.character(i)]]) ))
 mp <- list(vc)
 names(mp) <- i
 
-attr(mp$'3', "loglik") <- -1028
-attr(mp$'3',"names") <- names(pull.map(cross.bk)[[as.character(i)]])
-attr(mp$'3',"class") <- "A"
+attr(mp[[as.character(i)]], "loglik") <- -1
+attr(mp[[as.character(i)]],"names") <- names(pull.map(cross.bk)[[as.character(i)]])
+attr(mp[[as.character(i)]],"class") <- "A"
 attr(mp, "class") <- "map"
 
 cross.bk <- replace.map(cross.bk,mp)
@@ -121,11 +121,6 @@ if( any( top.errorlod(cross.bk, cutoff=0)[,4] > 4)){
 }
 
 dwnsmpl <- pickMarkerSubset(pull.map(cross.bk)[[1]],1000, weights=weight)
-cross <- calc.errorlod(cross.bk, err=0.01)
-
-png(paste0('~/public_html/ELR_gts_CHR',i,'_downsmpl.unordered.png'),height=1500,width=4500)
-plotGeno(cross.bk ,cex=3)
-dev.off()
 
 #####MAP ########################################################################
 cross <- pull.markers(cross,dwnsmpl)
@@ -133,27 +128,22 @@ cross <- calc.genoprob(cross)
 cross <- sim.geno(cross)
 cross <- calc.errorlod(cross, err=0.01)
 
+png(paste0('~/public_html/ELR_gts_CHR',i,'_downsmpl.unordered.png'),height=1500,width=4500)
+plotGeno(cross,cex=3)
+dev.off()
+
 cross <- orderMarkers(cross, window=5,verbose=FALSE,chr=i,
                  use.ripple=TRUE, error.prob=0.01, sex.sp=FALSE,
                  map.function="kosambi",maxit=1000, tol=1e-4)
 
-
-
 cross <- calc.errorlod(cross, err=0.01)
-
-cross <- shiftmap(cross, offset=0)
 
 cross_map <-  est.map(cross,  error.prob=0.01,
               map.function="kosambi",
               maxit=10000, tol=1e-4, sex.sp=FALSE,
               verbose=FALSE, omit.noninformative=TRUE, n.cluster=6)
 
-try <- pull.map(cross.bk)
-replace.map(cross.bk,try)
- 
 cross <- qtl:::replace.map(cross,cross_map)
-
-cross_map <- shiftmap(cross, offset=0)
 
 filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_gts_CHR',i,'_downsmpl_map')
 write.cross(cross,chr=i,filestem=filename,format="csv")
