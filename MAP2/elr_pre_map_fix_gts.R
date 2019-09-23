@@ -10,10 +10,6 @@ mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
 i <- commandArgs(TRUE)[commandArgs(TRUE) %in% c(1:24)]
 
-#cross <- read.cross.jm(file = file.path(indpops, paste0(pop, ".unphased.f2.csvr")),
-#format = "csvr", geno = c(1:3), estimate.map = FALSE)
-
-
 fl <- file.path(mpath,'ELR_unmapped_filtered_added_markers.csv')
 
 cross <- read.cross(
@@ -26,8 +22,8 @@ cross <- read.cross(
 ################################################################################
 ################################################################################
 
- cross <- subset(cross,chr=i)
- nmars <- nmar(cross)
+cross <- subset(cross,chr=i)
+nmars <- nmar(cross)
  ## initial order
 
 if (i==1){
@@ -43,59 +39,59 @@ if (i==1){
  ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
 }
 
- cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
- maxit = 10, tol = 0.001, sex.sp = F)
+cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
+maxit = 10, tol = 0.001, sex.sp = F)
 
  ################################################################################
  ################################################################################
 
- cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
+cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
 
- cross <- calc.errorlod(cross, err=0.01)
- png(paste0('~/public_html/ELR_gts_preclean',i,'.png'),height=2500,width=4500)
- plotGeno(cross)
- dev.off()
+cross <- calc.errorlod(cross, err=0.01)
+png(paste0('~/public_html/ELR_gts_preclean',i,'.png'),height=2500,width=4500)
+plotGeno(cross)
+dev.off()
 
- png(paste0('~/public_html/ELR_xo_a',i,'.png'))
- hist(sort(table(unlist(locateXO(cross)))),breaks=30)
- dev.off()
+png(paste0('~/public_html/ELR_xo_a',i,'.png'))
+hist(sort(table(unlist(locateXO(cross)))),breaks=30)
+dev.off()
 
- loc.xocount <- table(unlist(locateXO(cross)))
+loc.xocount <- table(unlist(locateXO(cross)))
 
- marker <- sapply(as.numeric(names(loc.xocount)),function(X){
+marker <- sapply(as.numeric(names(loc.xocount)),function(X){
   find.marker(cross, chr=i, pos=X) })
 
- dropdf <- data.frame(loc.xocount,marker,stringsAsFactors=F)
+dropdf <- data.frame(loc.xocount,marker,stringsAsFactors=F)
 
- dropdf$tot <- sapply(dropdf$mark, function(X){ sum(table(pull.geno(cross,i)[,X]))})
- drops <- unique(dropdf[dropdf$Freq/dropdf$tot > 0.10,'marker'])
+dropdf$tot <- sapply(dropdf$mark, function(X){ sum(table(pull.geno(cross,i)[,X]))})
+drops <- unique(dropdf[dropdf$Freq/dropdf$tot > 0.10,'marker'])
 
- cross <- drop.markers(cross,drops)
- cross <- calc.genoprob(cross)
- cross <- sim.geno(cross)
- cross <- calc.errorlod(cross, err=0.01)
+cross <- drop.markers(cross,drops)
+cross <- calc.genoprob(cross)
+cross <- sim.geno(cross)
+cross <- calc.errorlod(cross, err=0.01)
 
- png(paste0('~/public_html/ELR_gts_preclean_droppedmark',i,'.png'),height=2500,width=4500)
- plotGeno(cross)
- dev.off()
+png(paste0('~/public_html/ELR_gts_preclean_droppedmark',i,'.png'),height=2500,width=4500)
+plotGeno(cross)
+dev.off()
 
- cross <- cleanGeno_jm(cross, chr=i, maxdist=100, maxmark=8, verbose=TRUE)
- cross <- calc.errorlod(cross, err=0.025)
- cross <- removeDoubleXO(cross)
- cross <- calc.errorlod(cross, err=0.025)
- cross <- cleanGeno_jm_2(cross, chr=i, maxdist=50, maxmark=4, verbose=TRUE)
- cross <- calc.errorlod(cross, err=0.025)
+cross <- cleanGeno_jm(cross, chr=i, maxdist=100, maxmark=8, verbose=TRUE)
+cross <- calc.errorlod(cross, err=0.025)
+cross <- removeDoubleXO(cross)
+cross <- calc.errorlod(cross, err=0.025)
+cross <- cleanGeno_jm_2(cross, chr=i, maxdist=50, maxmark=4, verbose=TRUE)
+cross <- calc.errorlod(cross, err=0.025)
 
- png(paste0('~/public_html/ELR_cleaned_',i,'.png'),height=2500,width=4000)
- plotGeno(cross,cex=3)
- dev.off()
+png(paste0('~/public_html/ELR_cleaned_',i,'.png'),height=2500,width=4000)
+plotGeno(cross,cex=3)
+dev.off()
 
- png(paste0('~/public_html/ELR_RF_clean',i,'.png'))
- plotRF(cross)
- dev.off()
+png(paste0('~/public_html/ELR_RF_clean',i,'.png'))
+plotRF(cross)
+dev.off()
 
- fl <- file.path(mpath,paste0(i,'ELR_unmapped_filtered_cleaned'))
- write.cross(cross,filestem=fl,format="csv")
+fl <- file.path(mpath,paste0(i,'ELR_unmapped_filtered_cleaned'))
+write.cross(cross,filestem=fl,format="csv")
 
 ################################################################################
 ### THIN MARKERS IF NEEDED #####################################################

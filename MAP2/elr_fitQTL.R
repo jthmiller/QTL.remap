@@ -5,11 +5,11 @@
 library('qtl')
 pop <- 'ELR'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
+mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
 ################################################################################
-## unmapped
+## put chromosomes together
 ################################################################################
-mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
 file_list <- gsub('.csv','',list.files(mpath, '*downsmpl_map*'))
 file_list <- list.files(mpath, '*downsmpl_map*',include.dirs = T)
@@ -17,7 +17,7 @@ file_list <- list.files(mpath, '*downsmpl_map*',include.dirs = T)
 chr <- gsub("ELR_gts_CHR",'',file_list)
 chr <- as.numeric(gsub("_downsmpl_map",'',chr))
 
-elr <- lapply(file_list[-1],function(X){ read.cross(file=X,format = "csv", dir=mpath, genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)})
+elr <- lapply(file_list,function(X){ read.cross(file=X,format = "csv", dir=mpath, genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)})
 
 gnos <- lapply(elr,function(X){
  data.frame(X[[1]][[1]][['data']],stringsAsFactors=F)
@@ -25,8 +25,6 @@ gnos <- lapply(elr,function(X){
 gnos <- do.call(cbind,gnos)
 gnos <- cbind(elr[[1]]$pheno,gnos)
 gnos$ID <- as.character(gnos$ID)
-
-ty <- as.character(gnos)
 
 m_names <- unlist(sapply(elr,function(X){
  markernames(X)
@@ -43,7 +41,7 @@ colnames(headers) <- headers[1,]
 headers[2:3,1:5] <- ''
 
 headers.u <- unname(data.frame(headers,row.names=NULL,stringsAsFactors=FALSE))
-gnos.u <- unname(data.frame(lapply(gnos.u, as.character),row.names=NULL,stringsAsFactors=FALSE))
+gnos.u <- unname(data.frame(lapply(gnos, as.character),row.names=NULL,stringsAsFactors=FALSE))
 colnames(headers.u) <- colnames(gnos.u) <- headers.u[1,]
 to_write <- rbind(headers.u,gnos.u)
 
@@ -59,97 +57,145 @@ cross <- read.cross(
  estimate.map = FALSE
 )
 
+cross <- sim.geno(cross)
 
 
+################################################################################
+## SCAN
 ################################################################################
 
 cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
 cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
 
-## rf.1 <- est.rf(subset(cross,chr=1), maxit=1000, tol=1e-6)
-## rf.2 <- est.rf(subset(cross,chr=2), maxit=1000, tol=1e-6)
-## rf.8 <- est.rf(subset(cross,chr=8), maxit=1000, tol=1e-6)
-## rf.18 <- est.rf(subset(cross,chr=18), maxit=1000, tol=1e-6)
-## rf.13 <- est.rf(subset(cross,chr=13), maxit=1000, tol=1e-6)
-## save.image(file.path(mpath,'ER_chrFR.rsave'))
-
-##################################################################################
-#### read in the QTL cross
-##################################################################################
-##mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
-##fl <- file.path(mpath,'ELR_unmapped_filtered.csv')
-##
-##cross <- read.cross(
-## file = fl,
-## format = "csv", genotypes=c("AA","AB","BB"), alleles=c("A","B"),
-## estimate.map = FALSE
-##)
-##################################################################################
-
-## UNFILTERED
-##################################################################################
-#### read in the QTL cross
-## cross <- read.cross.jm(file = file.path(indpops, paste(pop, ".unphased.f2.csvr",
-##  sep = "")), format = "csvr", geno = c(1:3), estimate.map = FALSE)
-##################################################################################
-##################################################################################
-##### Pull names from plinkfile
-##path <- file.path(indpops, paste(pop, ".ped", sep = ""))
-##popname <- system(paste("cut -f1 -d' '", path), intern = TRUE)
-##indname <- system(paste("cut -f2 -d' '", path), intern = TRUE)
-##cross$pheno$ID <- paste(popname, indname, sep = "_")
-##################################################################################
-##
-###### PHENO #####################################################################
-##cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
-##cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
-##################################################################################
-##
-## #### FITER ########################################################################
-## marks <- read.table('/home/jmiller1/QTL_Map_Raw/ELR_final_map/goodmarks.rtable',stringsAsFactors=F)
-## inds <- read.table('/home/jmiller1/QTL_Map_Raw/ELR_final_map/goodsamps.rtable',stringsAsFactors=F)
-## ####################################################################################
-## drops <- markernames(cross)[!markernames(cross) %in%  marks[,1]]
-## cross <- drop.markers(cross,drops)
-## cross <- subset(cross, ind= !is.na(cross$pheno$Pheno))
-##
-## ################################################################################
-dups <- findDupMarkers(cross, exact.only = F, adjacent.only = F)
-cross <- drop.markers(cross, unlist(dups))
-##
-cross <- subset(cross, ind=nmissing(cross)<5000)
-cross <- calc.genoprob(cross,error.prob=0.05)
-cross <- sim.geno(cross,error.prob=0.05)
 ################################################################################
 perms.bin.em <- scanone(cross, method = "em", model = "binary", maxit = 100,
-  n.perm = 5, pheno.col = 4, n.cluster = 2)
+  n.perm = 100, pheno.col = 4, n.cluster = 6)
+perms.norm.em <- scanone(cross, method = "em", model = "normal", maxit = 100,
+  n.perm = 100, pheno.col = 5, n.cluster = 6)
 
+## binary
 scan.bin.em <- scanone(cross, method = "em", model = "binary", pheno.col = 4)
-scan.norm.em <- scanone(cross, method = "em", model = "normal", pheno.col = 5)
+scan.bin.imp <- scanone(cross, method = "imp", model = "binary", pheno.col = 4)
 scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
+
+## normal
+scan.norm.em <- scanone(cross, method = "em", model = "normal", pheno.col = 5)
 scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 scan.norm.imp <- scanone(cross, method = "imp", model = "normal", pheno.col = 5)
-scan.bin.imp <- scanone(cross, method = "imp", model = "binary", pheno.col = 4)
+scan.norm.ehk <- scanone(cross.18, method = "ehk", model = "normal", maxit = 5000,
+  pheno.col = 5)
+## non-parametric
+scan.np.em <- scanone(cross, method = "em", model = "np", pheno.col = 4, maxit = 5000)
+scan.np.em <- scanone(cross, method = "em", model = "np", pheno.col = 5, maxit = 5000)
+## step-wise
+
+full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
+full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
+
+## manual
+qtl <- makeqtl(cross, chr=c(18,13), pos=c(3.63,119.685701),  what="draws")
+fitted <- fitqtl(cross,qtl=qtl, formula=y~Q1+Q2)
+
+out.a <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="binary",pheno.col=4)
+out.ia <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q1:Q3, method="imp",model="binary",pheno.col=4)
+out.ib <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q2:Q3, method="imp",model="binary",pheno.col=4)
+
+qtl <- makeqtl(cross, chr=c(13), pos=c(119.68569),  what="draws")
+out.i.18 <- addqtl(cross, qtl=qtl, formula=y~Q1*Q2, method="imp",model="normal",pheno.col=5)
+out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="normal",pheno.col=5)
+####################################################################################
 
 
-cbind(summary(scan.bin.em),a=summary(scan.norm.em)[,3],b=summary(scan.bin.mr)[,3],c=summary(scan.np.mr )[,3])
+
+####################################################################################
+z <- cbind(summary(scan.norm.em),a=summary(scan.norm.mr)[,3],b=summary(scan.norm.imp)[,3])
+z <- cbind(z, (z$lod + z$a + z$b)/3)
+cbind(summary(scan.bin.em),a=summary(scan.norm.em)[,3],b=summary(scan.bin.mr)[,3])
+
+full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
+full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
+
+full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "hk", pheno.col = 5, scan.pairs = T, max.qtl=6)
+full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "hk", pheno.col = 4, scan.pairs = T, max.qtl=6)
+
+
+cross <- sim.geno(cross)
+full.norm <- stepwiseqtl(cross, additive.only = F, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
+full.bin <- stepwiseqtl(cross, additive.only = F, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
+save.image(file.path(mpath,'scans.elr.rsave'))
+
 ################################################################################
-
-qtl <- makeqtl(cross, chr=18, pos=1587.8,  what="draws")
-
+cross <- sim.geno(cross)
+qtl <- makeqtl(cross, chr=c(18,13), pos=c(119.685701,119.685701),  what="draws")
 out.i.18 <- addqtl(cross, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",pheno.col=4)
-out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="binary",pheno.col=4)
+out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2*Q3, method="imp",model="binary",pheno.col=4)
 
+cross <- sim.geno(cross)
+qtl <- makeqtl(cross, chr=c(13), pos=c(119.68569),  what="draws")
 out.i.18 <- addqtl(cross, qtl=qtl, formula=y~Q1*Q2, method="imp",model="normal",pheno.col=5)
 out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="normal",pheno.col=5)
 
+cross <- sim.geno(cross)
+qtl <- makeqtl(cross, chr=c(13,18,23), pos=c(90.5,8.3,66.4), what="draws")
+
+## scan for more additive qtl
+out.a <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q3, method="imp",model="normal",pheno.col=5)
+### suggests weak qtl on 2?
+qtl2 <- makeqtl(cross, chr=c(13,18,23,2), pos=c(90.5,8.3,66.4,52.6229), what="draws")
+out.add.4 <- addqtl(cross, qtl=qtl2, formula=y~Q1+Q2+Q3+Q4, method="imp",model="normal",pheno.col=5)
+
+addint(cross,qtl=qtl2, formula=y~Q1+Q2+Q3+Q4)
+
+out.aq <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q3+Q1:Q2)
+
+addint(cross, qtl=qtl, formula=y~Q1+Q2+Q3+Q1:Q2)
+
+fitqtl(cross,qtl=qtl2)
+
+
+int <- summary(out.i.18)
+add <- summary(out.a.18)
+
+cbind(int,add, int$lod-add$lod)
 ################################################################################
 ################################################################################
 
+
+cross.bk <- cross
+cross <- switchAlleles(cross, markers = markernames(cross,chr=8))
+
+
+png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
+plotPXG(cross,c('23:29198861','2:33206497'),pch=18,jitter=2,infer=F)
+dev.off()
+
+png(paste0('~/public_html/ELR_MR.png'),width=2000)
+plot(scan.norm.mr)
+dev.off()
+f
+67gv
+
+png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
+plotPXG(cross,c('8:16768182'),pch=18,jitter=2,infer=F)
+dev.off()
+
+2:33206497
+23:29198861
+'8:16768182'
+'8:35102512'
+c('18:20509118','13:13194338')
+c('13:3456858','20:2544767')
+
+geno.crosstab(cross.bk,c('13:3456858','23:30443925'))
+
+geno.crosstab(cross.bk,c('23:29198861','2:33206497'))
+
+
 scan.norm.em <- scanone(cross.18, method = "em", model = "normal", maxit = 5000,
   pheno.col = 5)
+
 ### Normal scan on transformed phenotype w/Extended haley knott (better for
-### selective/missing genos at non-gt'ed ind)
+### selective/missing genos at non-gted ind)
 scan.norm.ehk <- scanone(cross.final.nodups, method = "ehk", model = "normal", maxit = 5000, pheno.col = 5)
 
 ### Normal scan on transformed phenotype fast haley knott (not robust to missing

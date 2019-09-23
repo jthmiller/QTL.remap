@@ -31,3 +31,39 @@ sourceDir <- function(path, trace = TRUE, ...) {
 }
 
 sourceDir("doParallel/R")
+
+dropByDropone<-function(cross, droponeRes,
+                        endMarkerThresh = 12, midMarkerThresh = 4,
+                        which.map = NULL,
+                        map.function = "kosambi", re.est.map = F, sex.sp=F,
+                        ...){
+
+  if(class(cross)[1] == "4way"){
+    if(is.null(which.map)){
+      which.map<-"Ldiff.female"
+    }
+    ldCol = which(colnames(droponeRes)==which.map)
+    map<-lapply(pull.map(cross), colnames)
+  }else{
+    ldCol = which(colnames(droponeRes)=="Ldiff")
+    map<-lapply(pull.map(cross), names)
+  }
+
+  endMars<-unlist(lapply(map, function(x) c(x[1],x[length(x)])))
+
+  todrop<-rownames(
+    droponeRes[droponeRes[,ldCol]>midMarkerThresh,])
+  todrop<-todrop[!todrop %in% endMars]
+  tail2drop<-rownames(
+    droponeRes[rownames(droponeRes) %in% endMars &
+                 droponeRes[,ldCol]>endMarkerThresh,])
+
+  cross<-drop.markers(cross, c(todrop,tail2drop))
+
+  if(re.est.map){
+    map<-est.map(cross, map.function = "kosambi", sex.sp=F, ...)
+    cross<-replace.map(cross, map)
+  }
+
+  return(cross)
+}
