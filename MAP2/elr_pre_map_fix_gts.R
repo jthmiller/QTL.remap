@@ -97,7 +97,20 @@ write.cross(cross,filestem=fl,format="csv")
 ### THIN MARKERS IF NEEDED #####################################################
 
 cross.bk <- subset(cross,ind=!cross$pheno$ID %in% c('ELR_10869','ELR_ER1124F','ELR_10977','ELR_10988','BLI_BI1124M'))
-ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.bk)[[1]]))))
+
+if (i==1){
+ CHR1 <- colnames(pull.geno(cross.bk))
+ CHR1[CHR1=="AHR2a_del"] <- 343745
+ ord <- order(as.numeric(gsub(".*:","",CHR1)))
+} else if (i==2){
+ CHR2 <- colnames(pull.geno(cross.bk))
+ CHR2[CHR2=="AIP_261"] <- 29370504
+ CHR2[CHR2=="AIP_252"] <- 29370500
+ ord <- order(as.numeric(gsub(".*:","",CHR2)))
+} else {
+ ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross.bk)[[1]]))))
+}
+
 cross.bk <- switch.order(cross.bk, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
 maxit = 10, tol = 0.001, sex.sp = F)
 

@@ -67,3 +67,30 @@ dropByDropone<-function(cross, droponeRes,
 
   return(cross)
 }
+
+refine_maps <- function(X){
+
+ tmp <- orderMarkers(X, window=4,verbose=FALSE,
+                 use.ripple=FALSE, error.prob=0.01, sex.sp=FALSE,
+                 map.function="kosambi",maxit=1000, tol=1e-3)
+
+ tmp <- calc.errorlod(tmp, err=0.01)
+
+ tmp_map <-  est.map(tmp, error.prob=0.01,
+              map.function="kosambi",
+              maxit=1000, tol=1e-4, sex.sp=FALSE,
+              verbose=FALSE, n.cluster=6)
+
+ tmp <- qtl:::replace.map(tmp,tmp_map)
+
+ drp1 <- droponemarker(tmp, error.prob=0.01,
+                    map.function="kosambi",
+                    maxit=1000, tol=1e-3, sex.sp=FALSE,
+                    verbose=FALSE)
+
+ dropByDropone(tmp, drp1, endMarkerThresh = 20,
+  midMarkerThresh = 20, map.function = "kosambi",
+  re.est.map = T, error.prob=0.01,maxit=1000, tol=1e-4, sex.sp=FALSE,
+  verbose=FALSE, n.cluster=6)
+
+}

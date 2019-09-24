@@ -11,11 +11,10 @@ mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 ## put chromosomes together
 ################################################################################
 
-file_list <- gsub('.csv','',list.files(mpath, '*downsmpl_map*'))
-file_list <- list.files(mpath, '*downsmpl_map*',include.dirs = T)
+file_list <- list.files(mpath, 'ELR.*downsmpl_map.*')
 
 chr <- gsub("ELR_gts_CHR",'',file_list)
-chr <- as.numeric(gsub("_downsmpl_map",'',chr))
+chr <- as.numeric(gsub("_downsmpl_map.csv",'',chr))
 
 elr <- lapply(file_list,function(X){ read.cross(file=X,format = "csv", dir=mpath, genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)})
 
@@ -45,7 +44,6 @@ gnos.u <- unname(data.frame(lapply(gnos, as.character),row.names=NULL,stringsAsF
 colnames(headers.u) <- colnames(gnos.u) <- headers.u[1,]
 to_write <- rbind(headers.u,gnos.u)
 
-
 write.table(to_write,file.path(mpath,'elr.mapped.1_24.csv'),sep=',',row.names=F,quote=F,col.names = F)
 
 
@@ -59,19 +57,7 @@ cross <- read.cross(
 
 cross <- sim.geno(cross)
 
-
 ################################################################################
-## SCAN
-################################################################################
-
-cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
-cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
-
-################################################################################
-perms.bin.em <- scanone(cross, method = "em", model = "binary", maxit = 100,
-  n.perm = 100, pheno.col = 4, n.cluster = 6)
-perms.norm.em <- scanone(cross, method = "em", model = "normal", maxit = 100,
-  n.perm = 100, pheno.col = 5, n.cluster = 6)
 
 ## binary
 scan.bin.em <- scanone(cross, method = "em", model = "binary", pheno.col = 4)
@@ -82,207 +68,87 @@ scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
 scan.norm.em <- scanone(cross, method = "em", model = "normal", pheno.col = 5)
 scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 scan.norm.imp <- scanone(cross, method = "imp", model = "normal", pheno.col = 5)
-scan.norm.ehk <- scanone(cross.18, method = "ehk", model = "normal", maxit = 5000,
-  pheno.col = 5)
+scan.norm.ehk <- scanone(cross, method = "ehk", model = "normal", maxit = 5000, pheno.col = 5)
+
 ## non-parametric
-scan.np.em <- scanone(cross, method = "em", model = "np", pheno.col = 4, maxit = 5000)
-scan.np.em <- scanone(cross, method = "em", model = "np", pheno.col = 5, maxit = 5000)
+scan.np.em.b <- scanone(cross, method = "em", model = "np", pheno.col = 4, maxit = 5000)
+scan.np.em.n <- scanone(cross, method = "em", model = "np", pheno.col = 5, maxit = 5000)
+
 ## step-wise
+full.norm.add_only <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=5)
+full.bin.add_only <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=5)
 
-full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
-full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
-
-## manual
-qtl <- makeqtl(cross, chr=c(18,13), pos=c(3.63,119.685701),  what="draws")
-fitted <- fitqtl(cross,qtl=qtl, formula=y~Q1+Q2)
-
-out.a <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="binary",pheno.col=4)
-out.ia <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q1:Q3, method="imp",model="binary",pheno.col=4)
-out.ib <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q2:Q3, method="imp",model="binary",pheno.col=4)
-
-qtl <- makeqtl(cross, chr=c(13), pos=c(119.68569),  what="draws")
-out.i.18 <- addqtl(cross, qtl=qtl, formula=y~Q1*Q2, method="imp",model="normal",pheno.col=5)
-out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="normal",pheno.col=5)
-####################################################################################
-
-
-
-####################################################################################
-z <- cbind(summary(scan.norm.em),a=summary(scan.norm.mr)[,3],b=summary(scan.norm.imp)[,3])
-z <- cbind(z, (z$lod + z$a + z$b)/3)
-cbind(summary(scan.bin.em),a=summary(scan.norm.em)[,3],b=summary(scan.bin.mr)[,3])
-
-full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
-full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
-
-full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "hk", pheno.col = 5, scan.pairs = T, max.qtl=6)
-full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "hk", pheno.col = 4, scan.pairs = T, max.qtl=6)
-
-
-cross <- sim.geno(cross)
-full.norm <- stepwiseqtl(cross, additive.only = F, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
-full.bin <- stepwiseqtl(cross, additive.only = F, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
 save.image(file.path(mpath,'scans.elr.rsave'))
 
-################################################################################
-cross <- sim.geno(cross)
-qtl <- makeqtl(cross, chr=c(18,13), pos=c(119.685701,119.685701),  what="draws")
-out.i.18 <- addqtl(cross, qtl=qtl, formula=y~Q1*Q2, method="imp",model="binary",pheno.col=4)
-out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2*Q3, method="imp",model="binary",pheno.col=4)
+## PERMS
+perms.bin.em <- scanone(cross, method = "em", model = "binary", maxit = 1000,
+  n.perm = 1000, pheno.col = 4, n.cluster = 6)
+perms.norm.em <- scanone(cross, method = "em", model = "normal", maxit = 1000,
+  n.perm = 1000, pheno.col = 5, n.cluster = 6)
 
-cross <- sim.geno(cross)
-qtl <- makeqtl(cross, chr=c(13), pos=c(119.68569),  what="draws")
-out.i.18 <- addqtl(cross, qtl=qtl, formula=y~Q1*Q2, method="imp",model="normal",pheno.col=5)
-out.a.18 <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2, method="imp",model="normal",pheno.col=5)
+save.image(file.path(mpath,'scans.elr.rsave'))
 
-cross <- sim.geno(cross)
-qtl <- makeqtl(cross, chr=c(13,18,23), pos=c(90.5,8.3,66.4), what="draws")
+full.norm <- stepwiseqtl(cross, additive.only = F, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
 
-## scan for more additive qtl
-out.a <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q3, method="imp",model="normal",pheno.col=5)
-### suggests weak qtl on 2?
-qtl2 <- makeqtl(cross, chr=c(13,18,23,2), pos=c(90.5,8.3,66.4,52.6229), what="draws")
-out.add.4 <- addqtl(cross, qtl=qtl2, formula=y~Q1+Q2+Q3+Q4, method="imp",model="normal",pheno.col=5)
+save.image(file.path(mpath,'scans.elr.rsave'))
 
-addint(cross,qtl=qtl2, formula=y~Q1+Q2+Q3+Q4)
+full.bin <- stepwiseqtl(cross, additive.only = F, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
 
-out.aq <- addqtl(cross, qtl=qtl, formula=y~Q1+Q2+Q3+Q1:Q2)
+save.image(file.path(mpath,'scans.elr.rsave'))
 
-addint(cross, qtl=qtl, formula=y~Q1+Q2+Q3+Q1:Q2)
+full.norm.int <- stepwiseqtl(cross, additive.only = F, model='normal', method = "hk", pheno.col = 5, scan.pairs = T, max.qtl=6)
 
-fitqtl(cross,qtl=qtl2)
+save.image(file.path(mpath,'scans.elr.rsave'))
 
+full.bin.int <- stepwiseqtl(cross, additive.only = F, model='binary', method = "hk", pheno.col = 4, scan.pairs = T, max.qtl=6)
 
-int <- summary(out.i.18)
-add <- summary(out.a.18)
+save.image(file.path(mpath,'scans.elr.rsave'))
 
-cbind(int,add, int$lod-add$lod)
-################################################################################
-################################################################################
 
+sc2_normal_mr <- scantwo(cross, pheno.col=5, model="normal",
+             method="mr",
+             addcovar=NULL, intcovar=NULL, weights=NULL,
+             use="complete.obs",
+             incl.markers=TRUE, clean.output=FALSE,
+             clean.nmar=1, clean.distance=0,
+             maxit=1000, tol=1e-4,
+             verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=6)
 
-cross.bk <- cross
-cross <- switchAlleles(cross, markers = markernames(cross,chr=8))
+sc2_binary_mr <- scantwo(cross, pheno.col=4, model="binary",
+             method="mr",
+             addcovar=NULL, intcovar=NULL, weights=NULL,
+             use="complete.obs",
+             incl.markers=TRUE, clean.output=FALSE,
+             clean.nmar=1, clean.distance=0,
+             maxit=1000, tol=1e-4,
+             verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=6)
 
+save.image(file.path(mpath,'scans.elr.rsave'))
 
-png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
-plotPXG(cross,c('23:29198861','2:33206497'),pch=18,jitter=2,infer=F)
-dev.off()
+# MQM
+crossaug <- mqmaugment(cross,strategy='drop')  # Augmentation
 
-png(paste0('~/public_html/ELR_MR.png'),width=2000)
-plot(scan.norm.mr)
-dev.off()
-f
-67gv
+result <- mqmscan(crossaug)    # Scan
+    # show LOD interval of the QTL on chr 3
 
-png(paste0('~/public_html/ELR_multi_imputation_interaction_lod.png'))
-plotPXG(cross,c('8:16768182'),pch=18,jitter=2,infer=F)
-dev.off()
+mq.add <- mqmscan(crossaug, cofactors=NULL, pheno.col = 5,
+      model=c("additive"), forceML=FALSE,
+      cofactor.significance=0.02, em.iter=1000,
+      window.size=25.0, step.size=5.0,
+      logtransform = FALSE, estimate.map = FALSE,
+      plot=FALSE, verbose=FALSE, outputmarkers=TRUE,
+      multicore=TRUE, batchsize=10, n.clusters=6, test.normality=FALSE,off.end=0
+      )
 
-2:33206497
-23:29198861
-'8:16768182'
-'8:35102512'
-c('18:20509118','13:13194338')
-c('13:3456858','20:2544767')
+mq.dom <- mqmscan(crossaug, cofactors=NULL, pheno.col = 5,
+      model="dominance", forceML=FALSE,
+      cofactor.significance=0.02, em.iter=1000,
+      window.size=25.0, step.size=5.0,
+      logtransform = FALSE, estimate.map = FALSE,
+      plot=FALSE, verbose=FALSE, outputmarkers=TRUE,
+      multicore=TRUE, batchsize=10, n.clusters=6, test.normality=FALSE,off.end=0
+      )
 
-geno.crosstab(cross.bk,c('13:3456858','23:30443925'))
-
-geno.crosstab(cross.bk,c('23:29198861','2:33206497'))
-
-
-scan.norm.em <- scanone(cross.18, method = "em", model = "normal", maxit = 5000,
-  pheno.col = 5)
-
-### Normal scan on transformed phenotype w/Extended haley knott (better for
-### selective/missing genos at non-gted ind)
-scan.norm.ehk <- scanone(cross.final.nodups, method = "ehk", model = "normal", maxit = 5000, pheno.col = 5)
-
-### Normal scan on transformed phenotype fast haley knott (not robust to missing
-### data. LOD inflation)
-scan.norm.hk <- scanone(cross.18, method = "hk", model = "normal", maxit = 5000,
-  pheno.col = 6)
-
-################################################################################
-################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-##############################
-##############################
-pos <- as.numeric(gsub(".*:","",rownames(gt.missing)))
-names(pos) <- rownames(gt.missing)
-head(sort(abs(pos -  343835)))
-
-1:317181
-
-1:363497
-
-crs.bk
-
-chr1gts <- pull.geno(crs.bk, 1)
-
-chr1phn <- pull.pheno(crs.bk, 1)
-
-
-
-chr1gts <- pull.geno(cross.18, 1)
-
-chr1phn <- pull.pheno(cross.18, 1)
-
-
-AHR <- cbind(chr1phn,chr1gts[,'1:317181'],chr1gts[,'1:363497'])
-
-AHR <- cbind(chr1phn,chr1gts[,'1:317181'],chr1gts[,'1:363497'])
-AHR <- AHR[order(AHR[,1]),]
-
-table(AHR[AHR[,1]<2,3])
-table(AHR[AHR[,1]>2,3])
-
-table(AHR[AHR[,1]==0,3])
-table(AHR[AHR[,1]==1,3])
-table(AHR[AHR[,1]==4,3])
-table(AHR[AHR[,1]==5,3])
-
-chr1.pars <- pull.geno(cross.pars, 1)
-rbind(chr1.pars[,'1:317181'], chr1.pars[,'1:363497'])
-
-TAKE THE HOMZYGOUS GENOTYPES FOR THE ONE PARENT AND SEE IF THEY TEND TOWARD 1:2:1 compared to
-het in parent.
-
-AHR[,1] <- as.factor(AHR[,1])
-AHR[,2] <- as.factor(AHR[,2])
-AHR[,3] <- as.factor(AHR[,3])
-
-png('~/public_html/ER_AHR.png')
-plot(table(AHR[AHR[,1]<2,2]))
-dev.off()
-
-for(
-table(AHR[,1])
-
-print("Removing duplicates")
-##dups <- findDupMarkers(cross.18, exact.only = F, adjacent.only = F)
-##cross.18 <- drop.markers(cross.18, unlist(dups))
-##confirm ahr2a 343745   343931 AHR2a
-##mid is 343835
+save.image(file.path(mpath,'scans.elr.rsave'))

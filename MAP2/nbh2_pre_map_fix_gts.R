@@ -60,9 +60,6 @@ dp2 <- rownames(NBH_NBH1F)[which(NBH_NBH1F$AB==1 & NBH_NBH1M$BB==1)]
 drops <- unique(c(dp1,dp2))
 cross <- drop.markers(cross,drops)
 
-png(paste0('~/public_html/NBH_noseg_geno',i,'.png'),width=5000,height=2000)
-plotGeno(cross ,ind=loc.xocount, cex=2)
-dev.off()
 
 pullgts <- pull.geno(cross)
 rownames(pullgts) <- cross$pheno$ID
@@ -73,6 +70,9 @@ cross <- switchAlleles(cross, markers = swit)
 gtpar <- geno.table(subset(cross,ind=is.na(cross$pheno$Pheno)))
 likely.par.markers <- rownames(gtpar)[which(gtpar$AA==1 & gtpar$BB==1)]
 ################################################################################
+png(paste0('~/public_html/NBH_noseg_geno',i,'.png'),width=5000,height=2000)
+plotGeno(cross ,ind=loc.xocount, cex=2)
+dev.off()
 
 cross <- subset(cross,ind=!is.na(cross$pheno$Pheno))
 gts <- geno.table(cross)
@@ -96,8 +96,8 @@ cross <- switchAlleles(cross, markers = markernames(cross,chr=2))
 cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
 cross <- switchAlleles(cross, markers = markernames(cross,chr=2))
 cross <- formLinkageGroups(cross, max.rf = 0.05, min.lod = 15, reorgMarkers = TRUE)
+cross <- subset(cross,chr=1)
 
-cross <- subset(cross,chr=i)
 nmars <- nmar(cross)
  ## initial order
 ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[1]]))))
@@ -201,18 +201,7 @@ png(paste0('~/public_html/NBH_gts_CHR',i,'_downsmpl.unordered.png'),height=1500,
 plotGeno(cross,cex=3)
 dev.off()
 
-cross <- orderMarkers(cross, window=5,verbose=FALSE,chr=i,
-                 use.ripple=TRUE, error.prob=0.01, sex.sp=FALSE,
-                 map.function="kosambi",maxit=1000, tol=1e-4)
-
-cross <- calc.errorlod(cross, err=0.01)
-
-cross_map <-  est.map(cross,  error.prob=0.01,
-              map.function="kosambi",
-              maxit=10000, tol=1e-4, sex.sp=FALSE,
-              verbose=FALSE, omit.noninformative=TRUE, n.cluster=6)
-
-cross <- qtl:::replace.map(cross,cross_map)
+cross <- refine_maps(cross)
 
 filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/NBH_gts_CHR',i,'_downsmpl_map')
 write.cross(cross,chr=i,filestem=filename,format="csv")
