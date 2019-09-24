@@ -3,7 +3,7 @@
 #debug.cross <- T
 #source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library('qtl')
-pop <- 'ELR'
+pop <- 'NBH'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
@@ -11,9 +11,9 @@ mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 ## put chromosomes together
 ################################################################################
 
-file_list <- list.files(mpath, 'ELR.*downsmpl_map.*')
+file_list <- list.files(mpath, 'NBH.*downsmpl_map.*')
 
-chr <- gsub("ELR_gts_CHR",'',file_list)
+chr <- gsub("NBH_gts_CHR",'',file_list)
 chr <- as.numeric(gsub("_downsmpl_map.csv",'',chr))
 
 elr <- lapply(file_list,function(X){ read.cross(file=X,format = "csv", dir=mpath, genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)})
@@ -44,11 +44,12 @@ gnos.u <- unname(data.frame(lapply(gnos, as.character),row.names=NULL,stringsAsF
 colnames(headers.u) <- colnames(gnos.u) <- headers.u[1,]
 to_write <- rbind(headers.u,gnos.u)
 
+write.table(to_write,file.path(mpath,'nbh.mapped.1_24.csv'),sep=',',row.names=F,quote=F,col.names = F)
 
-write.table(to_write,file.path(mpath,'elr.mapped.1_24.csv'),sep=',',row.names=F,quote=F,col.names = F)
+################################################################################
+################################################################################
 
-
-fl <- file.path(mpath,'elr.mapped.1_24.csv')
+fl <- file.path(mpath,'nbh.mapped.1_24.csv')
 
 cross <- read.cross(
  file = fl,
@@ -57,41 +58,6 @@ cross <- read.cross(
 )
 
 cross <- sim.geno(cross)
-
-################################################################################
-#### ADD IN AHR GENOS
-
-#AHR2a_del <- 343745
-#AIP_261 <- 29370504
-#AIP_252 <- 29370500
-
-#pull.map(cross)[[1]]["1:363497"]
-#pull.map(cross)[[2]]["2:29667555"]
-
-fla <-file.path(mpath, 'ER_ahr_aip_whoi_gt.csv')
-cross.ahr <- read.cross(file = fla,format = "csv", genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)
-
-ahr2 <- pull.geno(cross.ahr)[,"AHR2a_del"]
-aip252 <- pull.geno(cross.ahr)[,"AIP_252"]
-aip261 <- pull.geno(cross.ahr)[,"AIP_261"]
-
-add_gts <- data.frame(ahr2,aip252,aip261,stringsAsFactors=F)
-rownames(add_gts) <- cross.ahr$pheno$ID
-add_gts <- add_gts[as.character(cross$pheno$ID),]
-
-cross <- addmarker(cross,add_gts[,'ahr2'],'ahr2a',chr=1,pos=2.643695)
-cross <- addmarker(cross,add_gts[,'aip261'],'aip261',chr=2,pos=6.5)
-cross <- addmarker(cross,add_gts[,'aip252'],'aip252',chr=2,pos=6.6)
-
-i <- 1
-cr1 <- subset(cross,chr=1)
-
-png(paste0('~/public_html/ELR_gts_pheno_order',i,'.png'),height=2500,width=4500)
-plotGeno(cr1)
-dev.off()
-
-n_ahr <- pull.geno(cross)[,"1:363497"]
-cbind(add_gts,n_ahr,as.character(cross$pheno$ID))
 
 ################################################################################
 

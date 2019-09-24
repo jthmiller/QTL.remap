@@ -96,7 +96,7 @@ write.cross(cross,filestem=fl,format="csv")
 ################################################################################
 ### THIN MARKERS IF NEEDED #####################################################
 
-cross.bk <- subset(cross,ind=!cross$pheno$ID %in% c('ELR_10869','ELR_ER1124F','ELR_10977','ELR_10988','BLI_BI1124M'))
+cross.bk <- subset(cross,ind=!cross$pheno$ID %in% c('ELR_11103','ELR_10869','ELR_ER1124F','ELR_10977','ELR_10988','BLI_BI1124M'))
 
 if (i==1){
  CHR1 <- colnames(pull.geno(cross.bk))
