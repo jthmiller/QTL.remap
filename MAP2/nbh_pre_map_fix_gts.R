@@ -203,7 +203,39 @@ png(paste0('~/public_html/NBH_gts_CHR',i,'_downsmpl.unordered.png'),height=1500,
 plotGeno(cross,cex=3)
 dev.off()
 
-cross <- refine_maps(cross)
+cross <- orderMarkers(cross, verbose=FALSE,error.prob=0.01, sex.sp=FALSE,
+                 map.function="kosambi",maxit=10000, tol=1e-3, use.ripple=FALSE)
+
+ cross <- calc.errorlod(cross, err=0.01)
+
+ cross_map <-  est.map(tmp, error.prob=0.01,
+              map.function="kosambi",
+              maxit=1000, tol=1e-4, sex.sp=FALSE,
+              verbose=FALSE, n.cluster=6)
+
+ tmp <- qtl:::replace.map(cross,cross_map)
+
+ drp1 <- droponemarker(cross, error.prob=0.01,
+                    map.function="kosambi",
+                    maxit=100, tol=1e-3, sex.sp=FALSE,
+                    verbose=FALSE)
+
+ cross <- dropByDropone(cross, drp1, endMarkerThresh = 20,
+                        midMarkerThresh = 20, map.function = "kosambi",
+                        re.est.map = T, error.prob=0.01,maxit=1, tol=1e-3, sex.sp=FALSE,
+                        verbose=FALSE)
+
+cross <- orderMarkers(cross,verbose=FALSE,chr=i,error.prob=0.01, sex.sp=FALSE,
+                        map.function="kosambi",maxit=1000, tol=1e-4, use.ripple=FALSE)
+
+cross <- calc.errorlod(cross, err=0.01)
+
+cross_map <-  est.map(cross,  error.prob=0.01,
+              map.function="kosambi",
+              maxit=10000, tol=1e-3, sex.sp=FALSE,
+              verbose=FALSE, omit.noninformative=TRUE)
+
+cross <- qtl:::replace.map(cross,cross_map)
 
 filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/NBH_gts_CHR',i,'_downsmpl_map')
 write.cross(cross,chr=i,filestem=filename,format="csv")

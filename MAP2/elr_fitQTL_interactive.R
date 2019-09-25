@@ -82,13 +82,15 @@ scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
 scan.norm.em <- scanone(cross, method = "em", model = "normal", pheno.col = 5)
 scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 scan.norm.imp <- scanone(cross, method = "imp", model = "normal", pheno.col = 5)
-scan.norm.ehk <- scanone(cross.18, method = "ehk", model = "normal", maxit = 5000,
-  pheno.col = 5)
+scan.norm.ehk <- scanone(cross, method = "ehk", model = "normal", pheno.col = 5)
 ## non-parametric
-scan.np.em <- scanone(cross, method = "em", model = "np", pheno.col = 4, maxit = 5000)
-scan.np.em <- scanone(cross, method = "em", model = "np", pheno.col = 5, maxit = 5000)
-## step-wise
+scan.np.bin.em <- scanone(cross, method = "em", model = "np", pheno.col = 4, maxit = 5000)
+scan.np.norm.em <- scanone(cross, method = "em", model = "np", pheno.col = 5, maxit = 5000)
 
+bins <- data.frame(summary(scan.bin.em), imp=summary(scan.bin.imp)[,'lod'],mr=summary(scan.bin.mr)[,'lod'],np=summary(scan.np.bin.em)[,'lod'])
+norms <- data.frame(summary(scan.norm.em), imp=summary(scan.norm.imp)[,'lod'],mr=summary(scan.norm.mr)[,'lod'],np=summary(scan.np.norm.em)[,'lod'],ehk=summary(scan.norm.ehk)[,'lod'])
+
+## step-wise
 full.norm <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
 full.bin <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=6)
 

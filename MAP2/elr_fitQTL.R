@@ -13,6 +13,8 @@ mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
 file_list <- list.files(mpath, 'ELR.*downsmpl_map.*')
 
+file_list <- file_list[!file_list %in% c("ELR_gts_CHR11_downsmpl_map.csv","ELR_gts_CHR14_downsmpl_map.csv")]
+
 chr <- gsub("ELR_gts_CHR",'',file_list)
 chr <- as.numeric(gsub("_downsmpl_map.csv",'',chr))
 
@@ -58,6 +60,11 @@ cross <- read.cross(
 
 cross <- sim.geno(cross)
 
+png(paste0('~/public_html/ELR_RF_remap.png'))
+plotRF(cross)
+dev.off()
+
+
 ################################################################################
 #### ADD IN AHR GENOS
 
@@ -83,16 +90,17 @@ cross <- addmarker(cross,add_gts[,'ahr2'],'ahr2a',chr=1,pos=2.643695)
 cross <- addmarker(cross,add_gts[,'aip261'],'aip261',chr=2,pos=6.5)
 cross <- addmarker(cross,add_gts[,'aip252'],'aip252',chr=2,pos=6.6)
 
-i <- 1
-cr1 <- subset(cross,chr=1)
-
-png(paste0('~/public_html/ELR_gts_pheno_order',i,'.png'),height=2500,width=4500)
-plotGeno(cr1)
-dev.off()
-
-n_ahr <- pull.geno(cross)[,"1:363497"]
-cbind(add_gts,n_ahr,as.character(cross$pheno$ID))
-
+##i <- 1
+##cr1 <- subset(cross,chr=1)
+##cr1s <- as.character(cr1$pheno$ID)[order(as.numeric(cr1$pheno$Pheno))]
+##
+##png(paste0('~/public_html/ELR_gts_pheno_order',i,'.png'),height=2500,width=4500)
+##plotGeno(cr1, idv=cr1s)
+##dev.off()
+##
+##n_ahr <- pull.geno(cross)[,"1:363497"]
+##cbind(add_gts,n_ahr,as.character(cross$pheno$ID))
+##cbind(cr1s,cr1$pheno)
 ################################################################################
 
 ## binary

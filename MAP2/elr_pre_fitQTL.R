@@ -20,7 +20,7 @@ cross <- subset(cross,ind=!cross$pheno$ID %in% c('ELR_10869'))
 
 ################################################################################
 
-refine_maps <- function(X){
+refine_maps <- function(X,n.cluster){
 
  tmp <- orderMarkers(X, window=4,verbose=FALSE,
                  use.ripple=FALSE, error.prob=0.01, sex.sp=FALSE,
@@ -31,7 +31,7 @@ refine_maps <- function(X){
  tmp_map <-  est.map(tmp, error.prob=0.01,
               map.function="kosambi",
               maxit=1000, tol=1e-4, sex.sp=FALSE,
-              verbose=FALSE, n.cluster=6)
+              verbose=FALSE, n.cluster=n.cluster)
 
  tmp <- qtl:::replace.map(tmp,tmp_map)
 
@@ -43,16 +43,14 @@ refine_maps <- function(X){
  dropByDropone(tmp, drp1, endMarkerThresh = 20,
   midMarkerThresh = 20, map.function = "kosambi",
   re.est.map = T, error.prob=0.01,maxit=1000, tol=1e-4, sex.sp=FALSE,
-  verbose=FALSE, n.cluster=6)
+  verbose=FALSE, n.cluster=n.cluster)
 
 }
 
-cross <- refine_maps(cross)
+cross <- refine_maps(cross,n.cluster=12)
 
-filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_gts_CHR',i,'_downsmpl_map2')
+filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_gts_CHR',i,'_downsmpl_refined')
 write.cross(cross,chr=i,filestem=filename,format="csv")
-
-
 
 ################################################################################
 ## SCAN

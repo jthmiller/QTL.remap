@@ -144,6 +144,8 @@ dwnsmpl <- pickMarkerSubset(pull.map(cross.bk)[[1]],1000, weights=weight)
 
 #####MAP ########################################################################
 cross <- pull.markers(cross,dwnsmpl)
+cross <- subset(cross,ind=!cross$pheno$ID %in% c('ELR_11103','ELR_10869','ELR_ER1124F','BLI_BI1124M'))
+
 cross <- calc.genoprob(cross)
 cross <- sim.geno(cross)
 cross <- calc.errorlod(cross, err=0.01)
@@ -152,16 +154,37 @@ png(paste0('~/public_html/ELR_gts_CHR',i,'_downsmpl.unordered.png'),height=1500,
 plotGeno(cross,cex=3)
 dev.off()
 
-cross <- orderMarkers(cross, window=5,verbose=FALSE,chr=i,
-                 use.ripple=TRUE, error.prob=0.01, sex.sp=FALSE,
-                 map.function="kosambi",maxit=1000, tol=1e-4)
+cross <- orderMarkers(cross, verbose=FALSE,error.prob=0.01, sex.sp=FALSE,
+                 map.function="kosambi",maxit=10000, tol=1e-3, use.ripple=FALSE)
+
+ cross <- calc.errorlod(cross, err=0.01)
+
+ cross_map <-  est.map(tmp, error.prob=0.01,
+              map.function="kosambi",
+              maxit=1000, tol=1e-4, sex.sp=FALSE,
+              verbose=FALSE, n.cluster=6)
+
+ tmp <- qtl:::replace.map(cross,cross_map)
+
+ drp1 <- droponemarker(cross, error.prob=0.01,
+                    map.function="kosambi",
+                    maxit=100, tol=1e-3, sex.sp=FALSE,
+                    verbose=FALSE)
+
+ cross <- dropByDropone(cross, drp1, endMarkerThresh = 20,
+                        midMarkerThresh = 20, map.function = "kosambi",
+                        re.est.map = T, error.prob=0.01,maxit=1, tol=1e-3, sex.sp=FALSE,
+                        verbose=FALSE)
+
+cross <- orderMarkers(cross,verbose=FALSE,chr=i,error.prob=0.01, sex.sp=FALSE,
+                        map.function="kosambi",maxit=1000, tol=1e-4, use.ripple=FALSE)
 
 cross <- calc.errorlod(cross, err=0.01)
 
 cross_map <-  est.map(cross,  error.prob=0.01,
               map.function="kosambi",
-              maxit=10000, tol=1e-4, sex.sp=FALSE,
-              verbose=FALSE, omit.noninformative=TRUE, n.cluster=6)
+              maxit=10000, tol=1e-3, sex.sp=FALSE,
+              verbose=FALSE, omit.noninformative=TRUE)
 
 cross <- qtl:::replace.map(cross,cross_map)
 
