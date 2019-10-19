@@ -1,5 +1,6 @@
 #!/bin/R
 ### Map QTLs 1 of 3
+i <- commandArgs(TRUE)[commandArgs(TRUE) %in% c(1:24)]
 debug.cross <- T
 pop <- 'ELR'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
@@ -8,7 +9,6 @@ library('qtl')
 
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
-i <- commandArgs(TRUE)[commandArgs(TRUE) %in% c(1:24)]
 
 fl <- file.path(mpath,'ELR_unmapped_filtered_added_markers.csv')
 
@@ -159,7 +159,7 @@ cross <- orderMarkers(cross, verbose=FALSE,error.prob=0.01, sex.sp=FALSE,
 
  cross <- calc.errorlod(cross, err=0.01)
 
- cross_map <-  est.map(tmp, error.prob=0.01,
+ cross_map <-  est.map(cross, error.prob=0.01,
               map.function="kosambi",
               maxit=1000, tol=1e-4, sex.sp=FALSE,
               verbose=FALSE, n.cluster=6)
@@ -192,3 +192,5 @@ filename <- paste0('/home/jmiller1/QTL_Map_Raw/ELR_final_map/ELR_gts_CHR',i,'_do
 write.cross(cross,chr=i,filestem=filename,format="csv")
 
 ################################################################################
+
+ordered <- read.cross(file=filename,format = "csv", dir=mpath, genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)
