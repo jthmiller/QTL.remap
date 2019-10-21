@@ -5,16 +5,10 @@ pop <- 'BRP'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
-##fl <- file.path('BRP_unmapped_filtered.csv')
-##cross <- read.cross(file=fl,format = "csv", dir=mpath, genotypes=c("AA","AB","BB"), alleles=c("A","B"),estimate.map = FALSE)
 
-####
 ################################################################################
 ## put chromosomes together
 ###############################################################################
-
-## DO NOT MAP BRP. JUST RUN REGRESSION
-
 
 file_list <- list.files(mpath, 'BRP_all_mark_?[0-9]?[0-9]_tsp.csv')
 
@@ -72,13 +66,11 @@ scan.bin.mr <- scanone(cross, method = "mr", model = "binary", pheno.col = 4)
 scan.norm.em <- scanone(cross, method = "em", model = "normal", pheno.col = 1)
 scan.norm.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 1)
 scan.norm.imp <- scanone(cross, method = "imp", model = "normal", pheno.col = 1)
-scan.norm.ehk <- scanone(cross, method = "ehk", model = "normal", maxit = 5000, pheno.col = 1)
 
 ## normal transform
 scan.normT.em <- scanone(cross, method = "em", model = "normal", pheno.col = 5)
 scan.normT.mr <- scanone(cross, method = "mr", model = "normal", pheno.col = 5)
 scan.normT.imp <- scanone(cross, method = "imp", model = "normal", pheno.col = 5)
-scan.normT.ehk <- scanone(cross, method = "ehk", model = "normal", maxit = 5000, pheno.col = 5)
 
 ## non-parametric
 scan.np.em.b <- scanone(cross, method = "em", model = "np", pheno.col = 4, maxit = 5000)

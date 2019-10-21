@@ -85,7 +85,7 @@ save.image(file.path(mpath,'single_scans.nbh.rsave'))
 ################################################################################
 ## step-wise
 full.norm.add_only <- stepwiseqtl(cross, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=5)
-full.bin.add_only <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=5)
+##full.bin.add_only <- stepwiseqtl(cross, additive.only = T, model='binary', method = "imp", pheno.col = 4, scan.pairs = T, max.qtl=5)
 ################################################################################
 
 ################################################################################
