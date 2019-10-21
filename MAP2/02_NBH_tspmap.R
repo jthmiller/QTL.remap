@@ -29,6 +29,13 @@ ord <- order(as.numeric(gsub(".*:","",names(pull.map(cross)[[as.character(i)]]))
 cross <- switch.order(cross, chr = i, ord, error.prob = 0.01, map.function = "kosambi",
  maxit = 1, tol = 0.1, sex.sp = F)
 
+#### CHR8 #######
+
+
+
+cross <- subset(cross,ind=!cross$pheno$ID %in% c('NBH_NBH1M','NBH_NBH1F'))
+
+
 png(paste0('~/public_html/NBH_gts_preclean',i,'.png'),height=2500,width=4500)
  plotGeno(cross, chr=i, cex=2)
 dev.off()
@@ -42,6 +49,13 @@ cross <- cleanGeno_jm_2(cross, chr=i, maxdist=50, maxmark=4, verbose=TRUE)
 cross <- calc.errorlod(cross, err=0.05)
 ################################################################################
 
+################################################################################
+gt <- geno.table(cross)
+bfixA <- rownames(gt[which(gt$P.value > 0.0001 & gt$missing < 6),])
+cross <- pull.markers(cross,bfixA)
+################################################################################
+
+################################################################################
 cross <-tspOrder(cross = cross,hamiltonian = TRUE, method="concorde",concorde_path='/home/jmiller1/concorde_build/TSP/')
 
 cross <- shiftmap(cross, offset=0)

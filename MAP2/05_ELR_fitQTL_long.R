@@ -1,14 +1,13 @@
 #!/bin/R
-### Map QTLs 1 of 3
-#debug.cross <- T
-#source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library('qtl')
 pop <- 'ELR'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
+################################################################################
 load(file.path(mpath,'single_scans.elr.rsave'))
-
+################################################################################
+## SCANTWO ON SUBSET
 
 gg <- sim.geno(cross,step=4)
 gg_step2 <- reduce2grid(gg)

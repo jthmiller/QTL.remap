@@ -42,6 +42,12 @@ cross <- cleanGeno_jm_2(cross, chr=i, maxdist=50, maxmark=4, verbose=TRUE)
 cross <- calc.errorlod(cross, err=0.05)
 ################################################################################
 
+################################################################################
+gt <- geno.table(cross)
+bfixA <- rownames(gt[which(gt$P.value > 0.0001 & gt$missing < 6),])
+cross <- pull.markers(cross,bfixA)
+################################################################################
+
 cross <-tspOrder(cross = cross,hamiltonian = TRUE, method="concorde",concorde_path='/home/jmiller1/concorde_build/TSP/')
 cross <- shiftmap(cross, offset=0)
 cross_map <-  est.map(cross, error.prob=0.04,map.function="kosambi",maxit=100000,tol=1e-7, sex.sp=FALSE, verbose=FALSE)

@@ -2,10 +2,7 @@
 ### Map QTLs 1 of 3
 #debug.cross <- T
 #source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
-#Sys.setenv(TAR = "/bin/tar")
-##install_github("kbroman/ASMap")
-##install_github("jtlovell/qtlTools")
-##install_github("mckaylab/TSPmap")
+
 i <- commandArgs(TRUE)[commandArgs(TRUE) %in% c(1:24)]
 
 libs2load<-c('devtools','qtl',"ASMap","qtlTools","TSP","TSPmap")
@@ -40,6 +37,12 @@ cross <- removeDoubleXO(cross, chr=i)
 cross <- calc.errorlod(cross, err=0.05)
 cross <- cleanGeno_jm_2(cross, chr=i, maxdist=50, maxmark=4, verbose=TRUE)
 cross <- calc.errorlod(cross, err=0.05)
+################################################################################
+
+################################################################################
+gt <- geno.table(cross)
+bfixA <- rownames(gt[which(gt$P.value > 0.0001 & gt$missing < 6),])
+cross <- pull.markers(cross,bfixA)
 ################################################################################
 
 cross <-tspOrder(cross = cross,hamiltonian = TRUE, method="concorde",concorde_path='/home/jmiller1/concorde_build/TSP/')

@@ -7,7 +7,7 @@ pop <- 'NBH'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
-load(file.path(mpath,'scans.nbh.rsave'))
+load(file.path(mpath,'single_scans.nbh.rsave'))
 
 bins <- data.frame(
  em=summary(scan.bin.em),
@@ -45,6 +45,10 @@ dev.off()
 
 png("/home/jmiller1/public_html/NBH_scan.sex.png")
 plot(scan.bin.sex)
+dev.off()
+
+png("/home/jmiller1/public_html/NBH_scan.bin.imp.png")
+plot(scan.bin.imp)
 dev.off()
 
 

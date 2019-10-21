@@ -1,12 +1,8 @@
 #!/bin/R
-### Map QTLs 1 of 3
-#debug.cross <- T
-#source("/home/jmiller1/QTL_Map_Raw/popgen/rQTL/scripts/QTL_remap/MAP/control_file.R")
 library('qtl')
 pop <- 'NBH'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
-
 
 ################################################################################
 ## SCANTWO ON SUBSET
@@ -25,7 +21,7 @@ sc2_normal_imp <- scantwo(gg_step2, pheno.col=5, model="normal",
              clean.nmar=1, clean.distance=0,
              maxit=1000, tol=1e-4,
              verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
-             assumeCondIndep=FALSE, batchsize=250, n.cluster=6)
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=12)
 
 sc2_normal_imp_perms <- scantwo(gg_step2, pheno.col=5, model="normal",
              method="imp", addcovar=NULL, intcovar=NULL, weights=NULL,
@@ -34,7 +30,7 @@ sc2_normal_imp_perms <- scantwo(gg_step2, pheno.col=5, model="normal",
              clean.nmar=1, clean.distance=0,
              maxit=1000, tol=1e-4,
              verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
-             assumeCondIndep=FALSE, batchsize=250, n.cluster=6)
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=12)
 
 sc2_bin_em <- scantwo(gg_step2, pheno.col=4, model="binary",
              method="em",addcovar=NULL, intcovar=NULL, weights=NULL,
@@ -43,7 +39,7 @@ sc2_bin_em <- scantwo(gg_step2, pheno.col=4, model="binary",
              clean.nmar=1, clean.distance=0,
              maxit=1000, tol=1e-4,
              verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
-             assumeCondIndep=FALSE, batchsize=250, n.cluster=6)
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=12)
 
 sc2_bin_em_perms <- scantwo(gg_step2, pheno.col=4, model="binary",
              method="em",addcovar=NULL, intcovar=NULL, weights=NULL,
@@ -52,7 +48,7 @@ sc2_bin_em_perms <- scantwo(gg_step2, pheno.col=4, model="binary",
              clean.nmar=1, clean.distance=0,
              maxit=1000, tol=1e-4,
              verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
-             assumeCondIndep=FALSE, batchsize=250, n.cluster=4)
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=12)
 
 ## sm <- summary(object, thresholds,what=c("best", "full", "add", "int"),
 ##             perms=sc2_normal_imp_perms, alphas, lodcolumn=1,
