@@ -41,6 +41,8 @@ sc2_normal_imp_perms <- scantwo(gg_step2, pheno.col=5, model="normal",
              verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
              assumeCondIndep=FALSE, batchsize=250, n.cluster=12)
 
+save.image(file.path(mpath,'scantwo.scans.nbh.rsave'))
+
 sc2_bin_em <- scantwo(gg_step2, pheno.col=4, model="binary",
              method="em",addcovar=NULL, intcovar=NULL, weights=NULL,
              use="complete.obs",
@@ -69,6 +71,7 @@ save.image(file.path(mpath,'scantwo.scans.nbh.rsave'))
 ################################################################################
 add.norm <- stepwiseqtl(gg_step2, additive.only = T, model='normal', method = "imp", pheno.col = 5, scan.pairs = T, max.qtl=6)
 full.norm <- stepwiseqtl(gg_step2, incl.markers=F, scan.pairs=T, keeptrace=T, additive.only = F, model='normal', method = "imp", pheno.col = 5, max.qtl=6)
+
 save.image(file.path(mpath,'stepwise_grid_scans.nbh.rsave'))
 ################################################################################
 
