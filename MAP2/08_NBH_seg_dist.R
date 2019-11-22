@@ -22,6 +22,11 @@ cross$pheno$bin <- ifelse(cross$pheno$Pheno > 2, 1 , 0)
 cross$pheno$pheno_norm <- round(nqrank(cross$pheno$Pheno))
 ################################################################################
 
+
+cross <- subset(cross,chr=c(1,2,3,8,13,18,24))
+toss.missing <- c("NBH_5525","NBH_6177","NBH_5528","NBH_5951")
+cross <- subset(cross,ind=!cross$pheno$ID %in% toss.missing)
+
 ################################################################################
 ### Switch phase and keep only parent conf markers #############################
 ### ENRICH FOR AAxBB ##########################################################
@@ -32,6 +37,7 @@ DROP1 <- names(DROP1)[which(as.numeric(DROP1)==2)]
 DROP2 <- pull.geno(cross)[cross$pheno$ID=='NBH_NBH1F',]
 DROP2 <- names(DROP2)[which(as.numeric(DROP2)==2)]
 DROP <- intersect(DROP1,DROP2)
+
 cross <- drop.markers(cross,DROP)
 ################################################################################
 
@@ -57,55 +63,119 @@ parABxAB <- intersect(bfix1,bfix2)
 gt_nopar <- geno.table(subset(cross,ind=!cross$pheno$ID %in% c('NBH_NBH1M','NBH_NBH1F')))
 parABxAB <- intersect(rownames(gt_nopar[which(gt_nopar$P.value > 0.01),]) ,parABxAB)
 cross.1 <- pull.markers(cross,parABxAB)
+cross.1 <- subset(cross.1,ind=!cross.1$pheno$ID %in% c('NBH_NBH1M','NBH_NBH1F'))
+gts <- geno.table(cross.1)
+bfixA <- rownames(gts[which(gts$P.value > 0.01),])
+cross.1 <- pull.markers(cross.1,bfixA)
+
 ################################################################################
 
-### TEST SAMPLE GT SIMILARITY ##################################################
-cross.1 <- subset(cross.1,ind=!cross.1$pheno$ID%in%c('NBH_NBH1M','NBH_NBH1F'))
-cpgt <- comparegeno(cross.1)
-colnames(cpgt) <- cross.1$pheno$ID
-rownames(cpgt) <- cross.1$pheno$ID
-cpgt[cpgt==NaN] <- NA
-diag(cpgt) <- NA
-cpgt <- cpgt[rowSums(is.na(cpgt)) < nind(cross.1),colSums(is.na(cpgt)) < nind(cross.1)]
+
 ################################################################################
-png(paste0('~/public_html/NBH_relat.png'))
- hist(cpgt)
-dev.off()
-################################################################################
-toss.missing <- c("NBH_5525","NBH_6177")
+###### Remove the samples related by more than 80% of genotypes #####
+
+## USE MIS_ID'd samples for map, but not QTL
+
 ################################################################################
 
 ################################################################################
 #### Pvalue and Missing ##############################################
 gt <- geno.table(subset(cross, ind=!cross$pheno$ID %in% c(toss.missing,'NBH_NBH1M','NBH_NBH1F')))
-bfixA <- rownames(gt[which(gt$P.value > 0.0001 & gt$missing < 5),])
+bfixA <- rownames(gt[which(gt$missing < 1),])
 ################################################################################
-
-cross.par <- subset(cross, ind=cross$pheno$ID %in% c('NBH_NBH1M','NBH_NBH1F'))
-
-
+cros.bk <- cross
 ###### FILTER #######################################################
 cross <- pull.markers(cross,bfixA)
 cross <- subset(cross,ind=!cross$pheno$ID %in% c(toss.missing,'NBH_NBH1M','NBH_NBH1F'))
+
+gts <- geno.table(cross)
+cross <-  drop.markers(cross,rownames(gts)[which(gts$AA < 3 | gts$BB < 3)])
 ################################################################################
 
-for(Z in 1:24){
+gts <- geno.table(cross)
+bfixA <- rownames(gts[which(gts$P.value > 0.01),])
+cross <- pull.markers(cross,bfixA)
 
- reorg.1 <- formLinkageGroups(subset(cross,chr=Z), max.rf = 0.2, min.lod = 20, reorgMarkers = TRUE)
- swits <- markernames(reorg.1, chr=2)
- reorg.1 <- switchAlleles(reorg.1, markers = markernames(reorg.1,chr=2))
- reorg.2 <- formLinkageGroups(reorg.1, max.rf = 0.2, min.lod = 20, reorgMarkers = TRUE)
+
+for(Z in chrnames(cross)){
+ reorg.1 <- subset(cross,chr=Z)
+ reorg.1 <- markerlrt(reorg.1)
+ reorg.1 <- formLinkageGroups(reorg.1, min.lod = 20, reorgMarkers = TRUE)
+ reorg.2 <- subset(reorg.1,chr=1)
  subs <- markernames(reorg.2, chr=1)
- drops <- markernames(reorg.1)[!markernames(reorg.1) %in% subs]
- cross <<- switchAlleles(cross, swits)
- cross.par <<- switchAlleles(cross.par, swits)
+ drops <- markernames(reorg.1)[!markernames(cross,chr=Z) %in% subs]
  cross <<- drop.markers(cross, drops)
 }
 
-mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
+
+crossmap <-tspOrder(cross = cross, hamiltonian = TRUE, method="concorde", concorde_path='/home/jmiller1/concorde_build/TSP/')
+
+save.image('NBH_seg.dist')
+
+ png(paste("/home/jmiller1/public_html/nbhcrossmap.png"))
+  plotRF(crossmap)
+ dev.off()
+
+
+
+#### Maybe markerlrt or es.rf can help? what are the strongest between chromosome differences in recombination frequencies?
+
+
+
+load('scantwo.scans.nbh.rsave')
+
+
+
+ png(paste("/home/jmiller1/public_html/nbh",Z,".png"))
+  plot(sort(-log10(geno.table(reorg.1)[,'P.value'])))
+ dev.off()
+ reorg.1 <- est.rf(reorg.1)
+ reorg.1 <- formLinkageGroups(reorg.1, max.rf = 0.125, min.lod = 20, reorgMarkers = TRUE)
+ swits <- markernames(reorg.1, chr=2)
+
+ reorg.1 <- switchAlleles(reorg.1, markers = markernames(reorg.1,chr=2))
+ reorg.2 <- formLinkageGroups(reorg.1, max.rf = 0.125, min.lod = 20, reorgMarkers = TRUE)
+
+ subs <- markernames(reorg.2, chr=1)
+ drops <- markernames(reorg.1)[!markernames(reorg.1) %in% subs]
+ cross <<- switchAlleles(cross, swits)
+
+
+
+mpath <- '/home/jmiller1/QTL_Map_Raw/ELRp'
 fl <- file.path(mpath,'NBH_unmapped_filtered')
 write.cross(cross,filestem=fl,format="csv")
 
 
-fl.par <- file.path(mpath,'NBH_parents_filtered')
-write.cross(cross.par,filestem=fl.par,format="csv")
+
+addcovar=NULL, intcovar=NULL
+
+
+
+sc2_cov <- scantwo(gg_step2, pheno.col=5, model="normal",
+             method="imp",
+             addcovar=gg_step2$pheno$sex, intcovar=ic , weights=NULL,
+             use="complete.obs",
+             incl.markers=FALSE, clean.output=T,
+             clean.nmar=1, clean.distance=30,
+             maxit=1000, tol=1e-4,
+             verbose=TRUE, perm.Xsp=FALSE, perm.strata=NULL,
+             assumeCondIndep=FALSE, batchsize=250, n.cluster=12)
+
+
+summary(sc2_cov, what= "add", perms=sc2_normal_imp_perms, alphas=c(9.1, 7.1, 6.3, 6.3, 3.3), lodcolumn=5, pvalues=F, allpairs=T)
+
+summary(sc2_cov, perms=sc2_normal_imp_perms, thresholds=c(9.1, 7.1, 6.3, 6.3, 3.3), lodcolumn=5)
+
+
+summary(sc2_cov,what= "int", perms=sc2_normal_imp_perms, lodcolumn=5, pvalues=F, allpairs=T)
+summary(sc2_cov,what= "full", perms=sc2_normal_imp_perms, lodcolumn=5, pvalues=F, allpairs=T,alphas=c(9.1, 7.1, 6.3, 6.3, 3.3))
+summary(sc2_cov, what="best",perms=sc2_normal_imp_perms, lodcolumn=5, pvalues=F, allpairs=T)
+
+
+scan.norm.mr <- scanone(gg_step2, method = "mr", model = "normal", pheno.col = 5)
+
+ic <- pull.geno(gg_step2)[,'2:35718468']
+
+c4 :c7    52   32    11.57   9.835   10.30   1.271 -0.46028
+c13:c19    8   24    12.88  11.029   10.32   2.560  0.71275
