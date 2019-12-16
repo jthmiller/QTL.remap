@@ -7,7 +7,8 @@ pop <- 'ELR'
 source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
-load(file.path(mpath,'scans.elr.rsave'))
+##load(file.path(mpath,'scans.elr.rsave'))
+save.image(file.path(mpath,'single_scans.elr.rsave'))
 
 bins <- data.frame(
  em=summary(scan.bin.em),
@@ -41,6 +42,11 @@ dev.off()
 png(paste0('~/public_html/ELR_rf_9.png'))
  plotRF(cross,chr=9)
 dev.off()
+
+png(paste0('~/public_html/ELR_scan.norm.mr.png'))
+ plot(scan.norm.mr)
+dev.off()
+
 
 cbind(summary(out.ap13),summary(out.ap23))
 

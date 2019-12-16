@@ -8,6 +8,8 @@ source("/home/jmiller1/QTL_Map_Raw/ELR_final_map/CODE/control_file.R")
 mpath <- '/home/jmiller1/QTL_Map_Raw/ELR_final_map'
 
 load(file.path(mpath,'single_scans.nbh.rsave'))
+load(file.path(mpath,'scantwo.scans.nbh.rsave'))
+load(file.path(mpath,'stepwise_grid_scans.nbh.rsave'))
 
 bins <- data.frame(
  em=summary(scan.bin.em),
@@ -33,6 +35,11 @@ normpo <- data.frame(
  impo=rownames(summary(scan.norm.imp)),
  mrpo=rownames(summary(scan.norm.mr)),
  nppo=rownames(summary(scan.np.em.n)))
+
+png(paste0('~/public_html/NBHR_rf_tsp.png'))
+ plotRF(cross)
+dev.off()
+
 
 
 png("/home/jmiller1/public_html/NBH_map.png")
